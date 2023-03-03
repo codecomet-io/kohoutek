@@ -5,7 +5,13 @@ type PipelineOrAction = {
 	endedAt: string; // ISO date string
 	elapsedSeconds: number;
 	success: boolean;
+	status?: Status;
 };
+
+type Status =
+	| 'error'
+	| 'canceled'
+	;
 
 interface Action extends PipelineOrAction {
 	spawnedBy? : string; // id of preceeding action that invoked this action; omitted for first action

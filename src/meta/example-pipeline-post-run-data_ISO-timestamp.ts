@@ -1,25 +1,5 @@
-type PipelineOrAction = {
-	id: string;
-	title: string;
-	startedAt: string; // ISO date string
-	endedAt: string; // ISO date string
-	elapsedSeconds: number;
-	success: boolean;
-	status?: Status;
-};
+import type { PipelinePostRunData } from '$lib/types/pipeline';
 
-type Status =
-	| 'error'
-	| 'canceled'
-	;
-
-interface Action extends PipelineOrAction {
-	spawnedBy? : string; // id of preceeding action that invoked this action; omitted for first action
-}
-
-interface PipelinePostRunData extends PipelineOrAction {
-	actions: Action[];
-}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const examplePostRunData: PipelinePostRunData = {
@@ -41,7 +21,7 @@ const examplePostRunData: PipelinePostRunData = {
 		},
 		{
 			id: "wbgRQlCurX",
-			title: "Deploy",
+			title: "Build Child 1",
 			startedAt: "2023-03-02T00:53:11.606Z",
 			endedAt: "2023-03-02T01:23:10.302Z",
 			elapsedSeconds: 44,
@@ -50,10 +30,10 @@ const examplePostRunData: PipelinePostRunData = {
 		},
 		{
 			id: "G875vPPoIU",
-			title: "Deploy",
+			title: "Build Child 2",
 			startedAt: "2023-03-02T00:53:11.606Z",
 			endedAt: "2023-03-02T01:23:10.302Z",
-			elapsedSeconds: 44,
+			elapsedSeconds: 13,
 			success: false,
 			status: "error",
 			spawnedBy: "ZG5wtVoiAo",
@@ -63,7 +43,7 @@ const examplePostRunData: PipelinePostRunData = {
 			title: "Deploy",
 			startedAt: "2023-03-02T00:53:11.606Z",
 			endedAt: "2023-03-02T01:23:10.302Z",
-			elapsedSeconds: 44,
+			elapsedSeconds: 11,
 			success: false,
 			status: "canceled",
 			spawnedBy: "wbgRQlCurX",

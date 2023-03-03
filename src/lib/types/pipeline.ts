@@ -4,17 +4,20 @@ type PipelineOrAction = {
 	startedAt: string; // ISO date string
 	endedAt: string; // ISO date string
 	elapsedSeconds: number;
-	success: boolean;
-	status?: Status;
+	status: Status;
 };
 
-type Status =
+export type Status =
+	| 'success'
 	| 'error'
 	| 'canceled'
 	;
 
 export interface Action extends PipelineOrAction {
-	spawnedBy?: string; // id of preceeding action that invoked this action; omitted for first action
+	// id & title of preceeding action that invoked this action
+	// omitted for first action
+	spawnedBy?: string;
+	spawnedByTitle?: string;
 }
 
 export interface PipelinePostRunData extends PipelineOrAction {

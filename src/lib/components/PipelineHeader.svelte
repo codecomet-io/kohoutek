@@ -1,8 +1,11 @@
 <script lang="ts">
 	import type { PipelinePostRunData } from '$lib/types/pipeline';
 
-	import SuccessFailIcon from '$lib/components/SuccessFailIcon.svelte';
+	import { parseLapsed } from '$lib/helper';
+
+	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import Ago from '$lib/components/Ago.svelte';
 
 
 	export let pipeline : PipelinePostRunData;
@@ -37,9 +40,8 @@
 <ion-header translucent={ true }>
   <ion-toolbar class="">
 		<div class="title-container">
-			<SuccessFailIcon
-				success={ pipeline.success }
-				subtle={ pipeline.status === 'canceled' }
+			<StatusIcon
+				status={ pipeline.status }
 				size="large"
 			/>
 
@@ -47,7 +49,7 @@
 		</div>
 
 		<div class="subtitle">
-			<ChunkyLabel>{ pipeline.success ? 'succeed' : 'fail' }ed 5 days ago in { pipeline.elapsedSeconds } seconds</ChunkyLabel>
+			<ChunkyLabel>{ pipeline.status === 'success' ? 'succeed' : 'fail' }ed <Ago date={ pipeline.endedAt } /> <span title="{ pipeline.elapsedSeconds } seconds">in { parseLapsed(pipeline.elapsedSeconds * 1000) }</span></ChunkyLabel>
 		</div>
   </ion-toolbar>
 </ion-header>

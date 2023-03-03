@@ -4,7 +4,6 @@
 	"startedAt": "2023-03-02T00:53:11.606Z",
 	"endedAt": "2023-03-02T01:23:10.302Z",
 	"elapsedSeconds": 523,
-	"success": false,
 	"status": "error",
 	"actions": [
 		{
@@ -13,7 +12,7 @@
 			"startedAt": "2023-03-02T00:53:11.606Z",
 			"endedAt": "2023-03-02T01:23:10.302Z",
 			"elapsedSeconds": 33,
-			"success": true
+			"status": "success"
 		},
 		{
 			"id": "wbgRQlCurX",
@@ -21,8 +20,9 @@
 			"startedAt": "2023-03-02T00:53:11.606Z",
 			"endedAt": "2023-03-02T01:23:10.302Z",
 			"elapsedSeconds": 44,
-			"success": true,
-			"spawnedBy": "ZG5wtVoiAo"
+			"status": "success",
+			"spawnedBy": "ZG5wtVoiAo",
+			"spawnedByTitle": "Build"
 		},
 		{
 			"id": "G875vPPoIU",
@@ -30,9 +30,9 @@
 			"startedAt": "2023-03-02T00:53:11.606Z",
 			"endedAt": "2023-03-02T01:23:10.302Z",
 			"elapsedSeconds": 13,
-			"success": false,
 			"status": "error",
-			"spawnedBy": "ZG5wtVoiAo"
+			"spawnedBy": "ZG5wtVoiAo",
+			"spawnedByTitle": "Build"
 		},
 		{
 			"id": "K4VgTz0DHF",
@@ -40,9 +40,9 @@
 			"startedAt": "2023-03-02T00:53:11.606Z",
 			"endedAt": "2023-03-02T01:23:10.302Z",
 			"elapsedSeconds": 11,
-			"success": false,
 			"status": "canceled",
-			"spawnedBy": "wbgRQlCurX"
+			"spawnedBy": "wbgRQlCurX",
+			"spawnedByTitle": "Build Child 1"
 		}
 	]
 }

@@ -1,5 +1,7 @@
-trace="${1:-mocks/simple-debian/success-fragment.json}"
-protobuf="${1:-mocks/simple-debian/llb.proto}"
+#protobuf="${1:-mocks/simple-debian/llb.proto}"
+#trace="${2:-mocks/simple-debian/no-cache.json}"
+#destination="${3:-../builds/data.json}"
+
 isDirty="$(if ! git diff --no-ext-diff --quiet --exit-code; then printf "true"; else printf "false"; fi)"
 
 id="uuid-for-the-super-pipeline"
@@ -22,4 +24,7 @@ meta="$(echo '{}' | jq -c --arg id "$id" --arg name "$name" --arg desc "$descrip
   location: $loc,
 }')"
 
-./node_modules/.bin/tsc && node ./entrypoint.js "$protobuf" "$trace" "$meta"
+./node_modules/.bin/tsc && node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/no-cache.json" "$meta" "../pantry-ui/build/data/simple-no-cache.json"
+./node_modules/.bin/tsc && node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/cached.json" "$meta" "../pantry-ui/build/data/simple-with-cache.json"
+./node_modules/.bin/tsc && node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/fail.json" "$meta" "../pantry-ui/build/data/simple-fail.json"
+

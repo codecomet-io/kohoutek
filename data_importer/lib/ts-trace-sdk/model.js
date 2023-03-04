@@ -3,14 +3,14 @@ import * as os from "node:os";
  * A runner is a machine able to run CodeComet pipelines.
  * Right now this is being initialized with details from the machine running this script
  */
-var Host = /** @class */ (function () {
+export class Host {
     /*= {
         nickname: "macRaccoon",
         description: "lalalala",
         grouptag: "red-team",
         random: "joke"
     }*/
-    function Host(id, meta) {
+    constructor(id, meta) {
         // runtime information
         this.runtime = process.versions;
         this.system = {
@@ -38,9 +38,7 @@ var Host = /** @class */ (function () {
         this.id = id;
         this.metadata = meta;
     }
-    return Host;
-}());
-export { Host };
+}
 // usage: process.resourceUsage(),
 /*
  * PipelineStatus represents the completion status of the plan.

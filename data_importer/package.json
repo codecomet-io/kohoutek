@@ -1,0 +1,19 @@
+{
+  "name": "pantry",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:codecomet-io/pantry.git",
+  "author": "CodeComet, Inc.",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@sentry/integrations": "^7.40.0",
+    "@sentry/node": "^7.40.0",
+    "codecomet-js": "git+ssh://git@github.com:codecomet-io/codecomet-js.git"
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.4",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5"
+  },
+  "type": "module"
+}

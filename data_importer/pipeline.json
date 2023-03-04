@@ -1,0 +1,422 @@
+{
+  "id": "uuid-for-the-super-pipeline",
+  "name": "User defined name",
+  "description": "This is a pipeline that does foo and boom and go",
+  "runID": "sha256:bb9497f00d5f0ca73d4bb83a0455612017a24b0e1f267d752ce93cb9a8dda172",
+  "started": 1677522619789,
+  "completed": 1677785190303,
+  "status": "Completed",
+  "runtime": 262570514,
+  "machineTime": 2400,
+  "tasks": {
+    "total": 12,
+    "cached": 8,
+    "ran": 4,
+    "errored": 0,
+    "interrupted": 0,
+    "notRan": 0
+  },
+  "repository": {
+    "commit": "6e6ba5c095c2fc98e27ebc117b0f0e525597bb49",
+    "author": "Brad Mallow <briznad@gmail.com>",
+    "parent": "f447358ba0fbc351f3465bf155d75b40906f2708",
+    "dirty": "false",
+    "location": "git@github.com:codecomet-io/pantry"
+  },
+  "trigger": "manual",
+  "actor": {
+    "id": "spacedub",
+    "name": "Space Raccoon"
+  },
+  "node": {
+    "runtime": {
+      "node": "19.6.0",
+      "v8": "10.8.168.25-node.11",
+      "uv": "1.44.2",
+      "zlib": "1.2.11",
+      "brotli": "1.0.9",
+      "ares": "1.19.0",
+      "modules": "111",
+      "nghttp2": "1.51.0",
+      "napi": "8",
+      "llhttp": "8.1.0",
+      "uvwasi": "0.0.15",
+      "acorn": "8.8.2",
+      "simdutf": "3.1.0",
+      "undici": "5.16.0",
+      "openssl": "1.1.1t",
+      "cldr": "42.0",
+      "icu": "72.1",
+      "tz": "2022e",
+      "unicode": "15.0"
+    },
+    "system": {
+      "arch": "arm64",
+      "cpus": [
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 95130930,
+            "nice": 0,
+            "sys": 69444230,
+            "idle": 151916470,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 96215270,
+            "nice": 0,
+            "sys": 66607110,
+            "idle": 153730920,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 60243540,
+            "nice": 0,
+            "sys": 16708900,
+            "idle": 240172940,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 43657010,
+            "nice": 0,
+            "sys": 9225600,
+            "idle": 264648900,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 31015410,
+            "nice": 0,
+            "sys": 5189950,
+            "idle": 281632020,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 25601640,
+            "nice": 0,
+            "sys": 3536120,
+            "idle": 288859580,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 21035570,
+            "nice": 0,
+            "sys": 3190300,
+            "idle": 293908160,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 10482960,
+            "nice": 0,
+            "sys": 1324630,
+            "idle": 306490700,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 6668760,
+            "nice": 0,
+            "sys": 855140,
+            "idle": 310822650,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 5811700,
+            "nice": 0,
+            "sys": 718420,
+            "idle": 311834480,
+            "irq": 0
+          }
+        }
+      ],
+      "endianness": "LE",
+      "freemem": 1867988992,
+      "home": "/Users/dmp",
+      "hostname": "Space-Raccoon.local",
+      "loadavg": [
+        4.6533203125,
+        3.36376953125,
+        3.392578125
+      ],
+      "networkInterfaces": {
+        "lo0": [
+          {
+            "address": "127.0.0.1",
+            "netmask": "255.0.0.0",
+            "family": "IPv4",
+            "mac": "00:00:00:00:00:00",
+            "internal": true,
+            "cidr": "127.0.0.1/8"
+          },
+          {
+            "address": "::1",
+            "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": true,
+            "cidr": "::1/128",
+            "scopeid": 0
+          },
+          {
+            "address": "fe80::1",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": true,
+            "cidr": "fe80::1/64",
+            "scopeid": 1
+          }
+        ],
+        "anpi2": [
+          {
+            "address": "fe80::8c8b:9dff:feaf:aa10",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "8e:8b:9d:af:aa:10",
+            "internal": false,
+            "cidr": "fe80::8c8b:9dff:feaf:aa10/64",
+            "scopeid": 4
+          }
+        ],
+        "anpi0": [
+          {
+            "address": "fe80::8c8b:9dff:feaf:aa0e",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "8e:8b:9d:af:aa:0e",
+            "internal": false,
+            "cidr": "fe80::8c8b:9dff:feaf:aa0e/64",
+            "scopeid": 5
+          }
+        ],
+        "anpi1": [
+          {
+            "address": "fe80::8c8b:9dff:feaf:aa0f",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "8e:8b:9d:af:aa:0f",
+            "internal": false,
+            "cidr": "fe80::8c8b:9dff:feaf:aa0f/64",
+            "scopeid": 6
+          }
+        ],
+        "en0": [
+          {
+            "address": "fe80::af:b128:4b1a:74c6",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "f8:4d:89:6d:7d:ed",
+            "internal": false,
+            "cidr": "fe80::af:b128:4b1a:74c6/64",
+            "scopeid": 15
+          },
+          {
+            "address": "10.0.0.91",
+            "netmask": "255.255.255.0",
+            "family": "IPv4",
+            "mac": "f8:4d:89:6d:7d:ed",
+            "internal": false,
+            "cidr": "10.0.0.91/24"
+          }
+        ],
+        "awdl0": [
+          {
+            "address": "fe80::2833:7cff:fe49:346d",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "2a:33:7c:49:34:6d",
+            "internal": false,
+            "cidr": "fe80::2833:7cff:fe49:346d/64",
+            "scopeid": 16
+          }
+        ],
+        "llw0": [
+          {
+            "address": "fe80::2833:7cff:fe49:346d",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "2a:33:7c:49:34:6d",
+            "internal": false,
+            "cidr": "fe80::2833:7cff:fe49:346d/64",
+            "scopeid": 17
+          }
+        ],
+        "utun0": [
+          {
+            "address": "fe80::db78:8a03:9b8e:30c8",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::db78:8a03:9b8e:30c8/64",
+            "scopeid": 18
+          }
+        ],
+        "utun1": [
+          {
+            "address": "fe80::39d0:6078:8028:22f6",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::39d0:6078:8028:22f6/64",
+            "scopeid": 19
+          }
+        ],
+        "utun2": [
+          {
+            "address": "fe80::ce81:b1c:bd2c:69e",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::ce81:b1c:bd2c:69e/64",
+            "scopeid": 20
+          }
+        ],
+        "utun3": [
+          {
+            "address": "fe80::1d8c:a329:34b:8473",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::1d8c:a329:34b:8473/64",
+            "scopeid": 21
+          }
+        ],
+        "utun4": [
+          {
+            "address": "fe80::936:e331:6fa8:fee0",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::936:e331:6fa8:fee0/64",
+            "scopeid": 23
+          }
+        ],
+        "utun5": [
+          {
+            "address": "fe80::fa4d:89ff:fe6d:7ded",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::fa4d:89ff:fe6d:7ded/64",
+            "scopeid": 24
+          },
+          {
+            "address": "100.67.151.59",
+            "netmask": "255.255.255.255",
+            "family": "IPv4",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "100.67.151.59/32"
+          },
+          {
+            "address": "fd7a:115c:a1e0:ab12:4843:cd96:6243:973b",
+            "netmask": "ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fd7a:115c:a1e0:ab12:4843:cd96:6243:973b/48",
+            "scopeid": 0
+          }
+        ],
+        "en8": [
+          {
+            "address": "fe80::1470:3582:8ab5:25e",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "f8:e4:3b:7e:60:e0",
+            "internal": false,
+            "cidr": "fe80::1470:3582:8ab5:25e/64",
+            "scopeid": 22
+          },
+          {
+            "address": "10.0.0.87",
+            "netmask": "255.255.255.0",
+            "family": "IPv4",
+            "mac": "f8:e4:3b:7e:60:e0",
+            "internal": false,
+            "cidr": "10.0.0.87/24"
+          }
+        ]
+      },
+      "platform": "darwin",
+      "release": "22.3.0",
+      "tmpdir": "/var/folders/7t/px7pnq3s5csfvnnn5nv3fr980000gn/T",
+      "totalmem": 68719476736,
+      "type": "Darwin",
+      "uptime": 847640,
+      "userInfo": {
+        "uid": 501,
+        "gid": 20,
+        "username": "dmp",
+        "homedir": "/Users/dmp",
+        "shell": "/bin/bash"
+      },
+      "version": "Darwin Kernel Version 22.3.0: Mon Jan 30 20:38:37 PST 2023; root:xnu-8792.81.3~2/RELEASE_ARM64_T6000"
+    },
+    "owner": {
+      "id": "spacedub",
+      "name": "Space Raccoon"
+    },
+    "id": "host-unique-id",
+    "metadata": {
+      "label1": "foo",
+      "label2": "bar"
+    }
+  },
+  "tasksID": [
+    "sha256:a5cdfddeb97be71e3359d61e8210c54fe3d67454a0caa9b9f76eefdf9c914962",
+    "sha256:bb5403fcb112974cc7c2d909b4dc7206231d7dc04c891718ffcd986d93695e8c",
+    "sha256:40d45dbee0e5b82ebfff8280c9228685e183a1d0fce870788d45ed91782209e7",
+    "sha256:386948484449889faa6e53fdeab0ffe574592271fe7837cfb4d4c7956e68536f",
+    "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
+    "sha256:bf638a8cd32a455b30a7f5dceaf1e6d48b0f8b1f103239a22f8784ac64c2f794",
+    "sha256:e069c7dc66e4fc362a7060091ab143381beaece7e780c4e0c759b7567537ed8a",
+    "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
+    "sha256:a9794a51203259ff17811a9b0977255dd4569259a22385e45ac701672f89bc6c",
+    "sha256:b6b183f954966a5bf87d9e9c3b2d00d660adf3e3fcb4a682905acc8741f46edf",
+    "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
+    "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00"
+  ],
+  "taskPool": {}
+}

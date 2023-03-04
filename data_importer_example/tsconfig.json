@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"sourceMap": true,
+		"inlineSources": true,
+		"sourceRoot": "/",
+		"noEmitHelpers": true,
+		"importHelpers": true,
+		"strict": false,
+		"target": "es5",
+		"module": "es2020",
+		"skipLibCheck": true,
+		"moduleResolution": "node16",
+	},
+}

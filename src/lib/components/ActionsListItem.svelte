@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { Action } from '$lib/types/pipeline';
 
+	import { createEventDispatcher } from 'svelte';
+
 	import { parseDate, parseTime } from '$lib/helper';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
@@ -8,6 +10,13 @@
 
 
 	export let action : Action;
+	export let highlight : boolean;
+
+	const dispatch = createEventDispatcher();
+
+	function handleSpanwedByHoverFocus(actionId : string, active : boolean) : void {
+		dispatch('highlightAction', { actionId, active });
+	}
 </script>
 
 
@@ -55,6 +64,7 @@
 	<ion-item
 		slot="header"
 		color="light"
+		class:ion-focused={ highlight }
 	>
 		<StatusIcon status={ action.status } />
 
@@ -74,6 +84,7 @@
 	>
 		<div class="column-container">
 			<header class="key">started at</header>
+
 			<div
 				class="value"
 				title={ parseDate(action.startedAt) }
@@ -82,6 +93,7 @@
 
 		<div class="column-container">
 			<header class="key">ended at</header>
+
 			<div
 				class="value"
 				title={ parseDate(action.endedAt) }
@@ -90,13 +102,22 @@
 
 		<div class="column-container">
 			<header class="key">status</header>
+
 			<div class="value">{ action.status }</div>
 		</div>
 
 		<div class="column-container">
-			{#if action.spawnedByTitle }
+			{#if action.spawnedBy && action.spawnedByTitle }
 				<header class="key">invoked by</header>
-				<div class="value">{ action.spawnedByTitle }</div>
+
+				<a
+					class="value"
+					href="#{ action.spawnedBy }"
+					on:mouseover={ handleSpanwedByHoverFocus(action.spawnedBy, true) }
+					on:mouseout={ handleSpanwedByHoverFocus(action.spawnedBy, false) }
+					on:focus={ handleSpanwedByHoverFocus(action.spawnedBy, true) }
+					on:blur={ handleSpanwedByHoverFocus(action.spawnedBy, false) }
+				>{ action.spawnedByTitle }</a>
 			{/if}
 		</div>
 	</article>

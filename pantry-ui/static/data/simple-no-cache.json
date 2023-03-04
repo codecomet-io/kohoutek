@@ -1,0 +1,457 @@
+{
+  "id": "uuid-for-the-super-pipeline",
+  "name": "User defined name",
+  "description": "This is a pipeline that does foo and boom and go",
+  "runID": "sha256:184fd6dabf1b06cbc115210e2c6ef588546cf2feeda7f76254a1fcb6a6f3e3d8",
+  "started": 1677892428344,
+  "completed": 1677892457682,
+  "status": "Completed",
+  "runtime": 29338,
+  "machineTime": 28330,
+  "tasks": {
+    "total": 5,
+    "cached": 0,
+    "ran": 5,
+    "errored": 0,
+    "interrupted": 0,
+    "notRan": 0
+  },
+  "repository": {
+    "commit": "2b96f41aafae1e6d674a781554e1c8cb59ccbc86",
+    "author": "spacedub <spaceraccoon@codecomet.io>",
+    "parent": "f651e749b17f35b6913562b26147a10f45565e51",
+    "dirty": "true",
+    "location": "git@github.com:codecomet-io/pantry"
+  },
+  "trigger": "manual",
+  "actor": {
+    "id": "spacedub",
+    "name": "Space Raccoon"
+  },
+  "node": {
+    "runtime": {
+      "node": "19.6.0",
+      "v8": "10.8.168.25-node.11",
+      "uv": "1.44.2",
+      "zlib": "1.2.11",
+      "brotli": "1.0.9",
+      "ares": "1.19.0",
+      "modules": "111",
+      "nghttp2": "1.51.0",
+      "napi": "8",
+      "llhttp": "8.1.0",
+      "uvwasi": "0.0.15",
+      "acorn": "8.8.2",
+      "simdutf": "3.1.0",
+      "undici": "5.16.0",
+      "openssl": "1.1.1t",
+      "cldr": "42.0",
+      "icu": "72.1",
+      "tz": "2022e",
+      "unicode": "15.0"
+    },
+    "system": {
+      "arch": "arm64",
+      "cpus": [
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 101088930,
+            "nice": 0,
+            "sys": 74008220,
+            "idle": 161590810,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 102234500,
+            "nice": 0,
+            "sys": 71008490,
+            "idle": 163509430,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 63530340,
+            "nice": 0,
+            "sys": 17712870,
+            "idle": 256124310,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 45503130,
+            "nice": 0,
+            "sys": 9745890,
+            "idle": 282551600,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 32023290,
+            "nice": 0,
+            "sys": 5439010,
+            "idle": 300666350,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 26326810,
+            "nice": 0,
+            "sys": 3682380,
+            "idle": 308290120,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 21759120,
+            "nice": 0,
+            "sys": 3347310,
+            "idle": 313331270,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 10864940,
+            "nice": 0,
+            "sys": 1376260,
+            "idle": 326374240,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 6955850,
+            "nice": 0,
+            "sys": 884820,
+            "idle": 330825500,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 6076170,
+            "nice": 0,
+            "sys": 741550,
+            "idle": 331867270,
+            "irq": 0
+          }
+        }
+      ],
+      "endianness": "LE",
+      "freemem": 425885696,
+      "home": "/Users/dmp",
+      "hostname": "Space-Raccoon.local",
+      "loadavg": [
+        3.1259765625,
+        4.63134765625,
+        5.05517578125
+      ],
+      "networkInterfaces": {
+        "lo0": [
+          {
+            "address": "127.0.0.1",
+            "netmask": "255.0.0.0",
+            "family": "IPv4",
+            "mac": "00:00:00:00:00:00",
+            "internal": true,
+            "cidr": "127.0.0.1/8"
+          },
+          {
+            "address": "::1",
+            "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": true,
+            "cidr": "::1/128",
+            "scopeid": 0
+          },
+          {
+            "address": "fe80::1",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": true,
+            "cidr": "fe80::1/64",
+            "scopeid": 1
+          }
+        ],
+        "anpi2": [
+          {
+            "address": "fe80::8c8b:9dff:feaf:aa10",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "8e:8b:9d:af:aa:10",
+            "internal": false,
+            "cidr": "fe80::8c8b:9dff:feaf:aa10/64",
+            "scopeid": 4
+          }
+        ],
+        "anpi0": [
+          {
+            "address": "fe80::8c8b:9dff:feaf:aa0e",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "8e:8b:9d:af:aa:0e",
+            "internal": false,
+            "cidr": "fe80::8c8b:9dff:feaf:aa0e/64",
+            "scopeid": 5
+          }
+        ],
+        "anpi1": [
+          {
+            "address": "fe80::8c8b:9dff:feaf:aa0f",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "8e:8b:9d:af:aa:0f",
+            "internal": false,
+            "cidr": "fe80::8c8b:9dff:feaf:aa0f/64",
+            "scopeid": 6
+          }
+        ],
+        "en0": [
+          {
+            "address": "fe80::af:b128:4b1a:74c6",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "f8:4d:89:6d:7d:ed",
+            "internal": false,
+            "cidr": "fe80::af:b128:4b1a:74c6/64",
+            "scopeid": 15
+          },
+          {
+            "address": "10.0.0.91",
+            "netmask": "255.255.255.0",
+            "family": "IPv4",
+            "mac": "f8:4d:89:6d:7d:ed",
+            "internal": false,
+            "cidr": "10.0.0.91/24"
+          }
+        ],
+        "awdl0": [
+          {
+            "address": "fe80::7873:7ff:febd:c0c1",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "7a:73:07:bd:c0:c1",
+            "internal": false,
+            "cidr": "fe80::7873:7ff:febd:c0c1/64",
+            "scopeid": 16
+          }
+        ],
+        "llw0": [
+          {
+            "address": "fe80::7873:7ff:febd:c0c1",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "7a:73:07:bd:c0:c1",
+            "internal": false,
+            "cidr": "fe80::7873:7ff:febd:c0c1/64",
+            "scopeid": 17
+          }
+        ],
+        "utun0": [
+          {
+            "address": "fe80::db78:8a03:9b8e:30c8",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::db78:8a03:9b8e:30c8/64",
+            "scopeid": 18
+          }
+        ],
+        "utun1": [
+          {
+            "address": "fe80::39d0:6078:8028:22f6",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::39d0:6078:8028:22f6/64",
+            "scopeid": 19
+          }
+        ],
+        "utun2": [
+          {
+            "address": "fe80::ce81:b1c:bd2c:69e",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::ce81:b1c:bd2c:69e/64",
+            "scopeid": 20
+          }
+        ],
+        "utun3": [
+          {
+            "address": "fe80::1d8c:a329:34b:8473",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::1d8c:a329:34b:8473/64",
+            "scopeid": 21
+          }
+        ],
+        "utun4": [
+          {
+            "address": "fe80::936:e331:6fa8:fee0",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::936:e331:6fa8:fee0/64",
+            "scopeid": 23
+          }
+        ],
+        "utun5": [
+          {
+            "address": "fe80::fa4d:89ff:fe6d:7ded",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::fa4d:89ff:fe6d:7ded/64",
+            "scopeid": 24
+          },
+          {
+            "address": "100.67.151.59",
+            "netmask": "255.255.255.255",
+            "family": "IPv4",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "100.67.151.59/32"
+          },
+          {
+            "address": "fd7a:115c:a1e0:ab12:4843:cd96:6243:973b",
+            "netmask": "ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fd7a:115c:a1e0:ab12:4843:cd96:6243:973b/48",
+            "scopeid": 0
+          }
+        ]
+      },
+      "platform": "darwin",
+      "release": "22.3.0",
+      "tmpdir": "/var/folders/7t/px7pnq3s5csfvnnn5nv3fr980000gn/T",
+      "totalmem": 68719476736,
+      "type": "Darwin",
+      "uptime": 869869,
+      "userInfo": {
+        "uid": 501,
+        "gid": 20,
+        "username": "dmp",
+        "homedir": "/Users/dmp",
+        "shell": "/bin/bash"
+      },
+      "version": "Darwin Kernel Version 22.3.0: Mon Jan 30 20:38:37 PST 2023; root:xnu-8792.81.3~2/RELEASE_ARM64_T6000"
+    },
+    "owner": {
+      "id": "spacedub",
+      "name": "Space Raccoon"
+    },
+    "id": "host-unique-id",
+    "metadata": {
+      "label1": "foo",
+      "label2": "bar"
+    }
+  },
+  "tasksID": [
+    "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
+    "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
+    "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
+    "sha256:2610dc9b672672d7569755c84d2bbfe02df42bf3adcc51339e27f1a3847117f5",
+    "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00"
+  ],
+  "taskPool": {
+    "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77": {
+      "id": "github.com/codecomet-io/reporter-elastic/plan.js#W3NvdXJjZTppbWFnZV0gZG9ja2VyLmlvL2xpYnJhcnkvZGViaWFuOmJ1bGxzZXllLXNsaW0=",
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "digest": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
+      "cached": false,
+      "status": "completed",
+      "started": 1677892429349,
+      "completed": 1677892429362,
+      "runtime": 13
+    },
+    "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e": {
+      "id": "github.com/codecomet-io/reporter-elastic/plan.js#YXB0LWdldCB1cGdyYWRl",
+      "name": "apt-get upgrade",
+      "digest": "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
+      "cached": false,
+      "status": "completed",
+      "parents": [
+        "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77"
+      ],
+      "started": 1677892429363,
+      "stdout": "",
+      "stderr": "",
+      "completed": 1677892442644,
+      "runtime": 13281
+    },
+    "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84": {
+      "id": "github.com/codecomet-io/reporter-elastic/plan.js#YXB0LWdldCBpbnN0YWxsIGVhdG15ZGF0YSBuYW5vIHNvY2F0",
+      "name": "apt-get install eatmydata nano socat",
+      "digest": "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
+      "cached": false,
+      "status": "completed",
+      "parents": [
+        "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e"
+      ],
+      "started": 1677892442645,
+      "stdout": "Fri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) Selecting previously unselected package libncursesw6:armhf.\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ...\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 5%\r(Reading database ... 10%\r(Reading database ... 15%\r(Reading database ... 20%\r(Reading database ... 25%\r(Reading database ... 30%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 35%\r(Reading database ... 40%\r(Reading database ... 45%\r(Reading database ... 50%\r(Reading database ... 55%\r(Reading database ... 60%\r(Reading database ... 65%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 70%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 75%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 80%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 85%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 90%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 95%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 100%\r(Reading database ...\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) 6654 files and directories currently installed.)\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) Preparing to unpack .../0-libncursesw6_6.2+20201114-2_armhf.deb ...\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) Unpacking libncursesw6:armhf (6.2+20201114-2) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package nano.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../1-nano_5.4-2+deb11u2_armhf.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking nano (5.4-2+deb11u2) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package libeatmydata1:armhf.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../2-libeatmydata1_105-9_armhf.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking libeatmydata1:armhf (105-9) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package eatmydata.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../3-eatmydata_105-9_all.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking eatmydata (105-9) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package libwrap0:armhf.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../4-libwrap0_7.6.q-31_armhf.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking libwrap0:armhf (7.6.q-31) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package socat.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../5-socat_1.7.4.1-3_armhf.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking socat (1.7.4.1-3) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Setting up libwrap0:armhf (7.6.q-31) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up socat (1.7.4.1-3) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up libncursesw6:armhf (6.2+20201114-2) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up nano (5.4-2+deb11u2) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) update-alternatives:\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) using /bin/nano to provide /usr/bin/editor (editor) in auto mode\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) update-alternatives: warning: skip creation of /usr/share/man/man1/editor.1.gz because associated file /usr/share/man/man1/nano.1.gz (of link group editor) doesn't exist\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) update-alternatives: using /bin/nano to provide /usr/bin/pico (pico) in auto mode\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) update-alternatives: warning: skip creation of /usr/share/man/man1/pico.1.gz because associated file /usr/share/man/man1/nano.1.gz (of link group pico) doesn't exist\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up libeatmydata1:armhf (105-9) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up eatmydata (105-9) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Processing triggers for libc-bin (2.31-13+deb11u5) ...\n",
+      "stderr": "Fri Mar 03 2023 17:14:15 GMT-0800 (Pacific Standard Time) real\t0m4.010s\nuser\t0m3.604s\nsys\t0m0.404s\nFri Mar 03 2023 17:14:15 GMT-0800 (Pacific Standard Time) \u001b[37m\nFri Mar 03 2023 17:14:15 GMT-0800 (Pacific Standard Time) \u001b[40m\n",
+      "completed": 1677892455230,
+      "runtime": 12585
+    },
+    "sha256:2610dc9b672672d7569755c84d2bbfe02df42bf3adcc51339e27f1a3847117f5": {
+      "id": "github.com/codecomet-io/reporter-elastic/plan.js#W2F1dGhdIGxpYnJhcnkvZGViaWFuOnB1bGwgdG9rZW4gZm9yIHJlZ2lzdHJ5LTEuZG9ja2VyLmlv",
+      "name": "[auth] library/debian:pull token for registry-1.docker.io",
+      "digest": "sha256:2610dc9b672672d7569755c84d2bbfe02df42bf3adcc51339e27f1a3847117f5",
+      "cached": false,
+      "status": "completed",
+      "started": 1677892428832,
+      "completed": 1677892428832,
+      "runtime": 0
+    },
+    "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00": {
+      "id": "github.com/codecomet-io/reporter-elastic/plan.js#ZXhwb3J0aW5nIHRvIGltYWdl",
+      "name": "exporting to image",
+      "digest": "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00",
+      "cached": false,
+      "status": "completed",
+      "started": 1677892455231,
+      "completed": 1677892457682,
+      "runtime": 2451
+    }
+  }
+}

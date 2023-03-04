@@ -9,7 +9,7 @@ function run() {
             switch (_b.label) {
                 case 0:
                     buff = readFileSync("../data_importer/mocks/simple-debian/llb.proto");
-                    trace = readFileSync("../data_importer/mocks/simple-debian/success-fragment.json");
+                    trace = readFileSync("../data_importer/mocks/simple-debian/no-cache.json");
                     return [4 /*yield*/, Pantry(buff, trace, "{}")
                         // Some stuff about the pipeline:
                     ];
@@ -41,7 +41,7 @@ function run() {
                                 console.warn("Task started but was interrupted");
                                 break;
                         }
-                        if (tsk.status in [ActionStatus.Errored, ActionStatus.Completed, ActionStatus.Started, ActionStatus.Cached]) {
+                        if ([ActionStatus.Errored, ActionStatus.Completed, ActionStatus.Started, ActionStatus.Cached].indexOf(tsk.status) !== -1) {
                             console.warn("Time when the task started", tsk.started);
                             console.warn("Time when it ended", tsk.completed);
                         }

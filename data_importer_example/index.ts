@@ -8,7 +8,7 @@ async function run() {
     // Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)
     // Here, just lazily readfilesync them
     let buff = readFileSync("../data_importer/mocks/simple-debian/llb.proto")
-    let trace = readFileSync("../data_importer/mocks/simple-debian/success-fragment.json")
+    let trace = readFileSync("../data_importer/mocks/simple-debian/no-cache.json")
 
     // Get the pipeline and the tasks from Pantry
     let [aPipeline, tasks] = await Pantry(buff, trace, "{}")
@@ -40,7 +40,7 @@ async function run() {
                 console.warn("Task started but was interrupted")
                 break
         }
-        if (tsk.status in [ActionStatus.Errored, ActionStatus.Completed, ActionStatus.Started, ActionStatus.Cached]) {
+        if ([ActionStatus.Errored, ActionStatus.Completed, ActionStatus.Started, ActionStatus.Cached].indexOf(tsk.status) !== -1) {
             console.warn("Time when the task started", tsk.started)
             console.warn("Time when it ended", tsk.completed)
         } else {

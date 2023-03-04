@@ -24,6 +24,7 @@ meta="$(echo '{}' | jq -c --arg id "$id" --arg name "$name" --arg desc "$descrip
   location: $loc,
 }')"
 
+mkdir -p ../pantry-ui/build/data
 ./node_modules/.bin/tsc && node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/no-cache.json" "$meta" "../pantry-ui/build/data/simple-no-cache.json"
 ./node_modules/.bin/tsc && node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/cached.json" "$meta" "../pantry-ui/build/data/simple-with-cache.json"
 ./node_modules/.bin/tsc && node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/fail.json" "$meta" "../pantry-ui/build/data/simple-fail.json"

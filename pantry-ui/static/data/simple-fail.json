@@ -1,0 +1,434 @@
+{
+  "id": "uuid-for-the-super-pipeline",
+  "name": "User defined name",
+  "description": "This is a pipeline that does foo and boom and go",
+  "runID": "sha256:5a54803bfa87c490bfcddd5eceb4aa9e313cd5c53386d637d2735234198b1e0d",
+  "started": 1678264901193,
+  "completed": 1678264919386,
+  "status": "Errored",
+  "runtime": 18193,
+  "machineTime": 18193,
+  "tasks": {
+    "total": 3,
+    "cached": 1,
+    "ran": 1,
+    "errored": 1,
+    "interrupted": 0,
+    "notRan": 0
+  },
+  "repository": {
+    "commit": "2b96f41aafae1e6d674a781554e1c8cb59ccbc86",
+    "author": "spacedub <spaceraccoon@codecomet.io>",
+    "parent": "f651e749b17f35b6913562b26147a10f45565e51",
+    "dirty": "true",
+    "location": "git@github.com:codecomet-io/pantry"
+  },
+  "trigger": "manual",
+  "actor": {
+    "id": "spacedub",
+    "name": "Space Raccoon"
+  },
+  "node": {
+    "runtime": {
+      "node": "19.6.0",
+      "v8": "10.8.168.25-node.11",
+      "uv": "1.44.2",
+      "zlib": "1.2.11",
+      "brotli": "1.0.9",
+      "ares": "1.19.0",
+      "modules": "111",
+      "nghttp2": "1.51.0",
+      "napi": "8",
+      "llhttp": "8.1.0",
+      "uvwasi": "0.0.15",
+      "acorn": "8.8.2",
+      "simdutf": "3.1.0",
+      "undici": "5.16.0",
+      "openssl": "1.1.1t",
+      "cldr": "42.0",
+      "icu": "72.1",
+      "tz": "2022e",
+      "unicode": "15.0"
+    },
+    "system": {
+      "arch": "arm64",
+      "cpus": [
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 101089480,
+            "nice": 0,
+            "sys": 74008590,
+            "idle": 161592150,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 102235080,
+            "nice": 0,
+            "sys": 71008840,
+            "idle": 163510760,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 63531660,
+            "nice": 0,
+            "sys": 17712970,
+            "idle": 256125170,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 45504120,
+            "nice": 0,
+            "sys": 9745960,
+            "idle": 282552810,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 32024090,
+            "nice": 0,
+            "sys": 5439050,
+            "idle": 300667780,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 26327410,
+            "nice": 0,
+            "sys": 3682410,
+            "idle": 308291780,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 21759550,
+            "nice": 0,
+            "sys": 3347330,
+            "idle": 313333110,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 10865060,
+            "nice": 0,
+            "sys": 1376260,
+            "idle": 326376390,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 6955890,
+            "nice": 0,
+            "sys": 884830,
+            "idle": 330827730,
+            "irq": 0
+          }
+        },
+        {
+          "model": "Apple M1 Max",
+          "speed": 24,
+          "times": {
+            "user": 6076180,
+            "nice": 0,
+            "sys": 741550,
+            "idle": 331869540,
+            "irq": 0
+          }
+        }
+      ],
+      "endianness": "LE",
+      "freemem": 487849984,
+      "home": "/Users/dmp",
+      "hostname": "Space-Raccoon.local",
+      "loadavg": [
+        3.1259765625,
+        4.63134765625,
+        5.05517578125
+      ],
+      "networkInterfaces": {
+        "lo0": [
+          {
+            "address": "127.0.0.1",
+            "netmask": "255.0.0.0",
+            "family": "IPv4",
+            "mac": "00:00:00:00:00:00",
+            "internal": true,
+            "cidr": "127.0.0.1/8"
+          },
+          {
+            "address": "::1",
+            "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": true,
+            "cidr": "::1/128",
+            "scopeid": 0
+          },
+          {
+            "address": "fe80::1",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": true,
+            "cidr": "fe80::1/64",
+            "scopeid": 1
+          }
+        ],
+        "anpi2": [
+          {
+            "address": "fe80::8c8b:9dff:feaf:aa10",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "8e:8b:9d:af:aa:10",
+            "internal": false,
+            "cidr": "fe80::8c8b:9dff:feaf:aa10/64",
+            "scopeid": 4
+          }
+        ],
+        "anpi0": [
+          {
+            "address": "fe80::8c8b:9dff:feaf:aa0e",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "8e:8b:9d:af:aa:0e",
+            "internal": false,
+            "cidr": "fe80::8c8b:9dff:feaf:aa0e/64",
+            "scopeid": 5
+          }
+        ],
+        "anpi1": [
+          {
+            "address": "fe80::8c8b:9dff:feaf:aa0f",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "8e:8b:9d:af:aa:0f",
+            "internal": false,
+            "cidr": "fe80::8c8b:9dff:feaf:aa0f/64",
+            "scopeid": 6
+          }
+        ],
+        "en0": [
+          {
+            "address": "fe80::af:b128:4b1a:74c6",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "f8:4d:89:6d:7d:ed",
+            "internal": false,
+            "cidr": "fe80::af:b128:4b1a:74c6/64",
+            "scopeid": 15
+          },
+          {
+            "address": "10.0.0.91",
+            "netmask": "255.255.255.0",
+            "family": "IPv4",
+            "mac": "f8:4d:89:6d:7d:ed",
+            "internal": false,
+            "cidr": "10.0.0.91/24"
+          }
+        ],
+        "awdl0": [
+          {
+            "address": "fe80::7873:7ff:febd:c0c1",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "7a:73:07:bd:c0:c1",
+            "internal": false,
+            "cidr": "fe80::7873:7ff:febd:c0c1/64",
+            "scopeid": 16
+          }
+        ],
+        "llw0": [
+          {
+            "address": "fe80::7873:7ff:febd:c0c1",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "7a:73:07:bd:c0:c1",
+            "internal": false,
+            "cidr": "fe80::7873:7ff:febd:c0c1/64",
+            "scopeid": 17
+          }
+        ],
+        "utun0": [
+          {
+            "address": "fe80::db78:8a03:9b8e:30c8",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::db78:8a03:9b8e:30c8/64",
+            "scopeid": 18
+          }
+        ],
+        "utun1": [
+          {
+            "address": "fe80::39d0:6078:8028:22f6",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::39d0:6078:8028:22f6/64",
+            "scopeid": 19
+          }
+        ],
+        "utun2": [
+          {
+            "address": "fe80::ce81:b1c:bd2c:69e",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::ce81:b1c:bd2c:69e/64",
+            "scopeid": 20
+          }
+        ],
+        "utun3": [
+          {
+            "address": "fe80::1d8c:a329:34b:8473",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::1d8c:a329:34b:8473/64",
+            "scopeid": 21
+          }
+        ],
+        "utun4": [
+          {
+            "address": "fe80::936:e331:6fa8:fee0",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::936:e331:6fa8:fee0/64",
+            "scopeid": 23
+          }
+        ],
+        "utun5": [
+          {
+            "address": "fe80::fa4d:89ff:fe6d:7ded",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fe80::fa4d:89ff:fe6d:7ded/64",
+            "scopeid": 24
+          },
+          {
+            "address": "100.67.151.59",
+            "netmask": "255.255.255.255",
+            "family": "IPv4",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "100.67.151.59/32"
+          },
+          {
+            "address": "fd7a:115c:a1e0:ab12:4843:cd96:6243:973b",
+            "netmask": "ffff:ffff:ffff::",
+            "family": "IPv6",
+            "mac": "00:00:00:00:00:00",
+            "internal": false,
+            "cidr": "fd7a:115c:a1e0:ab12:4843:cd96:6243:973b/48",
+            "scopeid": 0
+          }
+        ]
+      },
+      "platform": "darwin",
+      "release": "22.3.0",
+      "tmpdir": "/var/folders/7t/px7pnq3s5csfvnnn5nv3fr980000gn/T",
+      "totalmem": 68719476736,
+      "type": "Darwin",
+      "uptime": 869871,
+      "userInfo": {
+        "uid": 501,
+        "gid": 20,
+        "username": "dmp",
+        "homedir": "/Users/dmp",
+        "shell": "/bin/bash"
+      },
+      "version": "Darwin Kernel Version 22.3.0: Mon Jan 30 20:38:37 PST 2023; root:xnu-8792.81.3~2/RELEASE_ARM64_T6000"
+    },
+    "owner": {
+      "id": "spacedub",
+      "name": "Space Raccoon"
+    },
+    "id": "host-unique-id",
+    "metadata": {
+      "label1": "foo",
+      "label2": "bar"
+    }
+  },
+  "tasksID": [
+    "sha256:f65fec6162c8d70fc2311c3d20f1b6a91a87c9203547e280f276fe349ca18ac5",
+    "sha256:7a830e01dd5926f63eee241a37f13de580dac91af765ea3a0c027e5dc01a70b0",
+    "sha256:50b39ce837fa048113fa5eba3b2e6f3ce05caddec3f63144b89bb2f19bf4d1f0"
+  ],
+  "taskPool": {
+    "sha256:f65fec6162c8d70fc2311c3d20f1b6a91a87c9203547e280f276fe349ca18ac5": {
+      "id": "github.com/codecomet-io/reporter-elastic/plan.js#W3NvdXJjZTppbWFnZV0gZG9ja2VyLmlvL2xpYnJhcnkvZGViaWFuOmJ1bGxzZXllLXNsaW0=",
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "digest": "sha256:f65fec6162c8d70fc2311c3d20f1b6a91a87c9203547e280f276fe349ca18ac5",
+      "cached": false,
+      "status": "completed",
+      "started": 1678264901193,
+      "completed": 1678264901963,
+      "runtime": 770
+    },
+    "sha256:7a830e01dd5926f63eee241a37f13de580dac91af765ea3a0c027e5dc01a70b0": {
+      "id": "github.com/codecomet-io/reporter-elastic/plan.js#YXB0LWdldCB1cGdyYWRl",
+      "name": "apt-get upgrade",
+      "digest": "sha256:7a830e01dd5926f63eee241a37f13de580dac91af765ea3a0c027e5dc01a70b0",
+      "cached": true,
+      "status": "cached",
+      "parents": [
+        "sha256:f65fec6162c8d70fc2311c3d20f1b6a91a87c9203547e280f276fe349ca18ac5"
+      ],
+      "started": 1678264901963,
+      "completed": 1678264901963,
+      "runtime": 0
+    },
+    "sha256:50b39ce837fa048113fa5eba3b2e6f3ce05caddec3f63144b89bb2f19bf4d1f0": {
+      "id": "github.com/codecomet-io/reporter-elastic/plan.js#YXB0LWdldCBpbnN0YWxsIGVhdG15ZGF0YSBmYWlsIHRoaXMgbmFubyBzb2NhdA==",
+      "name": "apt-get install eatmydata fail this nano socat",
+      "digest": "sha256:50b39ce837fa048113fa5eba3b2e6f3ce05caddec3f63144b89bb2f19bf4d1f0",
+      "cached": false,
+      "status": "errored",
+      "parents": [
+        "sha256:7a830e01dd5926f63eee241a37f13de580dac91af765ea3a0c027e5dc01a70b0"
+      ],
+      "started": 1678264901963,
+      "stdout": "",
+      "stderr": "",
+      "completed": 1678264919386,
+      "runtime": 17423,
+      "error": "process \"/_cc/state/bash/codecomet /_cc/state/bash/library0.sh /_cc/state/bash/library1.sh /_cc/state/bash/library2.sh /_cc/state/bash/action.sh\" did not complete successfully: exit code: 100"
+    }
+  }
+}

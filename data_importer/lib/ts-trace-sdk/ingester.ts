@@ -82,9 +82,9 @@ class Build implements model.Pipeline {
         // let dt = atob(log.Data.toString()).trim()
         if (dt != "")
             if (log.Stream == 2)
-                this.taskPool[log.Vertex].stderr += new Date(Date.parse(log.Timestamp)) + " " + dt + "\n"
+                this.taskPool[log.Vertex].stderr += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n"
             else
-                this.taskPool[log.Vertex].stdout += new Date(Date.parse(log.Timestamp)) + " " + dt + "\n"
+                this.taskPool[log.Vertex].stdout += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n"
 
         /*
         add.push(<LogEntry>{
@@ -272,7 +272,7 @@ export class BuffIngester {
         this.build = new Build()
     }
 
-    ingest(buff: Buffer /*, onfinish: (plan: model.Pipeline, tasksc: model.TasksPool)=>void*/): [Pipeline, TasksPool] {
+    ingest(buff: Buffer /*, onfinish: (plan: model.Pipeline, tasksc: model.TasksPool)=>void*/): Pipeline {
         let transaction = Sentry.startTransaction({
             op: "Ingester",
             name: "Data ingesting transaction",
@@ -308,9 +308,9 @@ export class BuffIngester {
         bd.wrap()
         // Sentry transaction done
         transaction.finish();
-        let tsk = bd.taskPool
-        bd.taskPool = {}
-        return [<Pipeline>bd, tsk]
+        // let tsk = bd.taskPool
+        // bd.taskPool = {}
+        return <Pipeline>bd //, tsk]
         // onfinish(<Pipeline>bd, tsk) // Object.values(tsk))
     }
 }

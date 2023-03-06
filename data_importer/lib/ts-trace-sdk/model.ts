@@ -207,6 +207,8 @@ export type Pipeline = {
 
     // Digest of all tasks that ran
     tasksID: digest.Digest[]
+
+    taskPool: TasksPool
 }
 
 export type TasksPool = {[key: digest.Digest]: ActionInstance}

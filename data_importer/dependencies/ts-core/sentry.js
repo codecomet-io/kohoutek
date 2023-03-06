@@ -2,8 +2,8 @@ import * as Sentry from "@sentry/node";
 import { RewriteFrames } from "@sentry/integrations";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-var Tracer = /** @class */ (function () {
-    function Tracer(dsn) {
+export class Tracer {
+    constructor(dsn) {
         Sentry.init({
             dsn: dsn,
             // We recommend adjusting this value in production, or using tracesSampler for finer control
@@ -17,7 +17,5 @@ var Tracer = /** @class */ (function () {
             ],
         });
     }
-    return Tracer;
-}());
-export { Tracer };
+}
 //# sourceMappingURL=sentry.js.map

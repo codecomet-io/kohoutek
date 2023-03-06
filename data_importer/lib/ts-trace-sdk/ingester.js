@@ -4,8 +4,8 @@ import * as readline from 'node:readline/promises';
 import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
 import { createHash } from "node:crypto";
-var Build = /** @class */ (function () {
-    function Build() {
+class Build {
+    constructor() {
         this.id = "github.com/codecomet-io/reporter-elastic/plan.js";
         this.name = "User defined name";
         this.description = "This is our super test plan, and guess what this description can change at any time";
@@ -43,20 +43,20 @@ var Build = /** @class */ (function () {
         // Actual list of tasks
         this.taskPool = {};
     }
-    Build.prototype.addLog = function (log) {
+    addLog(log) {
         if (this.tasksID.indexOf(log.Vertex) == -1)
             throw new Error("Logs without a registered vertex - panic");
         if (!this.taskPool[log.Vertex].stdout) {
             this.taskPool[log.Vertex].stdout = "";
             this.taskPool[log.Vertex].stderr = "";
         }
-        var dt = Buffer.from(log.Data.toString(), "base64").toString("utf-8").trim();
+        let dt = Buffer.from(log.Data.toString(), "base64").toString("utf-8").trim();
         // let dt = atob(log.Data.toString()).trim()
         if (dt != "")
             if (log.Stream == 2)
-                this.taskPool[log.Vertex].stderr += new Date(Date.parse(log.Timestamp)) + " " + dt + "\n";
+                this.taskPool[log.Vertex].stderr += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n";
             else
-                this.taskPool[log.Vertex].stdout += new Date(Date.parse(log.Timestamp)) + " " + dt + "\n";
+                this.taskPool[log.Vertex].stdout += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n";
         /*
         add.push(<LogEntry>{
             Timestamp: Date.parse(log.Timestampslack
@@ -64,8 +64,8 @@ var Build = /** @class */ (function () {
             Content: atob(log.Data.toString())
         })
         */
-    };
-    Build.prototype.addVertex = function (vertice) {
+    }
+    addVertex(vertice) {
         if (!(vertice.Digest))
             throw new Error("Missing digest" + vertice);
         if (!vertice.Name)
@@ -121,10 +121,10 @@ var Build = /** @class */ (function () {
             this.taskPool[vertice.Digest].cached = true;
             this.taskPool[vertice.Digest].status = ActionStatus.Cached;
         }
-    };
-    Build.prototype.wrap = function () {
-        var plan = this;
-        var tsk = this.taskPool;
+    }
+    wrap() {
+        let plan = this;
+        let tsk = this.taskPool;
         // Total is easy
         plan.tasks.total = Object.keys(tsk).length;
         // Cached is easy
@@ -158,7 +158,7 @@ var Build = /** @class */ (function () {
             if (!plan.completed || tsk[i9].completed > plan.completed)
                 plan.completed = tsk[i9].completed;
         });
-        var mt = 0;
+        let mt = 0;
         Object.keys(tsk).forEach(function (i9) {
             if (tsk[i9].completed && tsk[i9].started)
                 mt += tsk[i9].completed - tsk[i9].started;
@@ -169,23 +169,22 @@ var Build = /** @class */ (function () {
         plan.runID = "sha256:" + createHash('sha256')
             .update(Math.random().toString())
             .digest('hex');
-    };
-    return Build;
-}());
+    }
+}
 /**
  * Consume a ReadStream and marshal a stream of JSON buildkit graph objects into our data model
  */
-var StdinIngester = /** @class */ (function () {
+export class StdinIngester {
     //    constructor(file: ReadStream, onfinish: (plan: model.Pipeline, tasksc: model.ActionInstance[])=>void){
-    function StdinIngester(file, onfinish) {
-        var transaction = Sentry.startTransaction({
+    constructor(file, onfinish) {
+        let transaction = Sentry.startTransaction({
             op: "Ingester",
             name: "Data ingesting transaction",
         });
         this.reader = readline.createInterface(file);
-        var bd = this.build = new Build();
+        let bd = this.build = new Build();
         this.reader.on("line", function (data) {
-            var d;
+            let d;
             if (data.trim() == "")
                 return;
             // We do resist badly formated lines
@@ -212,28 +211,26 @@ var StdinIngester = /** @class */ (function () {
             bd.wrap();
             // Sentry transaction done
             transaction.finish();
-            var tsk = bd.taskPool;
+            let tsk = bd.taskPool;
             bd.taskPool = {};
             onfinish(bd, tsk); // Object.values(tsk))
         });
     }
-    return StdinIngester;
-}());
-export { StdinIngester };
-var BuffIngester = /** @class */ (function () {
-    function BuffIngester() {
+}
+export class BuffIngester {
+    constructor() {
         this.build = new Build();
     }
-    BuffIngester.prototype.ingest = function (buff /*, onfinish: (plan: model.Pipeline, tasksc: model.TasksPool)=>void*/) {
-        var transaction = Sentry.startTransaction({
+    ingest(buff /*, onfinish: (plan: model.Pipeline, tasksc: model.TasksPool)=>void*/) {
+        let transaction = Sentry.startTransaction({
             op: "Ingester",
             name: "Data ingesting transaction",
         });
-        var bd = this.build; // = new Build()
+        let bd = this.build; // = new Build()
         buff.toString().split("\n").forEach(function (data) {
             if (data.trim() == "")
                 return;
-            var d;
+            let d;
             // Resist badly formated lines
             try {
                 d = JSON.parse(data);
@@ -257,12 +254,10 @@ var BuffIngester = /** @class */ (function () {
         bd.wrap();
         // Sentry transaction done
         transaction.finish();
-        var tsk = bd.taskPool;
-        bd.taskPool = {};
-        return [bd, tsk];
+        // let tsk = bd.taskPool
+        // bd.taskPool = {}
+        return bd; //, tsk]
         // onfinish(<Pipeline>bd, tsk) // Object.values(tsk))
-    };
-    return BuffIngester;
-}());
-export { BuffIngester };
+    }
+}
 //# sourceMappingURL=ingester.js.map

@@ -54,8 +54,7 @@ export default async function Pantry(buff: Buffer, trace: Buffer, meta: string):
     await CodeComet.Bootstrap()
 
     // Spoof in metadata
-    let metadata: Meta = <Meta>{}
-    metadata = JSON.parse(meta)
+    let metadata : Meta = JSON.parse(meta) as Meta;
 
     // Retrieve the data model from protobuf first, chain that into the ingester
     // Suck up the serialized protobuf, spit out semi-acceptable objects
@@ -63,27 +62,27 @@ export default async function Pantry(buff: Buffer, trace: Buffer, meta: string):
 
     // Suck up stdin for the logs
     // new StdinIngester(stdin, function(pl: Pipeline, tsks: TasksPool){
-    let bi = new BuffIngester()
-    let pl = bi.ingest(trace)
+    let buffIngester = new BuffIngester()
+    let pipeline = buffIngester.ingest(trace)
 //        , function(pl: Pipeline, tsks: TasksPool){
     // XXX piggyback on metadata
-    pl.id = metadata.id
-    pl.description = metadata.description
-    pl.repository.commit = metadata.commit
-    pl.repository.author = metadata.author
-    pl.repository.parent = metadata.parent
-    pl.repository.dirty = metadata.dirty
-    pl.repository.location = metadata.location
+    pipeline.id = metadata.id
+    pipeline.description = metadata.description
+    pipeline.repository.commit = metadata.commit
+    pipeline.repository.author = metadata.author
+    pipeline.repository.parent = metadata.parent
+    pipeline.repository.dirty = metadata.dirty
+    pipeline.repository.location = metadata.location
 
-            // callback(pl, tsks)
+            // callback(pipeline, tsks)
             // console.warn(JSON.stringify(tsks, null, 2))
             //         ops.forEach(function(op){
             //             console.warn(op.Digest)
             //             // OpMetadata
             //         })
-            // console.warn(JSON.stringify(pl, null, 2))
+            // console.warn(JSON.stringify(pipeline, null, 2))
 //        })
-    return pl
+    return pipeline
 }
 
 
@@ -94,10 +93,10 @@ async function run(protoPath: string, tracePath: string, meta: string, destinati
     let trace = readFileSync(tracePath)
 
     // Get the pipeline and the tasks from Pantry
-    let aPipeline = await Pantry(buff, trace, meta)
+    let pipeline = await Pantry(buff, trace, meta)
 
-    writeFileSync(destination, JSON.stringify(aPipeline, null, 2))
-    // console.warn(JSON.stringify(aPipeline, null, 2))
+    writeFileSync(destination, JSON.stringify(pipeline, null, 2))
+    // console.warn(JSON.stringify(pipeline, null, 2))
 }
 
 run(

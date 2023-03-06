@@ -65,13 +65,11 @@ class Build implements model.Pipeline {
         label2: "bar",
     })
 
-    tasksID: digest.Digest[] = []
-
     // Actual list of tasks
     tasksPool: TasksPool = {}
 
     addLog(log: VertexLog) {
-        if (this.tasksID.indexOf(log.Vertex) == -1)
+        if (this.tasksPool[log.Vertex] == null)
             throw new Error("Logs without a registered vertex - panic")
 
         if (!this.tasksPool[log.Vertex].stdout) {
@@ -113,12 +111,10 @@ class Build implements model.Pipeline {
             */
         }
 
-        if (this.tasksID.indexOf(vertice.Digest) == -1){
-            this.tasksID.push(vertice.Digest)
+        if (this.tasksPool[vertice.Digest] == null){
             this.tasksPool[vertice.Digest] = <model.ActionInstance>{
-                id: "github.com/codecomet-io/reporter-elastic/plan.js#" + btoa(vertice.Name),
+                id: vertice.Digest,
                 name: vertice.Name,
-                digest: vertice.Digest,
                 cached: false,
                 status: ActionStatus.NotRan,
             }

@@ -205,9 +205,6 @@ export type Pipeline = {
     // Host executing the pipeline
     node: Host
 
-    // Digest of all tasks that ran
-    tasksID: digest.Digest[]
-
     taskPool: TasksPool
 }
 

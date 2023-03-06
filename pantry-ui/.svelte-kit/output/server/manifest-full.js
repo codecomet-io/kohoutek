@@ -1,10 +1,10 @@
 export const manifest = {
 	appDir: "_app",
 	appPath: "_app",
-	assets: new Set(["favicon.png"]),
-	mimeTypes: {".png":"image/png"},
+	assets: new Set(["CodeComet-logo.svg","favicon-color.png","favicon.png"]),
+	mimeTypes: {".svg":"image/svg+xml",".png":"image/png"},
 	_: {
-		client: {"start":{"file":"_app/immutable/entry/start.d5987826.js","imports":["_app/immutable/entry/start.d5987826.js","_app/immutable/chunks/index.dd150d2a.js","_app/immutable/chunks/singletons.dbd3bcc1.js"],"stylesheets":[],"fonts":[]},"app":{"file":"_app/immutable/entry/app.032d0f91.js","imports":["_app/immutable/entry/app.032d0f91.js","_app/immutable/chunks/preload-helper.41c905a7.js","_app/immutable/chunks/index.dd150d2a.js"],"stylesheets":[],"fonts":[]}},
+		client: {"start":{"file":"_app/immutable/entry/start.a012b071.js","imports":["_app/immutable/entry/start.a012b071.js","_app/immutable/chunks/index.c25e2327.js","_app/immutable/chunks/singletons.bde1ea63.js"],"stylesheets":[],"fonts":[]},"app":{"file":"_app/immutable/entry/app.9b959bfc.js","imports":["_app/immutable/entry/app.9b959bfc.js","_app/immutable/chunks/preload-helper.41c905a7.js","_app/immutable/chunks/index.c25e2327.js"],"stylesheets":[],"fonts":[]}},
 		nodes: [
 			() => import('./nodes/0.js'),
 			() => import('./nodes/1.js'),

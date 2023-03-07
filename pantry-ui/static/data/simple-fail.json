@@ -390,7 +390,7 @@
     "sha256:7a830e01dd5926f63eee241a37f13de580dac91af765ea3a0c027e5dc01a70b0",
     "sha256:50b39ce837fa048113fa5eba3b2e6f3ce05caddec3f63144b89bb2f19bf4d1f0"
   ],
-  "taskPool": {
+  "tasksPool": {
     "sha256:f65fec6162c8d70fc2311c3d20f1b6a91a87c9203547e280f276fe349ca18ac5": {
       "id": "github.com/codecomet-io/reporter-elastic/plan.js#W3NvdXJjZTppbWFnZV0gZG9ja2VyLmlvL2xpYnJhcnkvZGViaWFuOmJ1bGxzZXllLXNsaW0=",
       "name": "[source:image] docker.io/library/debian:bullseye-slim",

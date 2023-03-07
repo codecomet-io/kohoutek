@@ -39,24 +39,23 @@ class Build {
             label1: "foo",
             label2: "bar",
         });
-        this.tasksID = [];
         // Actual list of tasks
-        this.taskPool = {};
+        this.tasksPool = {};
     }
     addLog(log) {
-        if (this.tasksID.indexOf(log.Vertex) == -1)
+        if (this.tasksPool[log.Vertex] == null)
             throw new Error("Logs without a registered vertex - panic");
-        if (!this.taskPool[log.Vertex].stdout) {
-            this.taskPool[log.Vertex].stdout = "";
-            this.taskPool[log.Vertex].stderr = "";
+        if (!this.tasksPool[log.Vertex].stdout) {
+            this.tasksPool[log.Vertex].stdout = "";
+            this.tasksPool[log.Vertex].stderr = "";
         }
         let dt = Buffer.from(log.Data.toString(), "base64").toString("utf-8").trim();
         // let dt = atob(log.Data.toString()).trim()
         if (dt != "")
             if (log.Stream == 2)
-                this.taskPool[log.Vertex].stderr += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n";
+                this.tasksPool[log.Vertex].stderr += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n";
             else
-                this.taskPool[log.Vertex].stdout += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n";
+                this.tasksPool[log.Vertex].stdout += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n";
         /*
         add.push(<LogEntry>{
             Timestamp: Date.parse(log.Timestampslack
@@ -72,7 +71,7 @@ class Build {
             throw new Error("Missing name" + vertice);
         if (vertice.ProgressGroup && vertice.ProgressGroup.weak == true) {
             return;
-            // this.taskPool[vertice.Digest].progressGroup = vertice.ProgressGroup
+            // this.tasksPool[vertice.Digest].progressGroup = vertice.ProgressGroup
             /*
             {
                 id: vertice.ProgressGroup.id,
@@ -81,50 +80,49 @@ class Build {
             }
             */
         }
-        if (this.tasksID.indexOf(vertice.Digest) == -1) {
-            this.tasksID.push(vertice.Digest);
-            this.taskPool[vertice.Digest] = {
-                id: "github.com/codecomet-io/reporter-elastic/plan.js#" + btoa(vertice.Name),
+        if (this.tasksPool[vertice.Digest] == null) {
+            this.tasksPool[vertice.Digest] = {
+                id: vertice.Digest,
                 name: vertice.Name,
                 digest: vertice.Digest,
                 cached: false,
                 status: ActionStatus.NotRan,
             };
             if (vertice.Inputs)
-                this.taskPool[vertice.Digest].parents = vertice.Inputs.filter(function (idx) {
-                    if (!(idx in this.taskPool))
+                this.tasksPool[vertice.Digest].parents = vertice.Inputs.filter(function (idx) {
+                    if (!(idx in this.tasksPool))
                         return;
                     return true;
                 }.bind(this));
         }
         if (vertice.Started) {
-            this.taskPool[vertice.Digest].started = Date.parse(vertice.Started);
-            // this.taskPool[vertice.Digest].datestamp = new Date(Date.parse(vertice.Started)).toISOString()
-            if (!this.started || this.taskPool[vertice.Digest].started < this.started) {
-                this.started = this.taskPool[vertice.Digest].started;
+            this.tasksPool[vertice.Digest].started = Date.parse(vertice.Started);
+            // this.tasksPool[vertice.Digest].datestamp = new Date(Date.parse(vertice.Started)).toISOString()
+            if (!this.started || this.tasksPool[vertice.Digest].started < this.started) {
+                this.started = this.tasksPool[vertice.Digest].started;
                 // this.datestamp = new Date(this.timestamp).toISOString()
                 // Temporary hack to create unique Descriptions for each Report - obviously needs to be undone
                 this.description = "Some Pipeline"; //  + this.Report.Started.toString().slice(-4)
             }
-            this.taskPool[vertice.Digest].status = ActionStatus.Started;
+            this.tasksPool[vertice.Digest].status = ActionStatus.Started;
         }
         if (vertice.Completed) {
-            this.taskPool[vertice.Digest].completed = Date.parse(vertice.Completed);
-            this.taskPool[vertice.Digest].runtime = this.taskPool[vertice.Digest].completed - this.taskPool[vertice.Digest].started;
-            this.taskPool[vertice.Digest].status = ActionStatus.Completed;
+            this.tasksPool[vertice.Digest].completed = Date.parse(vertice.Completed);
+            this.tasksPool[vertice.Digest].runtime = this.tasksPool[vertice.Digest].completed - this.tasksPool[vertice.Digest].started;
+            this.tasksPool[vertice.Digest].status = ActionStatus.Completed;
         }
         if (vertice.Error) {
-            this.taskPool[vertice.Digest].error = vertice.Error;
-            this.taskPool[vertice.Digest].status = ActionStatus.Errored;
+            this.tasksPool[vertice.Digest].error = vertice.Error;
+            this.tasksPool[vertice.Digest].status = ActionStatus.Errored;
         }
         if (vertice.Cached) {
-            this.taskPool[vertice.Digest].cached = true;
-            this.taskPool[vertice.Digest].status = ActionStatus.Cached;
+            this.tasksPool[vertice.Digest].cached = true;
+            this.tasksPool[vertice.Digest].status = ActionStatus.Cached;
         }
     }
     wrap() {
         let plan = this;
-        let tsk = this.taskPool;
+        let tsk = this.tasksPool;
         // Total is easy
         plan.tasks.total = Object.keys(tsk).length;
         // Cached is easy
@@ -211,8 +209,8 @@ export class StdinIngester {
             bd.wrap();
             // Sentry transaction done
             transaction.finish();
-            let tsk = bd.taskPool;
-            bd.taskPool = {};
+            let tsk = bd.tasksPool;
+            bd.tasksPool = {};
             onfinish(bd, tsk); // Object.values(tsk))
         });
     }
@@ -254,8 +252,8 @@ export class BuffIngester {
         bd.wrap();
         // Sentry transaction done
         transaction.finish();
-        // let tsk = bd.taskPool
-        // bd.taskPool = {}
+        // let tsk = bd.tasksPool
+        // bd.tasksPool = {}
         return bd; //, tsk]
         // onfinish(<Pipeline>bd, tsk) // Object.values(tsk))
     }

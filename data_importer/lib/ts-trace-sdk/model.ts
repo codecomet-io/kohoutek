@@ -205,7 +205,7 @@ export type Pipeline = {
     // Host executing the pipeline
     node: Host
 
-    taskPool: TasksPool
+    tasksPool: TasksPool
 }
 
 export type TasksPool = {[key: digest.Digest]: ActionInstance}

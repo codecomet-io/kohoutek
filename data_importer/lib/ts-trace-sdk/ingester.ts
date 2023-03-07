@@ -115,6 +115,7 @@ class Build implements model.Pipeline {
             this.tasksPool[vertice.Digest] = <model.ActionInstance>{
                 id: vertice.Digest,
                 name: vertice.Name,
+                digest: vertice.Digest,
                 cached: false,
                 status: ActionStatus.NotRan,
             }

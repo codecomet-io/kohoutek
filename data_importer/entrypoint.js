@@ -32,6 +32,45 @@ export default async function Pantry(buff, trace, meta) {
     // Retrieve the data model from protobuf first, chain that into the ingester
     // Suck up the serialized protobuf, spit out semi-acceptable objects
     let [ops, err] = ingest(buff);
+    let fromProto = {};
+    ops.forEach(function (op) {
+        // console.warn(JSON.stringify(op.Digest, null, 2))
+        // console.warn(JSON.stringify(op.OpMetadata.caps, null, 2))
+        if (op.OpMetadata.caps["source.image"] !== undefined) {
+            fromProto[op.Digest] = {
+                source: op.Op.source.identifier,
+                forceResolve: op.Op.source.attrs["image.resolvemode"] === "pull",
+                architecture: op.Op.platform.Architecture,
+                variant: op.Op.platform.Variant,
+                typeHint: "fileset.image",
+            };
+        }
+        else if (op.OpMetadata.caps["source.git"] !== undefined) {
+            fromProto[op.Digest] = {
+                source: op.Op.source.identifier,
+                keepDir: op.Op.source.attrs["git.keepgitdir"] === "true",
+                typeHint: "fileset.git",
+            };
+        }
+        else if (op.OpMetadata.caps["source.local"] !== undefined) {
+            // console.warn(JSON.stringify(op.Op, null, 2))
+            fromProto[op.Digest] = {
+                source: op.Op.source.identifier,
+                excludePattern: JSON.parse(op.Op.source.attrs["local.excludepattern"] || "[]"),
+                includePattern: JSON.parse(op.Op.source.attrs["local.includepattern"] || "[]"),
+                typeHint: "fileset.local",
+            };
+        }
+        else if (op.OpMetadata.caps["source.http"] !== undefined) {
+            // console.warn(JSON.stringify(op.Op, null, 2))
+            fromProto[op.Digest] = {
+                source: op.Op.source.identifier,
+                checksum: op.Op.source.attrs["http.checksum"],
+                filename: op.Op.source.attrs["http.filename"],
+                typeHint: "fileset.http",
+            };
+        }
+    });
     // Suck up stdin for the logs
     // new StdinIngester(stdin, function(pl: Pipeline, tsks: TasksPool){
     let buffIngester = new BuffIngester();
@@ -45,6 +84,26 @@ export default async function Pantry(buff, trace, meta) {
     pipeline.repository.parent = metadata.parent;
     pipeline.repository.dirty = metadata.dirty;
     pipeline.repository.location = metadata.location;
+    // Geez this is shit. @spacedub burn all of this with fire and rewrite the stitching probably (later...)
+    Object.keys(pipeline.tasksPool).forEach(function (digest) {
+        if (!(digest in fromProto)) {
+            console.warn("unable to find " + digest);
+            return;
+        }
+        let traceObject = pipeline.tasksPool[digest];
+        let typedObject = fromProto[digest];
+        typedObject.id = traceObject.id;
+        typedObject.cached = traceObject.cached;
+        typedObject.error = traceObject.error;
+        typedObject.digest = traceObject.digest;
+        typedObject.completed = traceObject.completed;
+        typedObject.started = traceObject.started;
+        typedObject.runtime = traceObject.runtime;
+        typedObject.status = traceObject.status;
+        typedObject.stdout = traceObject.stdout;
+        typedObject.stderr = traceObject.stderr;
+        pipeline.tasksPool[digest] = typedObject;
+    });
     // callback(pipeline, tsks)
     // console.warn(JSON.stringify(tsks, null, 2))
     //         ops.forEach(function(op){

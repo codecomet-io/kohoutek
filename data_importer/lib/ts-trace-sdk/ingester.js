@@ -81,7 +81,7 @@ class Build {
             */
         }
         if (this.tasksPool[vertice.Digest] == null) {
-            this.tasksPool[vertice.Digest] = {
+            let action = {
                 id: vertice.Digest,
                 name: vertice.Name,
                 digest: vertice.Digest,
@@ -89,11 +89,12 @@ class Build {
                 status: ActionStatus.NotRan,
             };
             if (vertice.Inputs)
-                this.tasksPool[vertice.Digest].parents = vertice.Inputs.filter(function (idx) {
+                action.parents = vertice.Inputs.filter(function (idx) {
                     if (!(idx in this.tasksPool))
                         return;
                     return true;
                 }.bind(this));
+            this.tasksPool[vertice.Digest] = action;
         }
         if (vertice.Started) {
             this.tasksPool[vertice.Digest].started = Date.parse(vertice.Started);

@@ -208,10 +208,7 @@ export type Pipeline = {
     tasksPool: TasksPool
 }
 
-export type TasksPool = {[key: digest.Digest]: ActionInstance}
-
-
-
+export type TasksPool = {[key: digest.Digest]: CoreNode} // ActionInstance}
 
 // A log entry is a timestamp and some content
 export type LogEntry = {
@@ -219,7 +216,73 @@ export type LogEntry = {
     content: string
 }
 
+export type CoreNode = {
+    id: string
+    name: string
+    digest: digest.Digest
+    started: uint64
+    completed: uint64
+    runtime: int
+    cached: bool
+    error: string
+    status: ActionStatus
+    stdout: string
+    stderr: string
+    progressGroup: Types.ProgressGroup
+}
+
+/*
+export enum FileSetType {
+    Git = "git",
+    HTTP = "http",
+    File = "file",
+    Image = "docker",
+    Scratch = "scratch"
+}
+
+ */
+
+export type FileSet = {
+    // URL of the source
+    // Examples:
+    // - git://foo
+    // - http://bla
+    // - file:///bla/../bar
+    source: string
+    typeHint: string
+    // type: FileSetType
+} & CoreNode
+
+export type ImageFileSet = {
+    source: string
+    forceResolve: bool
+    architecture: string
+    variant: string
+} & FileSet
+
+export type GitFileSet = {
+    source: string
+    keepDir: bool
+} & FileSet
+
+export type HTTPFileSet = {
+    source: string
+    checksum?: string
+    filename?: string
+} & FileSet
+
+export type LocalFileSet = {
+    source: string
+    includePattern?: string[]
+    excludePattern?: string[]
+} & FileSet
+
 export type ActionInstance = {
+    // Parents actions
+    parents:        digest.Digest[]
+} & CoreNode
+
+export type ActionInstancePREV = {
     // Unique identifier to the action
     id:    string
 

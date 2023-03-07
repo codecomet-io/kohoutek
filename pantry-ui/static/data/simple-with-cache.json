@@ -2,7 +2,7 @@
   "id": "uuid-for-the-super-pipeline",
   "name": "User defined name",
   "description": "This is a pipeline that does foo and boom and go",
-  "runID": "sha256:42be9705766ffe9e05f782b6b91d2fe34cf5bbae9e675b0f1ad112ebb17374fb",
+  "runID": "sha256:806d6b0935a746301fe11267f0be2ff48dd238bdcca2051531a798165122f873",
   "started": 1678260822000,
   "completed": 1678260822974,
   "status": "Completed",
@@ -17,9 +17,9 @@
     "notRan": 0
   },
   "repository": {
-    "commit": "2b96f41aafae1e6d674a781554e1c8cb59ccbc86",
+    "commit": "bee5253745c2e7d6081335c9a156f050131dc8d3",
     "author": "spacedub <spaceraccoon@codecomet.io>",
-    "parent": "f651e749b17f35b6913562b26147a10f45565e51",
+    "parent": "cc392f058719bb2b42c3ce8c322bd7bf87c789fb",
     "dirty": "true",
     "location": "git@github.com:codecomet-io/pantry"
   },
@@ -57,10 +57,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 101089260,
+            "user": 114185590,
             "nice": 0,
-            "sys": 74008420,
-            "idle": 161591480,
+            "sys": 83756960,
+            "idle": 183116160,
             "irq": 0
           }
         },
@@ -68,10 +68,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 102234830,
+            "user": 115418430,
             "nice": 0,
-            "sys": 71008680,
-            "idle": 163510120,
+            "sys": 80446630,
+            "idle": 185262710,
             "irq": 0
           }
         },
@@ -79,10 +79,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 63531060,
+            "user": 71855500,
             "nice": 0,
-            "sys": 17712920,
-            "idle": 256124750,
+            "sys": 19733180,
+            "idle": 290271540,
             "irq": 0
           }
         },
@@ -90,10 +90,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 45503640,
+            "user": 51535840,
             "nice": 0,
-            "sys": 9745930,
-            "idle": 282552260,
+            "sys": 10745220,
+            "idle": 320062780,
             "irq": 0
           }
         },
@@ -101,10 +101,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 32023640,
+            "user": 36547910,
             "nice": 0,
-            "sys": 5439030,
-            "idle": 300667190,
+            "sys": 5933630,
+            "idle": 340220830,
             "irq": 0
           }
         },
@@ -112,10 +112,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 26327120,
+            "user": 30199980,
             "nice": 0,
-            "sys": 3682400,
-            "idle": 308291010,
+            "sys": 4011600,
+            "idle": 348678080,
             "irq": 0
           }
         },
@@ -123,10 +123,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 21759340,
+            "user": 23878860,
             "nice": 0,
-            "sys": 3347320,
-            "idle": 313332260,
+            "sys": 3682530,
+            "idle": 355473520,
             "irq": 0
           }
         },
@@ -134,10 +134,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 10864990,
+            "user": 12017920,
             "nice": 0,
-            "sys": 1376260,
-            "idle": 326375400,
+            "sys": 1509900,
+            "idle": 369707990,
             "irq": 0
           }
         },
@@ -145,10 +145,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 6955880,
+            "user": 7701710,
             "nice": 0,
-            "sys": 884830,
-            "idle": 330826680,
+            "sys": 967470,
+            "idle": 374622140,
             "irq": 0
           }
         },
@@ -156,22 +156,22 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 6076170,
+            "user": 6702570,
             "nice": 0,
-            "sys": 741550,
-            "idle": 331868480,
+            "sys": 807760,
+            "idle": 375801590,
             "irq": 0
           }
         }
       ],
       "endianness": "LE",
-      "freemem": 480509952,
+      "freemem": 548372480,
       "home": "/Users/dmp",
       "hostname": "Space-Raccoon.local",
       "loadavg": [
-        3.1259765625,
-        4.63134765625,
-        5.05517578125
+        5.138671875,
+        4.8017578125,
+        4.51025390625
       ],
       "networkInterfaces": {
         "lo0": [
@@ -256,23 +256,23 @@
         ],
         "awdl0": [
           {
-            "address": "fe80::7873:7ff:febd:c0c1",
+            "address": "fe80::50a2:f0ff:febd:e796",
             "netmask": "ffff:ffff:ffff:ffff::",
             "family": "IPv6",
-            "mac": "7a:73:07:bd:c0:c1",
+            "mac": "52:a2:f0:bd:e7:96",
             "internal": false,
-            "cidr": "fe80::7873:7ff:febd:c0c1/64",
+            "cidr": "fe80::50a2:f0ff:febd:e796/64",
             "scopeid": 16
           }
         ],
         "llw0": [
           {
-            "address": "fe80::7873:7ff:febd:c0c1",
+            "address": "fe80::50a2:f0ff:febd:e796",
             "netmask": "ffff:ffff:ffff:ffff::",
             "family": "IPv6",
-            "mac": "7a:73:07:bd:c0:c1",
+            "mac": "52:a2:f0:bd:e7:96",
             "internal": false,
-            "cidr": "fe80::7873:7ff:febd:c0c1/64",
+            "cidr": "fe80::50a2:f0ff:febd:e796/64",
             "scopeid": 17
           }
         ],
@@ -365,7 +365,7 @@
       "tmpdir": "/var/folders/7t/px7pnq3s5csfvnnn5nv3fr980000gn/T",
       "totalmem": 68719476736,
       "type": "Darwin",
-      "uptime": 869870,
+      "uptime": 1199981,
       "userInfo": {
         "uid": 501,
         "gid": 20,
@@ -385,25 +385,23 @@
       "label2": "bar"
     }
   },
-  "tasksID": [
-    "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
-    "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
-    "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
-    "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00"
-  ],
   "tasksPool": {
     "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77": {
-      "id": "github.com/codecomet-io/reporter-elastic/plan.js#W3NvdXJjZTppbWFnZV0gZG9ja2VyLmlvL2xpYnJhcnkvZGViaWFuOmJ1bGxzZXllLXNsaW0=",
-      "name": "[source:image] docker.io/library/debian:bullseye-slim",
-      "digest": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "arm",
+      "variant": "v7",
+      "typeHint": "fileset.image",
+      "id": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
       "cached": false,
-      "status": "completed",
-      "started": 1678260822000,
+      "digest": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
       "completed": 1678260822332,
-      "runtime": 332
+      "started": 1678260822000,
+      "runtime": 332,
+      "status": "completed"
     },
     "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e": {
-      "id": "github.com/codecomet-io/reporter-elastic/plan.js#YXB0LWdldCB1cGdyYWRl",
+      "id": "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
       "name": "apt-get upgrade",
       "digest": "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
       "cached": true,
@@ -416,7 +414,7 @@
       "runtime": 0
     },
     "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84": {
-      "id": "github.com/codecomet-io/reporter-elastic/plan.js#YXB0LWdldCBpbnN0YWxsIGVhdG15ZGF0YSBuYW5vIHNvY2F0",
+      "id": "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
       "name": "apt-get install eatmydata nano socat",
       "digest": "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
       "cached": true,
@@ -429,7 +427,7 @@
       "runtime": 0
     },
     "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00": {
-      "id": "github.com/codecomet-io/reporter-elastic/plan.js#ZXhwb3J0aW5nIHRvIGltYWdl",
+      "id": "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00",
       "name": "exporting to image",
       "digest": "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00",
       "cached": false,

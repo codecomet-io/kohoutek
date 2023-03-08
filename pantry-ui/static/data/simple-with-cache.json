@@ -2,7 +2,7 @@
   "id": "uuid-for-the-super-pipeline",
   "name": "User defined name",
   "description": "This is a pipeline that does foo and boom and go",
-  "runID": "sha256:1706044d4c521fc297f6b8b899ab189962a15f4c00607b3be5dbb9dbd4a89384",
+  "runID": "sha256:daad4b83774b1ca3970bfae11fa9278914b57a7d206cf111e833556816262300",
   "started": 1678260822000,
   "completed": 1678260822974,
   "status": "Completed",
@@ -17,9 +17,9 @@
     "notRan": 0
   },
   "repository": {
-    "commit": "188b985db04c6b4d24bfbee471ced6888ac5e123",
+    "commit": "9288d3a3e830fca455dcab7f628026de4b94d3df",
     "author": "spacedub <spaceraccoon@codecomet.io>",
-    "parent": "bee5253745c2e7d6081335c9a156f050131dc8d3",
+    "parent": "188b985db04c6b4d24bfbee471ced6888ac5e123",
     "dirty": "true",
     "location": "git@github.com:codecomet-io/pantry"
   },
@@ -57,10 +57,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 115425360,
+            "user": 115762670,
             "nice": 0,
-            "sys": 84745400,
-            "idle": 185311270,
+            "sys": 84982450,
+            "idle": 185555190,
             "irq": 0
           }
         },
@@ -68,10 +68,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 116660840,
+            "user": 117001160,
             "nice": 0,
-            "sys": 81405840,
-            "idle": 187484990,
+            "sys": 81638440,
+            "idle": 187730470,
             "irq": 0
           }
         },
@@ -79,10 +79,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 72578020,
+            "user": 72669430,
             "nice": 0,
-            "sys": 19932670,
-            "idle": 293786240,
+            "sys": 19980630,
+            "idle": 294465320,
             "irq": 0
           }
         },
@@ -90,10 +90,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 52019060,
+            "user": 52073900,
             "nice": 0,
-            "sys": 10858510,
-            "idle": 323908260,
+            "sys": 10879210,
+            "idle": 324653010,
             "irq": 0
           }
         },
@@ -101,10 +101,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 36847600,
+            "user": 36882070,
             "nice": 0,
-            "sys": 5990330,
-            "idle": 344310050,
+            "sys": 6000150,
+            "idle": 345086800,
             "irq": 0
           }
         },
@@ -112,10 +112,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 30428720,
+            "user": 30451190,
             "nice": 0,
-            "sys": 4046030,
-            "idle": 352862740,
+            "sys": 4051410,
+            "idle": 353656460,
             "irq": 0
           }
         },
@@ -123,10 +123,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 24103450,
+            "user": 24131900,
             "nice": 0,
-            "sys": 3720900,
-            "idle": 359657920,
+            "sys": 3727000,
+            "idle": 360444960,
             "irq": 0
           }
         },
@@ -134,10 +134,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 12144030,
+            "user": 12156150,
             "nice": 0,
-            "sys": 1523630,
-            "idle": 374018850,
+            "sys": 1525640,
+            "idle": 374826800,
             "irq": 0
           }
         },
@@ -145,10 +145,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 7798550,
+            "user": 7807300,
             "nice": 0,
-            "sys": 976130,
-            "idle": 378967890,
+            "sys": 977260,
+            "idle": 379780160,
             "irq": 0
           }
         },
@@ -156,22 +156,22 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 6788800,
+            "user": 6796560,
             "nice": 0,
-            "sys": 814870,
-            "idle": 380159690,
+            "sys": 815740,
+            "idle": 380973240,
             "irq": 0
           }
         }
       ],
       "endianness": "LE",
-      "freemem": 467877888,
+      "freemem": 722550784,
       "home": "/Users/dmp",
       "hostname": "Space-Raccoon.local",
       "loadavg": [
-        6.69677734375,
-        4.09423828125,
-        3.634765625
+        4.2490234375,
+        5.30908203125,
+        6.2109375
       ],
       "networkInterfaces": {
         "lo0": [
@@ -365,7 +365,7 @@
       "tmpdir": "/var/folders/7t/px7pnq3s5csfvnnn5nv3fr980000gn/T",
       "totalmem": 68719476736,
       "type": "Darwin",
-      "uptime": 1204668,
+      "uptime": 1205490,
       "userInfo": {
         "uid": 501,
         "gid": 20,

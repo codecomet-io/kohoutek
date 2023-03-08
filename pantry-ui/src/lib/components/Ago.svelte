@@ -12,7 +12,9 @@
 			? new Date(date)
 			: date;
 
-		lapsed = parseLapsed(Date.now() - dateObj.getTime());
+		if (dateObj && dateObj.toString() !== 'Invalid Date') {
+			lapsed = parseLapsed(Date.now() - dateObj.getTime());
+		}
 	}
 </script>
 

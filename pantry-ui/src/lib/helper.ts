@@ -3,7 +3,7 @@ export function parseDate(date : string | Date) : string {
 		? new Date(date)
 		: date;
 
-	return dateObj.toString() === 'Invalid Date'
+	return !dateObj || dateObj.toString() === 'Invalid Date'
 		? ''
 		: dateObj.toString();
 }
@@ -13,7 +13,7 @@ export function parseTime(date : string | Date) : string {
 		? new Date(date)
 		: date;
 
-	return dateObj.toString() === 'Invalid Date'
+	return !dateObj || dateObj.toString() === 'Invalid Date'
 		? ''
 		: dateObj.toLocaleTimeString();
 }

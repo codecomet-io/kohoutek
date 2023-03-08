@@ -9,35 +9,32 @@ type PipelineOrAction = {
 
 export type Status =
 	| 'completed'
-	| 'error'
+	| 'errored'
 	| 'canceled'
 	| 'ignored'
 	| 'cached'
 	;
 
-export interface Action extends PipelineOrAction {
-	type: ActionType;
+interface SingleParentAction extends PipelineOrAction {
+	type: UtilityAction | 'custom';
 	// id & title of preceeding action that invoked this action
 	// omitted for first action
-	spawnedBy?: SpawnedBy | SpawnedBy[];
+	parentAction?: ParentAction;
 }
 
-type ActionType =
-	| CustomActionType
-	| UtilityAction
-	| AtomicUtilityAction
-	;
+interface MergeAction extends PipelineOrAction {
+	type: 'merge';
+	// ids & titles of upstream actions to be merged
+	parentAction: ParentAction[];
+}
 
-type CustomActionType =
-	| 'custom'
+export type Action =
+	| SingleParentAction
+	| MergeAction
 	;
 
 type UtilityAction =
-	| 'merge'
 	| 'prepareFileset'
-	;
-
-type AtomicUtilityAction =
 	| 'makeDirectory'
 	| 'addFile'
 	| 'move'
@@ -45,17 +42,11 @@ type AtomicUtilityAction =
 	| 'patch'
 	;
 
-type SpawnedBy = {
+type ParentAction = {
 	id : string;
 	title : string;
 };
 
-interface MergeAction extends Action {
-	type: 'merge';
-	// ids & titles of upstream actions to be merged
-	spawnedBy: SpawnedBy[];
-}
-
 export interface PipelinePostRunData extends PipelineOrAction {
-	actions: Array<Action | MergeAction>;
+	actions: Action[];
 }

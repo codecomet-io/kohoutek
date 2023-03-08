@@ -53,6 +53,18 @@
 			font-size: 16px;
 			font-weight: 600;
 		}
+
+		ol {
+			margin-top: 0;
+			margin-bottom: 0;
+			padding-inline-start: 1.25em;
+
+			li {
+				+ li {
+					margin-top: 4px;
+				}
+			}
+		}
 	}
 </style>
 
@@ -107,17 +119,34 @@
 		</div>
 
 		<div class="column-container">
-			{#if action.spawnedBy && action.spawnedByTitle }
-				<header class="key">invoked by</header>
+			{#if action.type === 'merge' }
+				<header class="key">merged actions</header>
+
+				<ol>
+					{#each action.parentAction as parentAction }
+						<li>
+							<a
+								class="value"
+								href="#{ parentAction.id }"
+								on:mouseover={ handleSpanwedByHoverFocus(parentAction.id, true) }
+								on:mouseout={ handleSpanwedByHoverFocus(parentAction.id, false) }
+								on:focus={ handleSpanwedByHoverFocus(parentAction.id, true) }
+								on:blur={ handleSpanwedByHoverFocus(parentAction.id, false) }
+							>{ parentAction.title }</a>
+						</li>
+					{/each}
+				</ol>
+			{:else if action.parentAction?.id && action.parentAction?.title }
+				<header class="key">parent action</header>
 
 				<a
 					class="value"
-					href="#{ action.spawnedBy }"
-					on:mouseover={ handleSpanwedByHoverFocus(action.spawnedBy, true) }
-					on:mouseout={ handleSpanwedByHoverFocus(action.spawnedBy, false) }
-					on:focus={ handleSpanwedByHoverFocus(action.spawnedBy, true) }
-					on:blur={ handleSpanwedByHoverFocus(action.spawnedBy, false) }
-				>{ action.spawnedByTitle }</a>
+					href="#{ action.parentAction.id }"
+					on:mouseover={ handleSpanwedByHoverFocus(action.parentAction.id, true) }
+					on:mouseout={ handleSpanwedByHoverFocus(action.parentAction.id, false) }
+					on:focus={ handleSpanwedByHoverFocus(action.parentAction.id, true) }
+					on:blur={ handleSpanwedByHoverFocus(action.parentAction.id, false) }
+				>{ action.parentAction.title }</a>
 			{/if}
 		</div>
 	</article>

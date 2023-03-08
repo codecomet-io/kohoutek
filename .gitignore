@@ -3,6 +3,9 @@
 node_modules
 /pantry-ui/build
 /pantry-ui/.svelte-kit
+/pantry-ui/.svelte-kit/
+/pantry-ui/.svelte-kit/*
+.svelte-kit
 /pantry-ui/package
 .env
 .env.*

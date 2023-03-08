@@ -233,7 +233,7 @@ export type CoreNode = {
 }
 
 /*
-export enum FileSetType {
+export enum FilesetType {
     Git = "git",
     HTTP = "http",
     File = "file",
@@ -243,7 +243,7 @@ export enum FileSetType {
 
  */
 
-export type FileSet = {
+export type Fileset = {
     // URL of the source
     // Examples:
     // - git://foo
@@ -251,32 +251,32 @@ export type FileSet = {
     // - file:///bla/../bar
     source: string
     typeHint: string
-    // type: FileSetType
+    // type: FilesetType
 } & CoreNode
 
-export type ImageFileSet = {
+export type ImageFileset = {
     source: string
     forceResolve: bool
     architecture: string
     variant: string
-} & FileSet
+} & Fileset
 
-export type GitFileSet = {
+export type GitFileset = {
     source: string
     keepDir: bool
-} & FileSet
+} & Fileset
 
-export type HTTPFileSet = {
+export type HTTPFileset = {
     source: string
     checksum?: string
     filename?: string
-} & FileSet
+} & Fileset
 
-export type LocalFileSet = {
+export type LocalFileset = {
     source: string
     includePattern?: string[]
     excludePattern?: string[]
-} & FileSet
+} & Fileset
 
 export type AtomicAction = {
     // Parents

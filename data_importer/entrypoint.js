@@ -4,79 +4,77 @@ import { nil } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.
 import CodeComet from "codecomet-js/index.js";
 import { ReadFromIMPL } from "codecomet-js/source/buildkit-port/client/llb/marshal.js";
 import { Protobuf } from "codecomet-js/source/utils/protobuf.js";
-import { digest } from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
+import { digest as CryptoDigest } from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
 import { readFileSync, writeFileSync } from "fs";
 // Init Sentry
 new Tracer("https://c02314800c4d4be2a32f1d28c4220f3f@o1370052.ingest.sentry.io/6673370");
-function ingest(buff) {
-    let [def, err] = ReadFromIMPL(buff);
-    if (err != nil)
+function ingest(buffer) {
+    const [def, err] = ReadFromIMPL(buffer);
+    if (err != nil) {
         return [nil, err];
-    var ops = [];
-    def.Def.forEach(function (dt) {
-        let op = Protobuf.read("Op", dt);
-        let dgst = digest.FromBytes(dt);
-        let ent = {
-            Op: op,
-            Digest: dgst,
-            OpMetadata: def.Metadata[dgst]
+    }
+    const operations = def.Def.map((dt) => {
+        const digest = CryptoDigest.FromBytes(dt);
+        return {
+            digest,
+            operation: Protobuf.read("Op", dt),
+            metadata: def.Metadata[digest],
         };
-        ops.push(ent);
     });
-    return [ops, nil];
+    return [operations, nil];
 }
-export default async function Pantry(buff, trace, meta) {
+export default async function Pantry(buffer, trace, meta) {
     await CodeComet.Bootstrap();
     // Spoof in metadata
-    let metadata = JSON.parse(meta);
+    const metadata = JSON.parse(meta);
     // Retrieve the data model from protobuf first, chain that into the ingester
     // Suck up the serialized protobuf, spit out semi-acceptable objects
-    let [ops, err] = ingest(buff);
-    let fromProto = {};
-    ops.forEach(function (op) {
-        // console.warn(JSON.stringify(op.Digest, null, 2))
-        if (op.OpMetadata.caps["source.image"] !== undefined) {
-            fromProto[op.Digest] = {
-                source: op.Op.source.identifier,
-                forceResolve: op.Op.source.attrs["image.resolvemode"] === "pull",
-                architecture: op.Op.platform.Architecture,
-                variant: op.Op.platform.Variant,
+    const [llbOperations, err] = ingest(buffer);
+    const fromProto = {};
+    llbOperations.forEach((llbOperation) => {
+        // console.warn(JSON.stringify(operation.digest, null, 2))
+        if (llbOperation.metadata.caps['source.image']) {
+            fromProto[llbOperation.digest] = {
+                source: llbOperation.operation.source.identifier,
+                forceResolve: llbOperation.operation.source.attrs["image.resolvemode"] === "pull",
+                architecture: llbOperation.operation.platform.Architecture,
+                variant: llbOperation.operation.platform.Variant,
                 typeHint: "fileset.image",
-                name: op.OpMetadata.description["llb.customname"],
+                name: llbOperation.metadata.description["llb.customname"],
             };
         }
-        else if (op.OpMetadata.caps["source.git"] !== undefined) {
-            fromProto[op.Digest] = {
-                source: op.Op.source.identifier,
-                keepDir: op.Op.source.attrs["git.keepgitdir"] === "true",
+        else if (llbOperation.metadata.caps['source.git']) {
+            fromProto[llbOperation.digest] = {
+                source: llbOperation.operation.source.identifier,
+                keepDir: llbOperation.operation.source.attrs["git.keepgitdir"] === "true",
                 typeHint: "fileset.git",
-                name: op.OpMetadata.description["llb.customname"],
+                name: llbOperation.metadata.description["llb.customname"],
             };
         }
-        else if (op.OpMetadata.caps["source.local"] !== undefined) {
-            // console.warn("Local", op.Digest)
-            // console.warn(JSON.stringify(op.Op, null, 2))
-            fromProto[op.Digest] = {
-                source: op.Op.source.identifier,
-                excludePattern: JSON.parse(op.Op.source.attrs["local.excludepattern"] || "[]"),
-                includePattern: JSON.parse(op.Op.source.attrs["local.includepattern"] || "[]"),
+        else if (llbOperation.metadata.caps['source.local']) {
+            // console.warn("Local", llbOperation.digest)
+            // console.warn(JSON.stringify(llbOperation.Op, null, 2))
+            fromProto[llbOperation.digest] = {
+                source: llbOperation.operation.source.identifier,
+                excludePattern: JSON.parse(llbOperation.operation.source.attrs["local.excludepattern"] || "[]"),
+                includePattern: JSON.parse(llbOperation.operation.source.attrs["local.includepattern"] || "[]"),
                 typeHint: "fileset.local",
-                name: op.OpMetadata.description["llb.customname"],
+                name: llbOperation.metadata.description["llb.customname"],
             };
         }
-        else if (op.OpMetadata.caps["source.http"] !== undefined) {
-            // console.warn(JSON.stringify(op.Op, null, 2))
-            fromProto[op.Digest] = {
-                source: op.Op.source.identifier,
-                checksum: op.Op.source.attrs["http.checksum"],
-                filename: op.Op.source.attrs["http.filename"],
+        else if (llbOperation.metadata.caps['source.http']) {
+            // console.warn(JSON.stringify(llbOperation.Op, null, 2))
+            fromProto[llbOperation.digest] = {
+                source: llbOperation.operation.source.identifier,
+                checksum: llbOperation.operation.source.attrs["http.checksum"],
+                filename: llbOperation.operation.source.attrs["http.filename"],
                 typeHint: "fileset.http",
-                name: op.OpMetadata.description["llb.customname"],
+                name: llbOperation.metadata.description["llb.customname"],
             };
         }
-        else if (op.OpMetadata.description !== undefined && op.OpMetadata.description["codecomet.op"] !== "") {
+        else if (llbOperation.metadata.description && llbOperation.metadata.description["codecomet.op"]) {
             let descriptor;
-            switch (op.OpMetadata.description["codecomet.op"]) {
+            switch (llbOperation.metadata.description["codecomet.op"]) {
                 case "atomic.mv":
                     descriptor = {};
                     break;
@@ -96,27 +94,29 @@ export default async function Pantry(buff, trace, meta) {
                     descriptor = {};
                     break;
                 default:
-                    console.warn("Unrecognized atomic action type|" + op.OpMetadata.description["codecomet.op"] + "|");
+                    console.warn("Unrecognized atomic action type|" + llbOperation.metadata.description["codecomet.op"] + "|");
                     descriptor = {};
                     break;
             }
-            descriptor.typeHint = op.OpMetadata.description["codecomet.op"];
-            descriptor.name = op.OpMetadata.description["llb.customname"];
-            fromProto[op.Digest] = descriptor;
+            descriptor.typeHint = llbOperation.metadata.description["codecomet.op"];
+            descriptor.name = llbOperation.metadata.description["llb.customname"];
+            fromProto[llbOperation.digest] = descriptor;
         }
         else {
-            fromProto[op.Digest] = {
+            fromProto[llbOperation.digest] = {
                 typeHint: "user.action",
-                name: !!op.OpMetadata.description ? op.OpMetadata.description["llb.customname"] : "",
+                name: llbOperation.metadata.description
+                    ? llbOperation.metadata.description["llb.customname"]
+                    : "",
             };
-            // console.warn(op.OpMetadata)
+            // console.warn(llbOperation.metadata)
         }
     });
     // throw "lol"
     // Suck up stdin for the logs
     // new StdinIngester(stdin, function(pl: Pipeline, tsks: TasksPool){
-    let buffIngester = new BuffIngester();
-    let pipeline = buffIngester.ingest(trace);
+    const buffIngester = new BuffIngester();
+    const pipeline = buffIngester.ingest(trace);
     //        , function(pl: Pipeline, tsks: TasksPool){
     // XXX piggyback on metadata
     pipeline.id = metadata.id;
@@ -136,7 +136,7 @@ export default async function Pantry(buff, trace, meta) {
             // if (traceObject.name.startsWith("[source:local]")){
             Object.keys(fromProto).some(function (key) {
                 // console.warn("Trying ", fromProto[key].name, "vs", pipeline.tasksPool[digest].name)
-                if (!!fromProto[key].name && fromProto[key].name == pipeline.tasksPool[digest].name) {
+                if (fromProto[key].name && fromProto[key].name == pipeline.tasksPool[digest].name) {
                     typedObject = fromProto[key];
                     return true;
                 }

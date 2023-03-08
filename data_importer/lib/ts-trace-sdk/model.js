@@ -70,7 +70,7 @@ export var ActionStatus;
     ActionStatus["Cached"] = "cached";
     ActionStatus["Errored"] = "errored";
     ActionStatus["Completed"] = "completed";
-    ActionStatus["NotRan"] = "not-ran";
+    ActionStatus["Ignored"] = "ignored";
     ActionStatus["Started"] = "started";
 })(ActionStatus || (ActionStatus = {}));
 //# sourceMappingURL=model.js.map

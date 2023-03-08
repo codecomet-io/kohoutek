@@ -142,18 +142,18 @@ export enum PipelineStatus {
  * - completed: the action ran successfully
  */
 export enum ActionStatus {
-    Cached = "cached",
-    Errored = "errored",
-    Completed = "completed",
-    NotRan = "not-ran",
-    Started = "started"
+    Cached = 'cached',
+    Errored = 'errored',
+    Completed = 'completed',
+    Ignored = 'ignored',
+    Started = 'started',
 }
 
 /**
  * A Pipeline represents a DAG of actions that are meant to be ran together in order
  * The object here will hold individual tasks, and also a pre-computed report
  */
-export type Pipeline = {
+type GeneralPipeline = {
     // The unique, never changing identifier of a pipeline - should be the git source and codecomet plan file
     id: string
 
@@ -204,11 +204,19 @@ export type Pipeline = {
 
     // Host executing the pipeline
     node: Host
-
-    tasksPool: TasksPool
 }
 
-export type TasksPool = {[key: digest.Digest]: CoreNode} // ActionInstance}
+export interface BuildPipeline extends GeneralPipeline {
+    actionsObject: ActionsObject
+}
+
+export type ActionsObject = {
+    [key: digest.Digest]: CoreNode
+}
+
+export interface Pipeline extends GeneralPipeline {
+    actions: CoreNode[]
+}
 
 // A log entry is a timestamp and some content
 export type LogEntry = {
@@ -228,7 +236,7 @@ export type CoreNode = {
     status: ActionStatus
     stdout: string
     stderr: string
-    parents:        digest.Digest[]
+    parents: digest.Digest[]
     progressGroup: Types.ProgressGroup
 }
 
@@ -243,7 +251,7 @@ export enum FilesetType {
 
  */
 
-export type Fileset = {
+type Fileset = {
     // URL of the source
     // Examples:
     // - git://foo

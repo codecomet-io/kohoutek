@@ -3,11 +3,10 @@ import {StdinIngester, BuffIngester} from "./lib/ts-trace-sdk/ingester.js";
 import {
     ActionInstance,
     ActionStatus, AddFileAtomicAction, AtomicAction, CoreNode,
-    Fileset,
     GitFileset, HTTPFileset,
     ImageFileset, LocalFileset, MergeAction, MkdirAtomicAction, MvAtomicAction, PatchAtomicAction,
-    Pipeline, SymlinkAtomicAction,
-    TasksPool, UserAction
+    BuildPipeline, Pipeline, SymlinkAtomicAction,
+    ActionsObject, UserAction
 } from "./lib/ts-trace-sdk/model.js";
 import {stdin} from "node:process";
 import {bool, error, nil} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -154,30 +153,33 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
     // throw "lol"
     // Suck up stdin for the logs
-    // new StdinIngester(stdin, function(pl: Pipeline, tsks: TasksPool){
+    // new StdinIngester(stdin, function(pl: BuildPipeline, tsks: ActionsObject){
     const buffIngester = new BuffIngester()
-    const pipeline = buffIngester.ingest(trace)
-//        , function(pl: Pipeline, tsks: TasksPool){
+    const buildPipeline : BuildPipeline = buffIngester.ingest(trace)
+//        , function(pl: BuildPipeline, tsks: ActionsObject){
     // XXX piggyback on metadata
-    pipeline.id = metadata.id
-    pipeline.description = metadata.description
-    pipeline.repository.commit = metadata.commit
-    pipeline.repository.author = metadata.author
-    pipeline.repository.parent = metadata.parent
-    pipeline.repository.dirty = metadata.dirty
-    pipeline.repository.location = metadata.location
+    buildPipeline.id = metadata.id
+    buildPipeline.description = metadata.description
+    buildPipeline.repository.commit = metadata.commit
+    buildPipeline.repository.author = metadata.author
+    buildPipeline.repository.parent = metadata.parent
+    buildPipeline.repository.dirty = metadata.dirty
+    buildPipeline.repository.location = metadata.location
 
     // Geez this is shit. @spacedub burn all of this with fire and rewrite the stitching probably (later...)
-    Object.keys(pipeline.tasksPool).forEach(function(digest){
-        let traceObject = pipeline.tasksPool[digest]
+    // briznad: @spacedub you're too hard on yourself
+    Object.keys(buildPipeline.actionsObject).forEach(function(digest){
+        const traceObject = buildPipeline.actionsObject[digest]
+
         let typedObject: CoreNode
-        if (!(digest in fromProto)){
+
+        if (!fromProto[digest]) {
             // This is not good. Bad shit here: https://github.com/moby/buildkit/issues/3693
             // So, try very-very hard to still retrieve the object, even with a different digest
             // if (traceObject.name.startsWith("[source:local]")){
             Object.keys(fromProto).some(function(key){
-                // console.warn("Trying ", fromProto[key].name, "vs", pipeline.tasksPool[digest].name)
-                if (fromProto[key].name && fromProto[key].name == pipeline.tasksPool[digest].name){
+                // console.warn("Trying ", fromProto[key].name, "vs", pipeline.actionsObject[digest].name)
+                if (fromProto[key].name && fromProto[key].name == buildPipeline.actionsObject[digest].name){
                     typedObject = fromProto[key]
 
                     return true
@@ -186,9 +188,10 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
             //}
             if (!typedObject){
                 console.warn("Unable to find proto object for vertex", digest)
+
                 return
             }
-        }else{
+        } else {
             typedObject = fromProto[digest]
         }
 
@@ -206,18 +209,19 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         typedObject.stderr = traceObject.stderr
         typedObject.parents = traceObject.parents
 
-        pipeline.tasksPool[digest] = typedObject
+        buildPipeline.actionsObject[digest] = typedObject
     })
 
-            // callback(pipeline, tsks)
-            // console.warn(JSON.stringify(tsks, null, 2))
-            //         ops.forEach(function(op){
-            //             console.warn(op.Digest)
-            //             // OpMetadata
-            //         })
-            // console.warn(JSON.stringify(pipeline, null, 2))
-//        })
-    return pipeline
+    // extract actionObject values into an array
+    const actions = Object.values(buildPipeline.actionsObject)
+        .sort((a, b) => a.started - b.started) // sort values chronologically, based on start time
+
+    delete buildPipeline.actionsObject
+
+    return {
+        ...buildPipeline,
+        actions,
+    };
 }
 
 

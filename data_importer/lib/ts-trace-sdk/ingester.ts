@@ -7,7 +7,7 @@ import {
     VertexLog,
 } from "codecomet-js/source/buildkit-port/client/graph.js"
 import * as model from "./model.js";
-import {ActionStatus, Pipeline, TasksPool} from "./model.js";
+import { ActionStatus, BuildPipeline } from "./model.js";
 import * as readline from 'node:readline/promises';
 import {ReadStream} from "tty";
 
@@ -15,31 +15,19 @@ import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
 import {createHash} from "node:crypto";
 
-class Build implements model.Pipeline {
-    id: string = "github.com/codecomet-io/reporter-elastic/plan.js"
-    name: string = "User defined name"
-    description: string = "This is our super test plan, and guess what this description can change at any time"
-
-    runID: string = ""
-    started: uint64 = 0
-    completed: uint64 = 0
-    status: model.PipelineStatus = model.PipelineStatus.Completed
-    runtime: int = 0
-    machineTime: int = 0
-    tasks: {
-        // Total number of tasks
-        total: int;
-        // How many were cached
-        cached: int;
-        // How many ran success
-        ran: int;
-        // How many ran error
-        errored: int;
-        // How many started but got interrupted
-        interrupted: int;
-        // How many did not run
-        notRan: int;
-    } = {
+class Build implements BuildPipeline {
+    id = "github.com/codecomet-io/reporter-elastic/plan.js"
+    name = "User defined name"
+    description = "This is our super test plan, and guess what this description can change at any time"
+    runID = ""
+    started = 0
+    completed = 0
+    status = model.PipelineStatus.Completed
+    runtime = 0
+    machineTime = 0
+    trigger = "manual"
+    actionsObject = {}
+    tasks = {
         total: 0,
         cached: 0,
         ran: 0,
@@ -47,42 +35,37 @@ class Build implements model.Pipeline {
         interrupted: 0,
         notRan: 0,
     }
-    repository: model.Repository = {
+    repository = {
         commit: "",
         author: "",
         parent: "",
         dirty: false,
         location: "",
     }
-
-    trigger: string = "manual"
-    actor: model.User = {
+    actor = {
         id: "spacedub",
         name: "Space Raccoon"
     }
-    node: model.Host = new model.Host("host-unique-id", {
+    node = new model.Host("host-unique-id", {
         label1: "foo",
         label2: "bar",
     })
 
-    // Actual list of tasks
-    tasksPool: TasksPool = {}
-
     addLog(log: VertexLog) {
-        if (this.tasksPool[log.Vertex] == null)
+        if (this.actionsObject[log.Vertex] == null)
             throw new Error("Logs without a registered vertex - panic")
 
-        if (!this.tasksPool[log.Vertex].stdout) {
-            this.tasksPool[log.Vertex].stdout = ""
-            this.tasksPool[log.Vertex].stderr = ""
+        if (!this.actionsObject[log.Vertex].stdout) {
+            this.actionsObject[log.Vertex].stdout = ""
+            this.actionsObject[log.Vertex].stderr = ""
         }
         let dt = Buffer.from(log.Data.toString(), "base64").toString("utf-8").trim()
         // let dt = atob(log.Data.toString()).trim()
         if (dt != "")
             if (log.Stream == 2)
-                this.tasksPool[log.Vertex].stderr += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n"
+                this.actionsObject[log.Vertex].stderr += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n"
             else
-                this.tasksPool[log.Vertex].stdout += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n"
+                this.actionsObject[log.Vertex].stdout += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n"
 
         /*
         add.push(<LogEntry>{
@@ -94,14 +77,17 @@ class Build implements model.Pipeline {
     }
 
     addVertex(vertice: Vertex){
-        if (!(vertice.Digest))
+        if (!vertice.Digest) {
             throw new Error("Missing digest" + vertice)
-        if (!vertice.Name)
+        }
+
+        if (!vertice.Name) {
             throw new Error("Missing name" + vertice)
+        }
 
         if (vertice.ProgressGroup && vertice.ProgressGroup.weak == true) {
             return
-            // this.tasksPool[vertice.Digest].progressGroup = vertice.ProgressGroup
+            // this.actionsObject[vertice.Digest].progressGroup = vertice.ProgressGroup
             /*
             {
                 id: vertice.ProgressGroup.id,
@@ -111,52 +97,52 @@ class Build implements model.Pipeline {
             */
         }
 
-        if (this.tasksPool[vertice.Digest] == null){
+        if (!this.actionsObject[vertice.Digest]) {
             let action = <model.ActionInstance>{
                 id: vertice.Digest,
                 name: vertice.Name,
                 digest: vertice.Digest,
                 cached: false,
-                status: ActionStatus.NotRan,
+                status: ActionStatus.Ignored,
             }
             if (vertice.Inputs)
                 action.parents = vertice.Inputs.filter(function(idx){
-                    if (!(idx in this.tasksPool))
+                    if (!(idx in this.actionsObject))
                         return
                     return true
                 }.bind(this))
-            this.tasksPool[vertice.Digest] = action
+            this.actionsObject[vertice.Digest] = action
         }
 
         if (vertice.Started){
-            this.tasksPool[vertice.Digest].started = Date.parse(vertice.Started)
-            // this.tasksPool[vertice.Digest].datestamp = new Date(Date.parse(vertice.Started)).toISOString()
-            if (!this.started || this.tasksPool[vertice.Digest].started < this.started) {
-                this.started = this.tasksPool[vertice.Digest].started
+            this.actionsObject[vertice.Digest].started = Date.parse(vertice.Started)
+            // this.actionsObject[vertice.Digest].datestamp = new Date(Date.parse(vertice.Started)).toISOString()
+            if (!this.started || this.actionsObject[vertice.Digest].started < this.started) {
+                this.started = this.actionsObject[vertice.Digest].started
                 // this.datestamp = new Date(this.timestamp).toISOString()
                 // Temporary hack to create unique Descriptions for each Report - obviously needs to be undone
                 this.description = "Some Pipeline" //  + this.Report.Started.toString().slice(-4)
             }
-            this.tasksPool[vertice.Digest].status = ActionStatus.Started
+            this.actionsObject[vertice.Digest].status = ActionStatus.Started
         }
         if (vertice.Completed){
-            this.tasksPool[vertice.Digest].completed = Date.parse(vertice.Completed)
-            this.tasksPool[vertice.Digest].runtime = this.tasksPool[vertice.Digest].completed - this.tasksPool[vertice.Digest].started
-            this.tasksPool[vertice.Digest].status = ActionStatus.Completed
+            this.actionsObject[vertice.Digest].completed = Date.parse(vertice.Completed)
+            this.actionsObject[vertice.Digest].runtime = this.actionsObject[vertice.Digest].completed - this.actionsObject[vertice.Digest].started
+            this.actionsObject[vertice.Digest].status = ActionStatus.Completed
         }
         if (vertice.Error){
-            this.tasksPool[vertice.Digest].error = vertice.Error
-            this.tasksPool[vertice.Digest].status = ActionStatus.Errored
+            this.actionsObject[vertice.Digest].error = vertice.Error
+            this.actionsObject[vertice.Digest].status = ActionStatus.Errored
         }
         if (vertice.Cached) {
-            this.tasksPool[vertice.Digest].cached = true
-            this.tasksPool[vertice.Digest].status = ActionStatus.Cached
+            this.actionsObject[vertice.Digest].cached = true
+            this.actionsObject[vertice.Digest].status = ActionStatus.Cached
         }
     }
 
     wrap(){
         let plan = this
-        let tsk = this.tasksPool
+        let tsk = this.actionsObject
         // Total is easy
         plan.tasks.total = Object.keys(tsk).length
         // Cached is easy
@@ -216,8 +202,8 @@ export class StdinIngester {
     private reader: readline.Interface
     private build: Build
 
-//    constructor(file: ReadStream, onfinish: (plan: model.Pipeline, tasksc: model.ActionInstance[])=>void){
-    constructor(file: ReadStream, onfinish: (plan: model.Pipeline, tasksc: model.TasksPool)=>void){
+//    constructor(file: ReadStream, onfinish: (plan: model.BuildPipeline, tasksc: model.ActionInstance[])=>void){
+    constructor(file: ReadStream, onfinish: (plan: model.BuildPipeline, tasksc: model.ActionsObject)=>void){
         let transaction = Sentry.startTransaction({
             op: "Ingester",
             name: "Data ingesting transaction",
@@ -255,9 +241,9 @@ export class StdinIngester {
             bd.wrap()
             // Sentry transaction done
             transaction.finish();
-            let tsk = bd.tasksPool
-            bd.tasksPool = {}
-            onfinish(<Pipeline>bd, tsk) // Object.values(tsk))
+            let tsk = bd.actionsObject
+            bd.actionsObject = {}
+            onfinish(<BuildPipeline>bd, tsk) // Object.values(tsk))
         })
     }
 }
@@ -270,7 +256,7 @@ export class BuffIngester {
         this.build = new Build()
     }
 
-    ingest(buff: Buffer /*, onfinish: (plan: model.Pipeline, tasksc: model.TasksPool)=>void*/): Pipeline {
+    ingest(buff: Buffer /*, onfinish: (plan: model.BuildPipeline, tasksc: model.ActionsObject)=>void*/): BuildPipeline {
         let transaction = Sentry.startTransaction({
             op: "Ingester",
             name: "Data ingesting transaction",
@@ -306,9 +292,9 @@ export class BuffIngester {
         bd.wrap()
         // Sentry transaction done
         transaction.finish();
-        // let tsk = bd.tasksPool
-        // bd.tasksPool = {}
-        return <Pipeline>bd //, tsk]
-        // onfinish(<Pipeline>bd, tsk) // Object.values(tsk))
+        // let tsk = bd.actionsObject
+        // bd.actionsObject = {}
+        return <BuildPipeline>bd //, tsk]
+        // onfinish(<BuildPipeline>bd, tsk) // Object.values(tsk))
     }
 }

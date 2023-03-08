@@ -2,7 +2,7 @@
   "id": "uuid-for-the-super-pipeline",
   "name": "User defined name",
   "description": "This is a pipeline that does foo and boom and go",
-  "runID": "sha256:806d6b0935a746301fe11267f0be2ff48dd238bdcca2051531a798165122f873",
+  "runID": "sha256:1706044d4c521fc297f6b8b899ab189962a15f4c00607b3be5dbb9dbd4a89384",
   "started": 1678260822000,
   "completed": 1678260822974,
   "status": "Completed",
@@ -17,9 +17,9 @@
     "notRan": 0
   },
   "repository": {
-    "commit": "bee5253745c2e7d6081335c9a156f050131dc8d3",
+    "commit": "188b985db04c6b4d24bfbee471ced6888ac5e123",
     "author": "spacedub <spaceraccoon@codecomet.io>",
-    "parent": "cc392f058719bb2b42c3ce8c322bd7bf87c789fb",
+    "parent": "bee5253745c2e7d6081335c9a156f050131dc8d3",
     "dirty": "true",
     "location": "git@github.com:codecomet-io/pantry"
   },
@@ -57,10 +57,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 114185590,
+            "user": 115425360,
             "nice": 0,
-            "sys": 83756960,
-            "idle": 183116160,
+            "sys": 84745400,
+            "idle": 185311270,
             "irq": 0
           }
         },
@@ -68,10 +68,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 115418430,
+            "user": 116660840,
             "nice": 0,
-            "sys": 80446630,
-            "idle": 185262710,
+            "sys": 81405840,
+            "idle": 187484990,
             "irq": 0
           }
         },
@@ -79,10 +79,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 71855500,
+            "user": 72578020,
             "nice": 0,
-            "sys": 19733180,
-            "idle": 290271540,
+            "sys": 19932670,
+            "idle": 293786240,
             "irq": 0
           }
         },
@@ -90,10 +90,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 51535840,
+            "user": 52019060,
             "nice": 0,
-            "sys": 10745220,
-            "idle": 320062780,
+            "sys": 10858510,
+            "idle": 323908260,
             "irq": 0
           }
         },
@@ -101,10 +101,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 36547910,
+            "user": 36847600,
             "nice": 0,
-            "sys": 5933630,
-            "idle": 340220830,
+            "sys": 5990330,
+            "idle": 344310050,
             "irq": 0
           }
         },
@@ -112,10 +112,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 30199980,
+            "user": 30428720,
             "nice": 0,
-            "sys": 4011600,
-            "idle": 348678080,
+            "sys": 4046030,
+            "idle": 352862740,
             "irq": 0
           }
         },
@@ -123,10 +123,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 23878860,
+            "user": 24103450,
             "nice": 0,
-            "sys": 3682530,
-            "idle": 355473520,
+            "sys": 3720900,
+            "idle": 359657920,
             "irq": 0
           }
         },
@@ -134,10 +134,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 12017920,
+            "user": 12144030,
             "nice": 0,
-            "sys": 1509900,
-            "idle": 369707990,
+            "sys": 1523630,
+            "idle": 374018850,
             "irq": 0
           }
         },
@@ -145,10 +145,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 7701710,
+            "user": 7798550,
             "nice": 0,
-            "sys": 967470,
-            "idle": 374622140,
+            "sys": 976130,
+            "idle": 378967890,
             "irq": 0
           }
         },
@@ -156,22 +156,22 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 6702570,
+            "user": 6788800,
             "nice": 0,
-            "sys": 807760,
-            "idle": 375801590,
+            "sys": 814870,
+            "idle": 380159690,
             "irq": 0
           }
         }
       ],
       "endianness": "LE",
-      "freemem": 548372480,
+      "freemem": 467877888,
       "home": "/Users/dmp",
       "hostname": "Space-Raccoon.local",
       "loadavg": [
-        5.138671875,
-        4.8017578125,
-        4.51025390625
+        6.69677734375,
+        4.09423828125,
+        3.634765625
       ],
       "networkInterfaces": {
         "lo0": [
@@ -256,23 +256,23 @@
         ],
         "awdl0": [
           {
-            "address": "fe80::50a2:f0ff:febd:e796",
+            "address": "fe80::53:58ff:fef2:74a0",
             "netmask": "ffff:ffff:ffff:ffff::",
             "family": "IPv6",
-            "mac": "52:a2:f0:bd:e7:96",
+            "mac": "02:53:58:f2:74:a0",
             "internal": false,
-            "cidr": "fe80::50a2:f0ff:febd:e796/64",
+            "cidr": "fe80::53:58ff:fef2:74a0/64",
             "scopeid": 16
           }
         ],
         "llw0": [
           {
-            "address": "fe80::50a2:f0ff:febd:e796",
+            "address": "fe80::53:58ff:fef2:74a0",
             "netmask": "ffff:ffff:ffff:ffff::",
             "family": "IPv6",
-            "mac": "52:a2:f0:bd:e7:96",
+            "mac": "02:53:58:f2:74:a0",
             "internal": false,
-            "cidr": "fe80::50a2:f0ff:febd:e796/64",
+            "cidr": "fe80::53:58ff:fef2:74a0/64",
             "scopeid": 17
           }
         ],
@@ -365,7 +365,7 @@
       "tmpdir": "/var/folders/7t/px7pnq3s5csfvnnn5nv3fr980000gn/T",
       "totalmem": 68719476736,
       "type": "Darwin",
-      "uptime": 1199981,
+      "uptime": 1204668,
       "userInfo": {
         "uid": 501,
         "gid": 20,
@@ -401,30 +401,30 @@
       "status": "completed"
     },
     "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e": {
+      "typeHint": "user.action",
       "id": "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
-      "name": "apt-get upgrade",
-      "digest": "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
       "cached": true,
+      "digest": "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
+      "completed": 1678260822336,
+      "started": 1678260822336,
+      "runtime": 0,
       "status": "cached",
       "parents": [
         "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77"
-      ],
-      "started": 1678260822336,
-      "completed": 1678260822336,
-      "runtime": 0
+      ]
     },
     "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84": {
+      "typeHint": "user.action",
       "id": "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
-      "name": "apt-get install eatmydata nano socat",
-      "digest": "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
       "cached": true,
+      "digest": "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
+      "completed": 1678260822336,
+      "started": 1678260822336,
+      "runtime": 0,
       "status": "cached",
       "parents": [
         "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e"
-      ],
-      "started": 1678260822336,
-      "completed": 1678260822336,
-      "runtime": 0
+      ]
     },
     "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00": {
       "id": "sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00",

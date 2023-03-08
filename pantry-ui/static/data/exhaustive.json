@@ -2,24 +2,24 @@
   "id": "uuid-for-the-super-pipeline",
   "name": "User defined name",
   "description": "This is a pipeline that does foo and boom and go",
-  "runID": "sha256:3129aaf5c557aec34f8bca86a85ea34c400fea13761aa0cb379846591cf98d48",
-  "started": 1678222768807,
-  "completed": 1678222775112,
+  "runID": "sha256:acd465d2e68caf96011051a17222f0e3f572330342710a3b365d041fcd3069e9",
+  "started": 1678233718910,
+  "completed": 1678233723815,
   "status": "Completed",
-  "runtime": 6305,
-  "machineTime": 6910,
+  "runtime": 4905,
+  "machineTime": 4033,
   "tasks": {
-    "total": 13,
-    "cached": 2,
-    "ran": 11,
+    "total": 12,
+    "cached": 7,
+    "ran": 5,
     "errored": 0,
     "interrupted": 0,
     "notRan": 0
   },
   "repository": {
-    "commit": "bee5253745c2e7d6081335c9a156f050131dc8d3",
+    "commit": "188b985db04c6b4d24bfbee471ced6888ac5e123",
     "author": "spacedub <spaceraccoon@codecomet.io>",
-    "parent": "cc392f058719bb2b42c3ce8c322bd7bf87c789fb",
+    "parent": "bee5253745c2e7d6081335c9a156f050131dc8d3",
     "dirty": "true",
     "location": "git@github.com:codecomet-io/pantry"
   },
@@ -57,10 +57,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 114186410,
+            "user": 115426960,
             "nice": 0,
-            "sys": 83757430,
-            "idle": 183117090,
+            "sys": 84746100,
+            "idle": 185311270,
             "irq": 0
           }
         },
@@ -68,10 +68,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 115419200,
+            "user": 116662440,
             "nice": 0,
-            "sys": 80447130,
-            "idle": 185263670,
+            "sys": 81406550,
+            "idle": 187484990,
             "irq": 0
           }
         },
@@ -79,10 +79,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 71856690,
+            "user": 72579370,
             "nice": 0,
-            "sys": 19733320,
-            "idle": 290272450,
+            "sys": 19932760,
+            "idle": 293787100,
             "irq": 0
           }
         },
@@ -90,10 +90,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 51537000,
+            "user": 52020140,
             "nice": 0,
-            "sys": 10745320,
-            "idle": 320063760,
+            "sys": 10858560,
+            "idle": 323909430,
             "irq": 0
           }
         },
@@ -101,10 +101,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 36548710,
+            "user": 36848620,
             "nice": 0,
-            "sys": 5933700,
-            "idle": 340222200,
+            "sys": 5990380,
+            "idle": 344311290,
             "irq": 0
           }
         },
@@ -112,10 +112,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 30200660,
+            "user": 30429330,
             "nice": 0,
-            "sys": 4011650,
-            "idle": 348679580,
+            "sys": 4046060,
+            "idle": 352864410,
             "irq": 0
           }
         },
@@ -123,10 +123,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 23879410,
+            "user": 24103800,
             "nice": 0,
-            "sys": 3682570,
-            "idle": 355475170,
+            "sys": 3720910,
+            "idle": 359659860,
             "irq": 0
           }
         },
@@ -134,10 +134,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 12018180,
+            "user": 12144070,
             "nice": 0,
-            "sys": 1509920,
-            "idle": 369709950,
+            "sys": 1523640,
+            "idle": 374021100,
             "irq": 0
           }
         },
@@ -145,10 +145,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 7701870,
+            "user": 7798560,
             "nice": 0,
-            "sys": 967480,
-            "idle": 374624220,
+            "sys": 976130,
+            "idle": 378970170,
             "irq": 0
           }
         },
@@ -156,22 +156,22 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 6702650,
+            "user": 6788800,
             "nice": 0,
-            "sys": 807770,
-            "idle": 375803750,
+            "sys": 814870,
+            "idle": 380161990,
             "irq": 0
           }
         }
       ],
       "endianness": "LE",
-      "freemem": 483901440,
+      "freemem": 417693696,
       "home": "/Users/dmp",
       "hostname": "Space-Raccoon.local",
       "loadavg": [
-        5.138671875,
-        4.8017578125,
-        4.51025390625
+        8.802734375,
+        4.57373046875,
+        3.806640625
       ],
       "networkInterfaces": {
         "lo0": [
@@ -256,23 +256,23 @@
         ],
         "awdl0": [
           {
-            "address": "fe80::50a2:f0ff:febd:e796",
+            "address": "fe80::53:58ff:fef2:74a0",
             "netmask": "ffff:ffff:ffff:ffff::",
             "family": "IPv6",
-            "mac": "52:a2:f0:bd:e7:96",
+            "mac": "02:53:58:f2:74:a0",
             "internal": false,
-            "cidr": "fe80::50a2:f0ff:febd:e796/64",
+            "cidr": "fe80::53:58ff:fef2:74a0/64",
             "scopeid": 16
           }
         ],
         "llw0": [
           {
-            "address": "fe80::50a2:f0ff:febd:e796",
+            "address": "fe80::53:58ff:fef2:74a0",
             "netmask": "ffff:ffff:ffff:ffff::",
             "family": "IPv6",
-            "mac": "52:a2:f0:bd:e7:96",
+            "mac": "02:53:58:f2:74:a0",
             "internal": false,
-            "cidr": "fe80::50a2:f0ff:febd:e796/64",
+            "cidr": "fe80::53:58ff:fef2:74a0/64",
             "scopeid": 17
           }
         ],
@@ -365,7 +365,7 @@
       "tmpdir": "/var/folders/7t/px7pnq3s5csfvnnn5nv3fr980000gn/T",
       "totalmem": 68719476736,
       "type": "Darwin",
-      "uptime": 1199984,
+      "uptime": 1204670,
       "userInfo": {
         "uid": 501,
         "gid": 20,
@@ -387,76 +387,76 @@
   },
   "tasksPool": {
     "sha256:b99ce3485ce561a5f7a5abf8351b9e3a4f03f535eecb108a7014b91a3a10bbd2": {
+      "typeHint": "atomic.addfile",
       "id": "sha256:b99ce3485ce561a5f7a5abf8351b9e3a4f03f535eecb108a7014b91a3a10bbd2",
-      "name": "[action:addfile] foofoo in ",
-      "digest": "sha256:b99ce3485ce561a5f7a5abf8351b9e3a4f03f535eecb108a7014b91a3a10bbd2",
       "cached": false,
-      "status": "completed",
-      "started": 1678222768807,
-      "completed": 1678222768807,
-      "runtime": 0
+      "digest": "sha256:b99ce3485ce561a5f7a5abf8351b9e3a4f03f535eecb108a7014b91a3a10bbd2",
+      "completed": 1678233718910,
+      "started": 1678233718910,
+      "runtime": 0,
+      "status": "completed"
     },
     "sha256:4b3deaafcf9203124555f0d3fdd1e10a29b0e58cf5d3ec0177647e0e7971b955": {
+      "typeHint": "atomic.mkdir",
       "id": "sha256:4b3deaafcf9203124555f0d3fdd1e10a29b0e58cf5d3ec0177647e0e7971b955",
-      "name": "[action:mkdir] bal",
-      "digest": "sha256:4b3deaafcf9203124555f0d3fdd1e10a29b0e58cf5d3ec0177647e0e7971b955",
       "cached": true,
+      "digest": "sha256:4b3deaafcf9203124555f0d3fdd1e10a29b0e58cf5d3ec0177647e0e7971b955",
+      "completed": 1678233720453,
+      "started": 1678233720453,
+      "runtime": 0,
       "status": "cached",
       "parents": [
         "sha256:b99ce3485ce561a5f7a5abf8351b9e3a4f03f535eecb108a7014b91a3a10bbd2"
-      ],
-      "started": 1678222768823,
-      "completed": 1678222768823,
-      "runtime": 0
+      ]
     },
     "sha256:bcaaab2204846af162ffde85e59fd27e15fe54a615a25ae704f4275d983260b2": {
+      "typeHint": "atomic.mv",
       "id": "sha256:bcaaab2204846af162ffde85e59fd27e15fe54a615a25ae704f4275d983260b2",
-      "name": "[action:mv] foofoo barbar in ",
+      "cached": true,
       "digest": "sha256:bcaaab2204846af162ffde85e59fd27e15fe54a615a25ae704f4275d983260b2",
-      "cached": false,
-      "status": "completed",
+      "completed": 1678233720453,
+      "started": 1678233720453,
+      "runtime": 0,
+      "status": "cached",
       "parents": [
         "sha256:4b3deaafcf9203124555f0d3fdd1e10a29b0e58cf5d3ec0177647e0e7971b955"
-      ],
-      "started": 1678222770170,
-      "completed": 1678222770352,
-      "runtime": 182
+      ]
     },
     "sha256:d110e48b06bcfd26ee5fe67952aa39a9e0ee736b4b66fa8b5b9ec9d7ebca0ad2": {
+      "typeHint": "atomic.symlink",
       "id": "sha256:d110e48b06bcfd26ee5fe67952aa39a9e0ee736b4b66fa8b5b9ec9d7ebca0ad2",
-      "name": "[action:symlink] barbar symlink in ",
+      "cached": true,
       "digest": "sha256:d110e48b06bcfd26ee5fe67952aa39a9e0ee736b4b66fa8b5b9ec9d7ebca0ad2",
-      "cached": false,
-      "status": "completed",
+      "completed": 1678233720453,
+      "started": 1678233720453,
+      "runtime": 0,
+      "status": "cached",
       "parents": [
         "sha256:bcaaab2204846af162ffde85e59fd27e15fe54a615a25ae704f4275d983260b2"
-      ],
-      "started": 1678222770358,
-      "completed": 1678222770620,
-      "runtime": 262
+      ]
     },
     "sha256:a152893d8f2b7f74618e3ef70e7139ff1c236f09b4e8bab0d27b317005571e02": {
+      "typeHint": "atomic.patch",
       "id": "sha256:a152893d8f2b7f74618e3ef70e7139ff1c236f09b4e8bab0d27b317005571e02",
-      "name": "[action:patch]  (number of patches: 0)",
+      "cached": true,
       "digest": "sha256:a152893d8f2b7f74618e3ef70e7139ff1c236f09b4e8bab0d27b317005571e02",
-      "cached": false,
-      "status": "completed",
+      "completed": 1678233720453,
+      "started": 1678233720453,
+      "runtime": 0,
+      "status": "cached",
       "parents": [
         "sha256:d110e48b06bcfd26ee5fe67952aa39a9e0ee736b4b66fa8b5b9ec9d7ebca0ad2"
-      ],
-      "started": 1678222770622,
-      "completed": 1678222770787,
-      "runtime": 165
+      ]
     },
-    "sha256:50d85cd25315d68f396e21d19f7e168b80adb0425754acc4067bc7a2f16804a5": {
-      "id": "sha256:50d85cd25315d68f396e21d19f7e168b80adb0425754acc4067bc7a2f16804a5",
+    "sha256:358b1e457fa2ed5b32ea759e11d33c3b4bd0b0c695a00ecc302428979ac0edaa": {
+      "id": "sha256:358b1e457fa2ed5b32ea759e11d33c3b4bd0b0c695a00ecc302428979ac0edaa",
       "name": "[source:local] /Users/dmp/Projects/GitHub/codecomet/installers/codecomet/docs",
-      "digest": "sha256:50d85cd25315d68f396e21d19f7e168b80adb0425754acc4067bc7a2f16804a5",
+      "digest": "sha256:358b1e457fa2ed5b32ea759e11d33c3b4bd0b0c695a00ecc302428979ac0edaa",
       "cached": false,
       "status": "completed",
-      "started": 1678222768823,
-      "completed": 1678222768877,
-      "runtime": 54
+      "started": 1678233718910,
+      "completed": 1678233718954,
+      "runtime": 44
     },
     "sha256:6405373021a56353f5a90f54d537c58ae5e64c506eb673d831bac8e8cbfb373a": {
       "source": "https://codecomet.io/",
@@ -464,26 +464,26 @@
       "filename": "somewhere",
       "typeHint": "fileset.http",
       "id": "sha256:6405373021a56353f5a90f54d537c58ae5e64c506eb673d831bac8e8cbfb373a",
-      "cached": false,
+      "cached": true,
       "digest": "sha256:6405373021a56353f5a90f54d537c58ae5e64c506eb673d831bac8e8cbfb373a",
-      "completed": 1678222768888,
-      "started": 1678222768823,
-      "runtime": 65,
-      "status": "completed"
+      "completed": 1678233718910,
+      "started": 1678233718910,
+      "runtime": 0,
+      "status": "cached"
     },
     "sha256:ff9c5b9a2d29e69b89e1bfbd2684b24b121c73aa720018fe5bc605ceab43909a": {
       "source": "git://github.com/moby/buildkit#master",
       "keepDir": true,
       "typeHint": "fileset.git",
       "id": "sha256:ff9c5b9a2d29e69b89e1bfbd2684b24b121c73aa720018fe5bc605ceab43909a",
-      "cached": false,
+      "cached": true,
       "digest": "sha256:ff9c5b9a2d29e69b89e1bfbd2684b24b121c73aa720018fe5bc605ceab43909a",
-      "completed": 1678222772388,
-      "started": 1678222769383,
-      "runtime": 3005,
-      "status": "completed",
-      "stdout": "Tue Mar 07 2023 12:59:29 GMT-0800 (Pacific Standard Time) 75123c696506bdbca1ed69906479e200f1b62604\trefs/heads/master\nTue Mar 07 2023 12:59:31 GMT-0800 (Pacific Standard Time) Initialized empty Git repository in /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/4584/fs/.git/\nTue Mar 07 2023 12:59:31 GMT-0800 (Pacific Standard Time) commit\n",
-      "stderr": "Tue Mar 07 2023 12:59:31 GMT-0800 (Pacific Standard Time) From https://github.com/moby/buildkit\n * [new branch]      master     -> master\nTue Mar 07 2023 12:59:31 GMT-0800 (Pacific Standard Time) * [new branch]      master     -> origin/master\nTue Mar 07 2023 12:59:32 GMT-0800 (Pacific Standard Time) From file:///var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/4573/fs\n * [new tag]         master     -> master\nTue Mar 07 2023 12:59:32 GMT-0800 (Pacific Standard Time) * [new tag]         master     -> master\nTue Mar 07 2023 12:59:32 GMT-0800 (Pacific Standard Time) Note: switching to 'FETCH_HEAD'.\n\nYou are in 'detached HEAD' state. You can look around, make experimental\nchanges and commit them, and you can discard any commits you make in this\nstate without impacting any branches by switching back to a branch.\n\nIf you want to create a new branch to retain commits you create, you may\ndo so (now or later) by using -c with the switch command. Example:\n\n  git switch -c <new-branch-name>\n\nOr undo this operation with:\n\n  git switch -\n\nTurn off this advice by setting config variable advice.detachedHead to false\n\nHEAD is now at 75123c6 Merge pull request from GHSA-gc89-7gcr-jxqc\n"
+      "completed": 1678233719649,
+      "started": 1678233719649,
+      "runtime": 0,
+      "status": "cached",
+      "stdout": "Tue Mar 07 2023 16:01:59 GMT-0800 (Pacific Standard Time) 75123c696506bdbca1ed69906479e200f1b62604\trefs/heads/master\n",
+      "stderr": ""
     },
     "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77": {
       "source": "docker-image://docker.io/library/debian:bullseye-slim",
@@ -494,46 +494,36 @@
       "id": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
       "cached": true,
       "digest": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
-      "completed": 1678222769979,
-      "started": 1678222769979,
+      "completed": 1678233719387,
+      "started": 1678233719387,
       "runtime": 0,
       "status": "cached"
     },
-    "sha256:1da3e901e3a3a7feaeb709663cf07a4303426611abe35c12495af83b13810732": {
-      "id": "sha256:1da3e901e3a3a7feaeb709663cf07a4303426611abe35c12495af83b13810732",
+    "sha256:849c74ba08160dc52d567ad602ca76aa7e5f743c2b5e32ea546b77f4152bc6df": {
+      "id": "sha256:849c74ba08160dc52d567ad602ca76aa7e5f743c2b5e32ea546b77f4152bc6df",
       "name": "[action:merge]     ",
-      "digest": "sha256:1da3e901e3a3a7feaeb709663cf07a4303426611abe35c12495af83b13810732",
+      "digest": "sha256:849c74ba08160dc52d567ad602ca76aa7e5f743c2b5e32ea546b77f4152bc6df",
       "cached": false,
       "status": "completed",
       "parents": [
         "sha256:a152893d8f2b7f74618e3ef70e7139ff1c236f09b4e8bab0d27b317005571e02",
-        "sha256:50d85cd25315d68f396e21d19f7e168b80adb0425754acc4067bc7a2f16804a5",
+        "sha256:358b1e457fa2ed5b32ea759e11d33c3b4bd0b0c695a00ecc302428979ac0edaa",
         "sha256:6405373021a56353f5a90f54d537c58ae5e64c506eb673d831bac8e8cbfb373a",
         "sha256:ff9c5b9a2d29e69b89e1bfbd2684b24b121c73aa720018fe5bc605ceab43909a",
         "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77"
       ],
-      "started": 1678222772455,
-      "completed": 1678222772974,
-      "runtime": 519
+      "started": 1678233720476,
+      "completed": 1678233721125,
+      "runtime": 649
     },
-    "sha256:c44affbd0050289e66cc97cfcc1550b7fbf449e53fb10b7ee5ac5d9de4dc75e0": {
-      "id": "sha256:c44affbd0050289e66cc97cfcc1550b7fbf449e53fb10b7ee5ac5d9de4dc75e0",
-      "name": "[auth] library/debian:pull token for registry-1.docker.io",
-      "digest": "sha256:c44affbd0050289e66cc97cfcc1550b7fbf449e53fb10b7ee5ac5d9de4dc75e0",
-      "cached": false,
-      "status": "completed",
-      "started": 1678222769535,
-      "completed": 1678222769535,
-      "runtime": 0
-    },
-    "sha256:c88238f576a7c7c86f813f0c05d4d445135dc388700f6b72db6bdbee487bfa12": {
-      "id": "sha256:c88238f576a7c7c86f813f0c05d4d445135dc388700f6b72db6bdbee487bfa12",
+    "sha256:2eb047f018361fc37aaadd44056a2abd616ebc22bfa7514a54ebe30756e34bce": {
+      "id": "sha256:2eb047f018361fc37aaadd44056a2abd616ebc22bfa7514a54ebe30756e34bce",
       "name": "[auth] library/busybox:pull token for registry-1.docker.io",
-      "digest": "sha256:c88238f576a7c7c86f813f0c05d4d445135dc388700f6b72db6bdbee487bfa12",
+      "digest": "sha256:2eb047f018361fc37aaadd44056a2abd616ebc22bfa7514a54ebe30756e34bce",
       "cached": false,
       "status": "completed",
-      "started": 1678222769841,
-      "completed": 1678222769841,
+      "started": 1678233719693,
+      "completed": 1678233719693,
       "runtime": 0
     },
     "sha256:b60a1292d407630dbb741f28ab6ea4ce3cca872ac28eeee56f4e66a182eca4bc": {
@@ -542,9 +532,9 @@
       "digest": "sha256:b60a1292d407630dbb741f28ab6ea4ce3cca872ac28eeee56f4e66a182eca4bc",
       "cached": false,
       "status": "completed",
-      "started": 1678222772454,
-      "completed": 1678222775112,
-      "runtime": 2658
+      "started": 1678233720475,
+      "completed": 1678233723815,
+      "runtime": 3340
     }
   }
 }

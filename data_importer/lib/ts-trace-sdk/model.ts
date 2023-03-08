@@ -228,6 +228,7 @@ export type CoreNode = {
     status: ActionStatus
     stdout: string
     stderr: string
+    parents:        digest.Digest[]
     progressGroup: Types.ProgressGroup
 }
 
@@ -277,10 +278,43 @@ export type LocalFileSet = {
     excludePattern?: string[]
 } & FileSet
 
-export type ActionInstance = {
+export type AtomicAction = {
+    // Parents
+    typeHint: string
+} & CoreNode
+
+export type MvAtomicAction = {
+
+} & AtomicAction
+
+export type MkdirAtomicAction = {
+
+} & AtomicAction
+
+export type AddFileAtomicAction = {
+
+} & AtomicAction
+
+export type PatchAtomicAction = {
+
+} & AtomicAction
+
+export type SymlinkAtomicAction = {
+
+} & AtomicAction
+
+export type MergeAction = {
+
+} & AtomicAction
+
+export type UserAction = {
+
+} & AtomicAction
+
+export type ActionInstance = AtomicAction /*{
     // Parents actions
     parents:        digest.Digest[]
-} & CoreNode
+} & CoreNode */
 
 export type ActionInstancePREV = {
     // Unique identifier to the action

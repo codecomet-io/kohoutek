@@ -35,7 +35,6 @@ export default async function Pantry(buff, trace, meta) {
     let fromProto = {};
     ops.forEach(function (op) {
         // console.warn(JSON.stringify(op.Digest, null, 2))
-        // console.warn(JSON.stringify(op.OpMetadata.caps, null, 2))
         if (op.OpMetadata.caps["source.image"] !== undefined) {
             fromProto[op.Digest] = {
                 source: op.Op.source.identifier,
@@ -70,7 +69,43 @@ export default async function Pantry(buff, trace, meta) {
                 typeHint: "fileset.http",
             };
         }
+        else if (op.OpMetadata.description !== undefined && op.OpMetadata.description["codecomet.op"] !== "") {
+            let descriptor;
+            switch (op.OpMetadata.description["codecomet.op"]) {
+                case "atomic.mv":
+                    descriptor = {};
+                    break;
+                case "atomic.addfile":
+                    descriptor = {};
+                    break;
+                case "atomic.mkdir":
+                    descriptor = {};
+                    break;
+                case "atomic.patch":
+                    descriptor = {};
+                    break;
+                case "atomic.symlink":
+                    descriptor = {};
+                    break;
+                case "atomic.merge":
+                    descriptor = {};
+                    break;
+                default:
+                    console.warn("Unrecognized atomic action type|" + op.OpMetadata.description["codecomet.op"] + "|");
+                    descriptor = {};
+                    break;
+            }
+            descriptor.typeHint = op.OpMetadata.description["codecomet.op"];
+            fromProto[op.Digest] = descriptor;
+        }
+        else {
+            fromProto[op.Digest] = {
+                typeHint: "user.action",
+            };
+            // console.warn(op.OpMetadata)
+        }
     });
+    // throw "lol"
     // Suck up stdin for the logs
     // new StdinIngester(stdin, function(pl: Pipeline, tsks: TasksPool){
     let buffIngester = new BuffIngester();
@@ -87,11 +122,12 @@ export default async function Pantry(buff, trace, meta) {
     // Geez this is shit. @spacedub burn all of this with fire and rewrite the stitching probably (later...)
     Object.keys(pipeline.tasksPool).forEach(function (digest) {
         if (!(digest in fromProto)) {
-            console.warn("unable to find " + digest);
+            console.warn("No proto definition for " + digest);
             return;
         }
         let traceObject = pipeline.tasksPool[digest];
         let typedObject = fromProto[digest];
+        // console.warn("still ok")
         typedObject.id = traceObject.id;
         typedObject.cached = traceObject.cached;
         typedObject.error = traceObject.error;
@@ -102,6 +138,7 @@ export default async function Pantry(buff, trace, meta) {
         typedObject.status = traceObject.status;
         typedObject.stdout = traceObject.stdout;
         typedObject.stderr = traceObject.stderr;
+        typedObject.parents = traceObject.parents;
         pipeline.tasksPool[digest] = typedObject;
     });
     // callback(pipeline, tsks)

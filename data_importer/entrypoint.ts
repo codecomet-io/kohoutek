@@ -2,12 +2,12 @@ import {Tracer} from "./dependencies/ts-core/sentry.js"
 import {StdinIngester, BuffIngester} from "./lib/ts-trace-sdk/ingester.js";
 import {
     ActionInstance,
-    ActionStatus, CoreNode,
+    ActionStatus, AddFileAtomicAction, AtomicAction, CoreNode,
     FileSet,
     GitFileSet, HTTPFileSet,
-    ImageFileSet, LocalFileSet,
-    Pipeline,
-    TasksPool
+    ImageFileSet, LocalFileSet, MergeAction, MkdirAtomicAction, MvAtomicAction, PatchAtomicAction,
+    Pipeline, SymlinkAtomicAction,
+    TasksPool, UserAction
 } from "./lib/ts-trace-sdk/model.js";
 import {stdin} from "node:process";
 import {bool, error, nil} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -17,6 +17,7 @@ import {Protobuf} from "codecomet-js/source/utils/protobuf.js";
 import {digest} from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
 import {Types} from "codecomet-js/source/protobuf/types.js";
 import {readFileSync, writeFileSync} from "fs";
+import {description} from "codecomet-js/experimental/protoc/github.com/gogo/protobuf/gogoproto/gogo_pb.js";
 
 // Init Sentry
 new Tracer("https://c02314800c4d4be2a32f1d28c4220f3f@o1370052.ingest.sentry.io/6673370")
@@ -70,7 +71,6 @@ export default async function Pantry(buff: Buffer, trace: Buffer, meta: string):
     let fromProto: {[key: digest.Digest]: CoreNode} = {}
     ops.forEach(function(op){
         // console.warn(JSON.stringify(op.Digest, null, 2))
-        // console.warn(JSON.stringify(op.OpMetadata.caps, null, 2))
         if (op.OpMetadata.caps["source.image"] !== undefined) {
             fromProto[op.Digest] = <ImageFileSet>{
                 source: op.Op.source.identifier,
@@ -101,9 +101,43 @@ export default async function Pantry(buff: Buffer, trace: Buffer, meta: string):
                 filename: op.Op.source.attrs["http.filename"],
                 typeHint: "fileset.http",
             }
+        }else if (op.OpMetadata.description !== undefined && op.OpMetadata.description["codecomet.op"] !== "") {
+            let descriptor: AtomicAction
+            switch (op.OpMetadata.description["codecomet.op"]) {
+                case "atomic.mv":
+                    descriptor = <MvAtomicAction>{}
+                    break
+                case "atomic.addfile":
+                    descriptor = <AddFileAtomicAction>{}
+                    break
+                case "atomic.mkdir":
+                    descriptor = <MkdirAtomicAction>{}
+                    break
+                case "atomic.patch":
+                    descriptor = <PatchAtomicAction>{}
+                    break
+                case "atomic.symlink":
+                    descriptor = <SymlinkAtomicAction>{}
+                    break
+                case "atomic.merge":
+                    descriptor = <MergeAction>{}
+                    break
+                default:
+                    console.warn("Unrecognized atomic action type|" + op.OpMetadata.description["codecomet.op"] + "|")
+                    descriptor = <AtomicAction>{}
+                    break
+            }
+            descriptor.typeHint = op.OpMetadata.description["codecomet.op"]
+            fromProto[op.Digest] = descriptor
+        }else{
+            fromProto[op.Digest] = <UserAction>{
+                typeHint: "user.action",
+            }
+            // console.warn(op.OpMetadata)
         }
     })
 
+    // throw "lol"
     // Suck up stdin for the logs
     // new StdinIngester(stdin, function(pl: Pipeline, tsks: TasksPool){
     let buffIngester = new BuffIngester()
@@ -127,6 +161,7 @@ export default async function Pantry(buff: Buffer, trace: Buffer, meta: string):
 
         let traceObject = pipeline.tasksPool[digest]
         let typedObject = fromProto[digest]
+        // console.warn("still ok")
         typedObject.id = traceObject.id
         typedObject.cached = traceObject.cached
         typedObject.error = traceObject.error
@@ -137,6 +172,7 @@ export default async function Pantry(buff: Buffer, trace: Buffer, meta: string):
         typedObject.status = traceObject.status
         typedObject.stdout = traceObject.stdout
         typedObject.stderr = traceObject.stderr
+        typedObject.parents = traceObject.parents
 
         pipeline.tasksPool[digest] = typedObject
     })

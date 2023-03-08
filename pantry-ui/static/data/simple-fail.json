@@ -2,7 +2,7 @@
   "id": "uuid-for-the-super-pipeline",
   "name": "User defined name",
   "description": "This is a pipeline that does foo and boom and go",
-  "runID": "sha256:bbfd71d784783a0772cc5935c2487ec45af64599378516e0c7f29291a8b14129",
+  "runID": "sha256:553d0f1fe54d9a224512e1a4cf1ade67af6f4ba2e6b9699dbaede57045958104",
   "started": 1678264901193,
   "completed": 1678264919386,
   "status": "Errored",
@@ -17,9 +17,9 @@
     "notRan": 0
   },
   "repository": {
-    "commit": "bee5253745c2e7d6081335c9a156f050131dc8d3",
+    "commit": "188b985db04c6b4d24bfbee471ced6888ac5e123",
     "author": "spacedub <spaceraccoon@codecomet.io>",
-    "parent": "cc392f058719bb2b42c3ce8c322bd7bf87c789fb",
+    "parent": "bee5253745c2e7d6081335c9a156f050131dc8d3",
     "dirty": "true",
     "location": "git@github.com:codecomet-io/pantry"
   },
@@ -57,10 +57,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 114186010,
+            "user": 115426150,
             "nice": 0,
-            "sys": 83757160,
-            "idle": 183116620,
+            "sys": 84745790,
+            "idle": 185311270,
             "irq": 0
           }
         },
@@ -68,10 +68,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 115418820,
+            "user": 116661640,
             "nice": 0,
-            "sys": 80446840,
-            "idle": 185263190,
+            "sys": 81406220,
+            "idle": 187484990,
             "irq": 0
           }
         },
@@ -79,10 +79,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 71856080,
+            "user": 72578690,
             "nice": 0,
-            "sys": 19733250,
-            "idle": 290271980,
+            "sys": 19932720,
+            "idle": 293786690,
             "irq": 0
           }
         },
@@ -90,10 +90,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 51536390,
+            "user": 52019650,
             "nice": 0,
-            "sys": 10745270,
-            "idle": 320063270,
+            "sys": 10858540,
+            "idle": 323908820,
             "irq": 0
           }
         },
@@ -101,10 +101,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 36548310,
+            "user": 36848120,
             "nice": 0,
-            "sys": 5933660,
-            "idle": 340221500,
+            "sys": 5990350,
+            "idle": 344310690,
             "irq": 0
           }
         },
@@ -112,10 +112,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 30200350,
+            "user": 30429010,
             "nice": 0,
-            "sys": 4011630,
-            "idle": 348678780,
+            "sys": 4046040,
+            "idle": 352863620,
             "irq": 0
           }
         },
@@ -123,10 +123,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 23879170,
+            "user": 24103640,
             "nice": 0,
-            "sys": 3682550,
-            "idle": 355474280,
+            "sys": 3720910,
+            "idle": 359658900,
             "irq": 0
           }
         },
@@ -134,10 +134,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 12018090,
+            "user": 12144060,
             "nice": 0,
-            "sys": 1509920,
-            "idle": 369708890,
+            "sys": 1523640,
+            "idle": 374020000,
             "irq": 0
           }
         },
@@ -145,10 +145,10 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 7701800,
+            "user": 7798560,
             "nice": 0,
-            "sys": 967480,
-            "idle": 374623140,
+            "sys": 976130,
+            "idle": 378969050,
             "irq": 0
           }
         },
@@ -156,22 +156,22 @@
           "model": "Apple M1 Max",
           "speed": 24,
           "times": {
-            "user": 6702620,
+            "user": 6788800,
             "nice": 0,
-            "sys": 807770,
-            "idle": 375802630,
+            "sys": 814870,
+            "idle": 380160870,
             "irq": 0
           }
         }
       ],
       "endianness": "LE",
-      "freemem": 454885376,
+      "freemem": 392658944,
       "home": "/Users/dmp",
       "hostname": "Space-Raccoon.local",
       "loadavg": [
-        5.138671875,
-        4.8017578125,
-        4.51025390625
+        8.802734375,
+        4.57373046875,
+        3.806640625
       ],
       "networkInterfaces": {
         "lo0": [
@@ -256,23 +256,23 @@
         ],
         "awdl0": [
           {
-            "address": "fe80::50a2:f0ff:febd:e796",
+            "address": "fe80::53:58ff:fef2:74a0",
             "netmask": "ffff:ffff:ffff:ffff::",
             "family": "IPv6",
-            "mac": "52:a2:f0:bd:e7:96",
+            "mac": "02:53:58:f2:74:a0",
             "internal": false,
-            "cidr": "fe80::50a2:f0ff:febd:e796/64",
+            "cidr": "fe80::53:58ff:fef2:74a0/64",
             "scopeid": 16
           }
         ],
         "llw0": [
           {
-            "address": "fe80::50a2:f0ff:febd:e796",
+            "address": "fe80::53:58ff:fef2:74a0",
             "netmask": "ffff:ffff:ffff:ffff::",
             "family": "IPv6",
-            "mac": "52:a2:f0:bd:e7:96",
+            "mac": "02:53:58:f2:74:a0",
             "internal": false,
-            "cidr": "fe80::50a2:f0ff:febd:e796/64",
+            "cidr": "fe80::53:58ff:fef2:74a0/64",
             "scopeid": 17
           }
         ],
@@ -365,7 +365,7 @@
       "tmpdir": "/var/folders/7t/px7pnq3s5csfvnnn5nv3fr980000gn/T",
       "totalmem": 68719476736,
       "type": "Darwin",
-      "uptime": 1199983,
+      "uptime": 1204669,
       "userInfo": {
         "uid": 501,
         "gid": 20,
@@ -400,17 +400,17 @@
       "status": "completed"
     },
     "sha256:7a830e01dd5926f63eee241a37f13de580dac91af765ea3a0c027e5dc01a70b0": {
+      "typeHint": "user.action",
       "id": "sha256:7a830e01dd5926f63eee241a37f13de580dac91af765ea3a0c027e5dc01a70b0",
-      "name": "apt-get upgrade",
-      "digest": "sha256:7a830e01dd5926f63eee241a37f13de580dac91af765ea3a0c027e5dc01a70b0",
       "cached": true,
+      "digest": "sha256:7a830e01dd5926f63eee241a37f13de580dac91af765ea3a0c027e5dc01a70b0",
+      "completed": 1678264901963,
+      "started": 1678264901963,
+      "runtime": 0,
       "status": "cached",
       "parents": [
         "sha256:f65fec6162c8d70fc2311c3d20f1b6a91a87c9203547e280f276fe349ca18ac5"
-      ],
-      "started": 1678264901963,
-      "completed": 1678264901963,
-      "runtime": 0
+      ]
     },
     "sha256:50b39ce837fa048113fa5eba3b2e6f3ce05caddec3f63144b89bb2f19bf4d1f0": {
       "id": "sha256:50b39ce837fa048113fa5eba3b2e6f3ce05caddec3f63144b89bb2f19bf4d1f0",

@@ -2,14 +2,14 @@
   "id": "uuid-for-the-super-pipeline",
   "name": "User defined name",
   "description": "This is a pipeline that does foo and boom and go",
-  "runID": "sha256:f402dc5aa2065a206e622a554d992bbc98494970651a8626de72e6e4bf42b203",
+  "runID": "sha256:60bcab1cb7f4bc175fe7b54dfc45f2aa1ebe39126a431316941cf1384f725362",
   "started": 1677892428344,
   "completed": 1677892457682,
   "status": "Completed",
   "runtime": 29338,
   "machineTime": 28330,
   "trigger": "manual",
-  "tasks": {
+  "actionsInfo": {
     "total": 5,
     "cached": 0,
     "ran": 5,
@@ -17,323 +17,112 @@
     "interrupted": 0,
     "notRan": 0
   },
-  "repository": {
-    "commit": "e9917e5b3740a863220416bdc2cbc2ccf3549551",
-    "author": "Brad Mallow <briznad@gmail.com>",
-    "parent": "64b58ce8611942a1d05fd423969dc073220b4c07",
-    "dirty": "true",
-    "location": "https://github.com/codecomet-io/pantry"
-  },
   "actor": {
     "id": "spacedub",
     "name": "Space Raccoon"
   },
-  "node": {
-    "runtime": {
-      "node": "18.13.0",
-      "v8": "10.2.154.23-node.21",
-      "uv": "1.44.2",
-      "zlib": "1.2.13",
-      "brotli": "1.0.9",
-      "ares": "1.18.1",
-      "modules": "108",
-      "nghttp2": "1.51.0",
-      "napi": "8",
-      "llhttp": "6.0.10",
-      "uvwasi": "0.0.13",
-      "openssl": "3.0.7+quic",
-      "cldr": "42.0",
-      "icu": "72.1",
-      "tz": "2022f",
-      "unicode": "15.0",
-      "ngtcp2": "0.8.1",
-      "nghttp3": "0.7.0"
+  "filesets": [
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "amd64"
     },
-    "system": {
-      "arch": "arm64",
-      "cpus": [
-        {
-          "model": "Apple M1",
-          "speed": 24,
-          "times": {
-            "user": 70708100,
-            "nice": 0,
-            "sys": 45786100,
-            "idle": 626686970,
-            "irq": 0
-          }
-        },
-        {
-          "model": "Apple M1",
-          "speed": 24,
-          "times": {
-            "user": 66124700,
-            "nice": 0,
-            "sys": 41934050,
-            "idle": 635513700,
-            "irq": 0
-          }
-        },
-        {
-          "model": "Apple M1",
-          "speed": 24,
-          "times": {
-            "user": 56463390,
-            "nice": 0,
-            "sys": 34048000,
-            "idle": 653691290,
-            "irq": 0
-          }
-        },
-        {
-          "model": "Apple M1",
-          "speed": 24,
-          "times": {
-            "user": 50200280,
-            "nice": 0,
-            "sys": 28653130,
-            "idle": 665867190,
-            "irq": 0
-          }
-        },
-        {
-          "model": "Apple M1",
-          "speed": 24,
-          "times": {
-            "user": 35624270,
-            "nice": 0,
-            "sys": 7939360,
-            "idle": 702399980,
-            "irq": 0
-          }
-        },
-        {
-          "model": "Apple M1",
-          "speed": 24,
-          "times": {
-            "user": 24086000,
-            "nice": 0,
-            "sys": 5188730,
-            "idle": 716817010,
-            "irq": 0
-          }
-        },
-        {
-          "model": "Apple M1",
-          "speed": 24,
-          "times": {
-            "user": 16056200,
-            "nice": 0,
-            "sys": 3289630,
-            "idle": 726902450,
-            "irq": 0
-          }
-        },
-        {
-          "model": "Apple M1",
-          "speed": 24,
-          "times": {
-            "user": 11619510,
-            "nice": 0,
-            "sys": 2195220,
-            "idle": 732555430,
-            "irq": 0
-          }
-        }
-      ],
-      "endianness": "LE",
-      "freemem": 222363648,
-      "home": "/Users/bradmallow",
-      "hostname": "BrizMacPro.local",
-      "loadavg": [
-        1.564453125,
-        1.6044921875,
-        1.67822265625
-      ],
-      "networkInterfaces": {
-        "lo0": [
-          {
-            "address": "127.0.0.1",
-            "netmask": "255.0.0.0",
-            "family": "IPv4",
-            "mac": "00:00:00:00:00:00",
-            "internal": true,
-            "cidr": "127.0.0.1/8"
-          },
-          {
-            "address": "::1",
-            "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
-            "family": "IPv6",
-            "mac": "00:00:00:00:00:00",
-            "internal": true,
-            "cidr": "::1/128",
-            "scopeid": 0
-          },
-          {
-            "address": "fe80::1",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "00:00:00:00:00:00",
-            "internal": true,
-            "cidr": "fe80::1/64",
-            "scopeid": 1
-          }
-        ],
-        "anpi0": [
-          {
-            "address": "fe80::42e:5cff:fe45:7394",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "06:2e:5c:45:73:94",
-            "internal": false,
-            "cidr": "fe80::42e:5cff:fe45:7394/64",
-            "scopeid": 4
-          }
-        ],
-        "anpi1": [
-          {
-            "address": "fe80::42e:5cff:fe45:7395",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "06:2e:5c:45:73:95",
-            "internal": false,
-            "cidr": "fe80::42e:5cff:fe45:7395/64",
-            "scopeid": 5
-          }
-        ],
-        "en0": [
-          {
-            "address": "fe80::b9:bd94:e9b4:9340",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "3c:06:30:45:17:88",
-            "internal": false,
-            "cidr": "fe80::b9:bd94:e9b4:9340/64",
-            "scopeid": 11
-          },
-          {
-            "address": "192.168.7.132",
-            "netmask": "255.255.252.0",
-            "family": "IPv4",
-            "mac": "3c:06:30:45:17:88",
-            "internal": false,
-            "cidr": "192.168.7.132/22"
-          }
-        ],
-        "awdl0": [
-          {
-            "address": "fe80::1005:4eff:fe3b:345a",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "12:05:4e:3b:34:5a",
-            "internal": false,
-            "cidr": "fe80::1005:4eff:fe3b:345a/64",
-            "scopeid": 12
-          }
-        ],
-        "llw0": [
-          {
-            "address": "fe80::1005:4eff:fe3b:345a",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "12:05:4e:3b:34:5a",
-            "internal": false,
-            "cidr": "fe80::1005:4eff:fe3b:345a/64",
-            "scopeid": 14
-          }
-        ],
-        "utun0": [
-          {
-            "address": "fe80::bef9:3475:3a9a:eee7",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "00:00:00:00:00:00",
-            "internal": false,
-            "cidr": "fe80::bef9:3475:3a9a:eee7/64",
-            "scopeid": 15
-          }
-        ],
-        "utun1": [
-          {
-            "address": "fe80::696f:4768:4e96:11fd",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "00:00:00:00:00:00",
-            "internal": false,
-            "cidr": "fe80::696f:4768:4e96:11fd/64",
-            "scopeid": 16
-          }
-        ],
-        "utun2": [
-          {
-            "address": "fe80::ce81:b1c:bd2c:69e",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "00:00:00:00:00:00",
-            "internal": false,
-            "cidr": "fe80::ce81:b1c:bd2c:69e/64",
-            "scopeid": 17
-          }
-        ],
-        "utun3": [
-          {
-            "address": "fe80::872a:430:65e0:8c05",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "00:00:00:00:00:00",
-            "internal": false,
-            "cidr": "fe80::872a:430:65e0:8c05/64",
-            "scopeid": 18
-          }
-        ],
-        "utun4": [
-          {
-            "address": "fe80::4073:9b9d:ae3f:8478",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "00:00:00:00:00:00",
-            "internal": false,
-            "cidr": "fe80::4073:9b9d:ae3f:8478/64",
-            "scopeid": 19
-          }
-        ],
-        "utun5": [
-          {
-            "address": "fe80::b279:febf:d54c:24b2",
-            "netmask": "ffff:ffff:ffff:ffff::",
-            "family": "IPv6",
-            "mac": "00:00:00:00:00:00",
-            "internal": false,
-            "cidr": "fe80::b279:febf:d54c:24b2/64",
-            "scopeid": 20
-          }
-        ]
-      },
-      "platform": "darwin",
-      "release": "22.3.0",
-      "tmpdir": "/var/folders/0k/gpxs3_dd7dd5kv4g4trb8f1m0000gn/T",
-      "totalmem": 17179869184,
-      "type": "Darwin",
-      "uptime": 1807594,
-      "userInfo": {
-        "uid": 501,
-        "gid": 20,
-        "username": "bradmallow",
-        "homedir": "/Users/bradmallow",
-        "shell": "/bin/zsh"
-      },
-      "version": "Darwin Kernel Version 22.3.0: Mon Jan 30 20:39:35 PST 2023; root:xnu-8792.81.3~2/RELEASE_ARM64_T8103"
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "arm64"
     },
-    "owner": {
-      "id": "spacedub",
-      "name": "Space Raccoon"
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "arm",
+      "variant": "v7"
     },
-    "id": "host-unique-id",
-    "metadata": {
-      "label1": "foo",
-      "label2": "bar"
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "amd64"
+    },
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "arm64"
+    },
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "arm",
+      "variant": "v7"
+    },
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "amd64"
+    },
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "arm64"
+    },
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "arm",
+      "variant": "v7"
+    },
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "amd64"
+    },
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "arm64"
+    },
+    {
+      "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "docker",
+      "id": "tempNonUniqueFilesetId",
+      "source": "docker-image://docker.io/library/debian:bullseye-slim",
+      "forceResolve": true,
+      "architecture": "arm",
+      "variant": "v7"
     }
-  },
+  ],
   "actions": [
     {
       "id": "sha256:2610dc9b672672d7569755c84d2bbfe02df42bf3adcc51339e27f1a3847117f5",
@@ -346,12 +135,9 @@
       "runtime": 0
     },
     {
-      "source": "docker-image://docker.io/library/debian:bullseye-slim",
-      "forceResolve": true,
-      "architecture": "arm",
-      "variant": "v7",
-      "typeHint": "fileset.image",
       "name": "[source:image] docker.io/library/debian:bullseye-slim",
+      "type": "prepareFileset",
+      "filesetType": "docker",
       "id": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
       "cached": false,
       "digest": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
@@ -361,7 +147,7 @@
       "status": "completed"
     },
     {
-      "typeHint": "user.action",
+      "type": "custom",
       "name": "apt-get upgrade",
       "id": "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
       "cached": false,
@@ -377,7 +163,7 @@
       ]
     },
     {
-      "typeHint": "user.action",
+      "type": "custom",
       "name": "apt-get install eatmydata nano socat",
       "id": "sha256:7d56e94b3beb356751a3e6f559295c2e360361498efd4103e6dd6dc5063a8e84",
       "cached": false,

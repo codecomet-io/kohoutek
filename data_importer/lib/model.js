@@ -73,4 +73,12 @@ export var ActionStatus;
     ActionStatus["Ignored"] = "ignored";
     ActionStatus["Started"] = "started";
 })(ActionStatus || (ActionStatus = {}));
+export var FilesetType;
+(function (FilesetType) {
+    FilesetType["Git"] = "git";
+    FilesetType["HTTP"] = "http";
+    FilesetType["Image"] = "docker";
+    FilesetType["Local"] = "local";
+    FilesetType["Scratch"] = "scratch";
+})(FilesetType || (FilesetType = {}));
 //# sourceMappingURL=model.js.map

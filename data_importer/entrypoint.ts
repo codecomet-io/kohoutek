@@ -1,13 +1,26 @@
 import {Tracer} from "./dependencies/ts-core/sentry.js"
-import {StdinIngester, BuffIngester} from "./lib/ts-trace-sdk/ingester.js";
+import {StdinIngester, BuffIngester} from "./lib/ingester.js";
 import {
-    ActionInstance,
-    ActionStatus, AddFileAtomicAction, AtomicAction, CoreNode,
-    GitFileset, HTTPFileset,
-    ImageFileset, LocalFileset, MergeAction, MkdirAtomicAction, MvAtomicAction, PatchAtomicAction,
-    BuildPipeline, Pipeline, SymlinkAtomicAction,
-    ActionsObject, UserAction
-} from "./lib/ts-trace-sdk/model.js";
+    AddFileAction,
+    UtilityAction,
+    Fileset,
+    FilesetType,
+    Action,
+    ActionsObject,
+    GitFileset,
+    HTTPFileset,
+    ImageFileset,
+    LocalFileset,
+    MergeAction,
+    PrepareFilesetAction,
+    MakeDirectoryAction,
+    MoveAction,
+    PatchAction,
+    BuildPipeline,
+    Pipeline,
+    CreateSymbolicLinkAction,
+    UserAction
+} from "./lib/model.js";
 import {stdin} from "node:process";
 import {bool, error, nil} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
 import CodeComet from "codecomet-js/index.js";
@@ -37,6 +50,16 @@ type LowLevelBuilderOperation = {
     digest: CryptoDigest.Digest
     metadata: Types.OpMetadata
 }
+
+
+const actionTypeMap = {
+    'atomic.mv' : 'move',
+    'atomic.addfile' : 'addFile',
+    'atomic.mkdir' : 'makeDirectory',
+    'atomic.patch' : 'patch',
+    'atomic.symlink' : 'createSymbolicLink',
+    'atomic.merge' : 'merge',
+};
 
 
 function ingest(buffer: Buffer): [ LowLevelBuilderOperation[], error ] {
@@ -69,85 +92,114 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     // Suck up the serialized protobuf, spit out semi-acceptable objects
     const [ llbOperations, err ] = ingest(buffer);
 
-    const fromProto: { [key in CryptoDigest.Digest ] : CoreNode } = {}
+    const filesets: Fileset[] = []
+    const protoActions: ActionsObject = {}
 
     llbOperations.forEach((llbOperation) => {
-        // console.warn(JSON.stringify(operation.digest, null, 2))
-        if (llbOperation.metadata.caps['source.image']) {
-            fromProto[llbOperation.digest] = <ImageFileset>{
-                source: llbOperation.operation.source.identifier,
-                forceResolve: llbOperation.operation.source.attrs["image.resolvemode"] === "pull",
-                architecture: llbOperation.operation.platform.Architecture,
-                variant: llbOperation.operation.platform.Variant,
-                typeHint: "fileset.image",
-                name: llbOperation.metadata.description["llb.customname"],
-            }
-        } else if (llbOperation.metadata.caps['source.git']) {
-            fromProto[llbOperation.digest] = <GitFileset>{
-                source: llbOperation.operation.source.identifier,
-                keepDir: llbOperation.operation.source.attrs["git.keepgitdir"] === "true",
-                typeHint: "fileset.git",
-                name: llbOperation.metadata.description["llb.customname"],
-            }
-        } else if (llbOperation.metadata.caps['source.local']) {
-            // console.warn("Local", llbOperation.digest)
-            // console.warn(JSON.stringify(llbOperation.Op, null, 2))
-            fromProto[llbOperation.digest] = <LocalFileset>{
-                source: llbOperation.operation.source.identifier,
-                excludePattern: JSON.parse(llbOperation.operation.source.attrs["local.excludepattern"] || "[]"),
-                includePattern: JSON.parse(llbOperation.operation.source.attrs["local.includepattern"] || "[]"),
-                typeHint: "fileset.local",
-                name: llbOperation.metadata.description["llb.customname"],
-            }
-        } else if (llbOperation.metadata.caps['source.http']) {
-            // console.warn(JSON.stringify(llbOperation.Op, null, 2))
-            fromProto[llbOperation.digest] = <HTTPFileset>{
-                source: llbOperation.operation.source.identifier,
-                checksum: llbOperation.operation.source.attrs["http.checksum"],
-                filename: llbOperation.operation.source.attrs["http.filename"],
-                typeHint: "fileset.http",
-                name: llbOperation.metadata.description["llb.customname"],
-            }
-        } else if (llbOperation.metadata.description && llbOperation.metadata.description["codecomet.op"]) {
-            let descriptor: AtomicAction
+        const name : string = llbOperation.metadata.description?.['llb.customname']
+        const actionTypeKey : string = llbOperation?.metadata?.description?.['codecomet.op']
 
-            switch (llbOperation.metadata.description["codecomet.op"]) {
-                case "atomic.mv":
-                    descriptor = <MvAtomicAction>{}
+        if (
+            llbOperation.metadata.caps['source.image']
+            || llbOperation.metadata.caps['source.git']
+            || llbOperation.metadata.caps['source.local']
+            || llbOperation.metadata.caps['source.http']
+        ) {
+            let type = FilesetType.Scratch
+
+            let fileset : Fileset = {
+                name,
+                type,
+                id: 'tempNonUniqueFilesetId',
+                source: llbOperation.operation.source.identifier,
+            }
+
+            if (llbOperation.metadata.caps['source.image']) {
+                type = FilesetType.Image
+
+                fileset = <ImageFileset>{
+                    ...fileset,
+                    type,
+                    forceResolve: llbOperation.operation.source.attrs['image.resolvemode'] === 'pull',
+                    architecture: llbOperation.operation.platform.Architecture,
+                    variant: llbOperation.operation.platform.Variant,
+                }
+            } else if (llbOperation.metadata.caps['source.git']) {
+                type = FilesetType.Git
+
+                fileset = <GitFileset>{
+                    ...fileset,
+                    type,
+                    source: llbOperation.operation.source.identifier,
+                    keepDir: llbOperation.operation.source.attrs['git.keepgitdir'] === 'true',
+                }
+            } else if (llbOperation.metadata.caps['source.local']) {
+                type = FilesetType.Local
+
+                fileset = <LocalFileset>{
+                    ...fileset,
+                    type,
+                    source: llbOperation.operation.source.identifier,
+                    excludePattern: JSON.parse(llbOperation.operation.source.attrs['local.excludepattern'] || '[]'),
+                    includePattern: JSON.parse(llbOperation.operation.source.attrs['local.includepattern'] || '[]'),
+                }
+            } else if (llbOperation.metadata.caps['source.http']) {
+                type = FilesetType.HTTP
+
+                fileset = <HTTPFileset>{
+                    ...fileset,
+                    type,
+                    source: llbOperation.operation.source.identifier,
+                    checksum: llbOperation.operation.source.attrs['http.checksum'],
+                    filename: llbOperation.operation.source.attrs['http.filename'],
+                }
+            }
+
+            filesets.push(fileset)
+
+            protoActions[llbOperation.digest] = <PrepareFilesetAction>{
+                name,
+                type: 'prepareFileset',
+                filesetType: type,
+            }
+        } else if (actionTypeKey) {
+            let descriptor: UtilityAction
+
+            switch (actionTypeKey) {
+                case 'atomic.mv':
+                    descriptor = <MoveAction>{}
                     break
-                case "atomic.addfile":
-                    descriptor = <AddFileAtomicAction>{}
+                case 'atomic.addfile':
+                    descriptor = <AddFileAction>{}
                     break
-                case "atomic.mkdir":
-                    descriptor = <MkdirAtomicAction>{}
+                case 'atomic.mkdir':
+                    descriptor = <MakeDirectoryAction>{}
                     break
-                case "atomic.patch":
-                    descriptor = <PatchAtomicAction>{}
+                case 'atomic.patch':
+                    descriptor = <PatchAction>{}
                     break
-                case "atomic.symlink":
-                    descriptor = <SymlinkAtomicAction>{}
+                case 'atomic.symlink':
+                    descriptor = <CreateSymbolicLinkAction>{}
                     break
-                case "atomic.merge":
+                case 'atomic.merge':
                     descriptor = <MergeAction>{}
                     break
                 default:
-                    console.warn("Unrecognized atomic action type|" + llbOperation.metadata.description["codecomet.op"] + "|")
-                    descriptor = <AtomicAction>{}
+                    console.warn(`Unrecognized atomic action type|${actionTypeKey }|`)
+
+                    descriptor = <UtilityAction>{}
                     break
             }
 
-            descriptor.typeHint = llbOperation.metadata.description["codecomet.op"]
-            descriptor.name = llbOperation.metadata.description["llb.customname"]
+            descriptor.type = actionTypeMap[ actionTypeKey ] ?? 'utility'
+            descriptor.name = name
 
-            fromProto[llbOperation.digest] = descriptor
+            protoActions[llbOperation.digest] = descriptor
         } else {
-            fromProto[llbOperation.digest] = <UserAction>{
-                typeHint: "user.action",
-                name: llbOperation.metadata.description
-                    ? llbOperation.metadata.description["llb.customname"]
-                    : "",
+            protoActions[llbOperation.digest] = <UserAction>{
+                type: 'custom',
+                name: name ?? '',
             }
-            // console.warn(llbOperation.metadata)
         }
     })
 
@@ -160,27 +212,30 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     // XXX piggyback on metadata
     buildPipeline.id = metadata.id
     buildPipeline.description = metadata.description
-    buildPipeline.repository.commit = metadata.commit
-    buildPipeline.repository.author = metadata.author
-    buildPipeline.repository.parent = metadata.parent
-    buildPipeline.repository.dirty = metadata.dirty
-    buildPipeline.repository.location = metadata.location
+
+    // disable repository output for now
+    // it leaks info and isn't currently needed
+    // buildPipeline.repository.commit = metadata.commit
+    // buildPipeline.repository.author = metadata.author
+    // buildPipeline.repository.parent = metadata.parent
+    // buildPipeline.repository.dirty = metadata.dirty
+    // buildPipeline.repository.location = metadata.location
 
     // Geez this is shit. @spacedub burn all of this with fire and rewrite the stitching probably (later...)
     // briznad: @spacedub you're too hard on yourself
     Object.keys(buildPipeline.actionsObject).forEach(function(digest){
         const traceObject = buildPipeline.actionsObject[digest]
 
-        let typedObject: CoreNode
+        let typedObject: Action
 
-        if (!fromProto[digest]) {
+        if (!protoActions[digest]) {
             // This is not good. Bad shit here: https://github.com/moby/buildkit/issues/3693
             // So, try very-very hard to still retrieve the object, even with a different digest
             // if (traceObject.name.startsWith("[source:local]")){
-            Object.keys(fromProto).some(function(key){
-                // console.warn("Trying ", fromProto[key].name, "vs", pipeline.actionsObject[digest].name)
-                if (fromProto[key].name && fromProto[key].name == buildPipeline.actionsObject[digest].name){
-                    typedObject = fromProto[key]
+            Object.keys(protoActions).some(function(key){
+                // console.warn("Trying ", protoActions[key].name, "vs", pipeline.actionsObject[digest].name)
+                if (protoActions[key].name && protoActions[key].name == buildPipeline.actionsObject[digest].name){
+                    typedObject = protoActions[key]
 
                     return true
                 }
@@ -192,7 +247,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
                 return
             }
         } else {
-            typedObject = fromProto[digest]
+            typedObject = protoActions[digest]
         }
 
         // console.warn("still ok")
@@ -220,6 +275,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
     return {
         ...buildPipeline,
+        filesets,
         actions,
     };
 }

@@ -26,7 +26,8 @@ meta="$(echo '{}' | jq -c --arg id "$id" --arg name "$name" --arg desc "$descrip
 
 destination=../pantry-ui/static/data
 mkdir -p "$destination"
-./node_modules/.bin/tsc && node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/no-cache.json" "$meta" "$destination/simple-no-cache.json"
-./node_modules/.bin/tsc && node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/cached.json" "$meta" "$destination/simple-with-cache.json"
-./node_modules/.bin/tsc && node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/fail.json" "$meta" "$destination/simple-fail.json"
-./node_modules/.bin/tsc && node ./entrypoint.js "mocks/exhaustive/llb.proto" "mocks/exhaustive/trace.json" "$meta" "$destination/exhaustive.json"
+npm run build:typescript
+node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/no-cache.json" "$meta" "$destination/simple-no-cache.json"
+node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/cached.json" "$meta" "$destination/simple-with-cache.json"
+node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/fail.json" "$meta" "$destination/simple-fail.json"
+node ./entrypoint.js "mocks/exhaustive/llb.proto" "mocks/exhaustive/trace.json" "$meta" "$destination/exhaustive.json"

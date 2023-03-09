@@ -27,7 +27,7 @@ class Build implements BuildPipeline {
     machineTime = 0
     trigger = "manual"
     actionsObject = {}
-    tasks = {
+    actionsInfo = {
         total: 0,
         cached: 0,
         ran: 0,
@@ -35,21 +35,25 @@ class Build implements BuildPipeline {
         interrupted: 0,
         notRan: 0,
     }
-    repository = {
-        commit: "",
-        author: "",
-        parent: "",
-        dirty: false,
-        location: "",
-    }
+    // disable repository output for now
+    // it leaks info and isn't currently needed
+    // repository = {
+    //     commit: "",
+    //     author: "",
+    //     parent: "",
+    //     dirty: false,
+    //     location: "",
+    // }
     actor = {
         id: "spacedub",
         name: "Space Raccoon"
     }
-    node = new model.Host("host-unique-id", {
-        label1: "foo",
-        label2: "bar",
-    })
+    // disable host output for now
+    // it creates a lot of noise and isn't currently needed
+    // host = new model.Host("host-unique-id", {
+    //     label1: "foo",
+    //     label2: "bar",
+    // })
 
     addLog(log: VertexLog) {
         if (this.actionsObject[log.Vertex] == null)
@@ -98,7 +102,7 @@ class Build implements BuildPipeline {
         }
 
         if (!this.actionsObject[vertice.Digest]) {
-            let action = <model.ActionInstance>{
+            let action = <model.Action>{
                 id: vertice.Digest,
                 name: vertice.Name,
                 digest: vertice.Digest,
@@ -140,54 +144,66 @@ class Build implements BuildPipeline {
         }
     }
 
-    wrap(){
-        let plan = this
-        let tsk = this.actionsObject
+    wrap() {
+        const actionKeys = Object.keys(this.actionsObject)
         // Total is easy
-        plan.tasks.total = Object.keys(tsk).length
+        this.actionsInfo.total = actionKeys.length
         // Cached is easy
-        plan.tasks.cached = Object.keys(tsk).filter(function(key){
-            return !!tsk[key].cached
-        }).length
+        this.actionsInfo.cached = actionKeys
+            .filter((key) => this.actionsObject[key].cached)
+            .length
         // Errored is easy
-        plan.tasks.errored = Object.keys(tsk).filter(function(key){
-            return !!tsk[key].error
-        }).length
+        this.actionsInfo.errored = actionKeys
+            .filter((key) => this.actionsObject[key].error)
+            .length
         // Not ran have not started
-        plan.tasks.notRan = Object.keys(tsk).filter(function(key){
-            return !tsk[key].started
-        }).length
+        this.actionsInfo.notRan = actionKeys
+            .filter((key) => !this.actionsObject[key].started)
+            .length
         // Ran have started, not cached, not errored, finished
-        plan.tasks.ran = Object.keys(tsk).filter(function(key){
-            return tsk[key].started && !tsk[key].cached &&!tsk[key].error && tsk[key].completed
-        }).length
+        this.actionsInfo.ran = actionKeys
+            .filter((key) =>
+                this.actionsObject[key].started
+                && !this.actionsObject[key].cached
+                && !this.actionsObject[key].error
+                && this.actionsObject[key].completed
+            )
+            .length
         // Interrupted has started, not cached, not errored, never finished
-        plan.tasks.interrupted = Object.keys(tsk).filter(function(key){
-            return tsk[key].started && !tsk[key].cached &&!tsk[key].error && !tsk[key].completed
-        }).length
+        this.actionsInfo.interrupted = actionKeys
+            .filter((key) =>
+                this.actionsObject[key].started
+                && !this.actionsObject[key].cached
+                && !this.actionsObject[key].error
+                && !this.actionsObject[key].completed
+            )
+            .length
 
-        Object.keys(tsk).forEach(function(i9: string){
+        actionKeys.forEach((key) => {
             // If there is an errored task, that means... we errored
-            if (tsk[i9].error)
-                plan.status = model.PipelineStatus.Errored
-            // If there is a not completed task, and we have NOT errored, it means we got cancelled
-            if (!tsk[i9].completed && plan.status != model.PipelineStatus.Errored)
-                plan.status = model.PipelineStatus.Cancelled
+            if (this.actionsObject[key].error) {
+                this.status = model.PipelineStatus.Errored
+            } else if (!this.actionsObject[key].completed) { // If there is a not completed task, and we have NOT errored, it means we got cancelled
+                this.status = model.PipelineStatus.Cancelled
+            }
+
             // If there is a more recent finish time, use it
-            if (!plan.completed || tsk[i9].completed > plan.completed)
-                plan.completed = tsk[i9].completed
+            if (!this.completed || this.actionsObject[key].completed > this.completed) {
+                this.completed = this.actionsObject[key].completed
+            }
         })
 
         let mt: int = 0
-        Object.keys(tsk).forEach(function(i9: string){
-            if (tsk[i9].completed && tsk[i9].started)
-                mt += tsk[i9].completed - tsk[i9].started
-        })
-        plan.machineTime = mt
-        plan.runtime = plan.completed - plan.started
+
+        actionKeys
+            .filter((key) => this.actionsObject[key].started && this.actionsObject[key].completed)
+            .forEach((key) => mt += this.actionsObject[key].completed - this.actionsObject[key].started)
+
+        this.machineTime = mt
+        this.runtime = this.completed - this.started
 
         // FakeID it for now
-        plan.runID = "sha256:" + createHash('sha256')
+        this.runID = 'sha256:' + createHash('sha256')
             .update(Math.random().toString())
             .digest('hex')
 
@@ -202,7 +218,6 @@ export class StdinIngester {
     private reader: readline.Interface
     private build: Build
 
-//    constructor(file: ReadStream, onfinish: (plan: model.BuildPipeline, tasksc: model.ActionInstance[])=>void){
     constructor(file: ReadStream, onfinish: (plan: model.BuildPipeline, tasksc: model.ActionsObject)=>void){
         let transaction = Sentry.startTransaction({
             op: "Ingester",

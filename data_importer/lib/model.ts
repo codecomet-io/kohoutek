@@ -149,6 +149,21 @@ export enum ActionStatus {
     Started = 'started',
 }
 
+type ActionsInfo = {
+    // Total number of tasks
+    total: int
+    // How many were cached
+    cached: int
+    // How many ran success
+    ran: int
+    // How many ran error
+    errored: int
+    // How many started but got interrupted
+    interrupted: int
+    // How many did not run
+    notRan: int
+}
+
 /**
  * A Pipeline represents a DAG of actions that are meant to be ran together in order
  * The object here will hold individual tasks, and also a pre-computed report
@@ -178,23 +193,10 @@ type GeneralPipeline = {
     machineTime: int
 
     // Helpers providing high-level data about the tasks
-    tasks: {
-        // Total number of tasks
-        total: int
-        // How many were cached
-        cached: int
-        // How many ran success
-        ran: int
-        // How many ran error
-        errored: int
-        // How many started but got interrupted
-        interrupted: int
-        // How many did not run
-        notRan: int
-    }
+    actionsInfo: ActionsInfo
 
     // Repository data
-    repository: Repository
+    repository?: Repository
 
     // Trigger: "manual" or pull request identifier
     trigger: string
@@ -203,7 +205,7 @@ type GeneralPipeline = {
     actor: User
 
     // Host executing the pipeline
-    node: Host
+    host?: Host
 }
 
 export interface BuildPipeline extends GeneralPipeline {
@@ -211,12 +213,58 @@ export interface BuildPipeline extends GeneralPipeline {
 }
 
 export type ActionsObject = {
-    [key: digest.Digest]: CoreNode
+    [key: digest.Digest]: Action
 }
 
 export interface Pipeline extends GeneralPipeline {
-    actions: CoreNode[]
+    filesets: Fileset[]
+    actions: Action[]
 }
+
+export enum FilesetType {
+    Git = 'git',
+    HTTP = 'http',
+    Image = 'docker',
+    Local = 'local',
+    Scratch = 'scratch',
+}
+
+export type Fileset = {
+    // URL of the source
+    // Examples:
+    // - git://foo
+    // - http://bla
+    // - file:///bla/../bar
+    id: string
+    name: string
+    source: string
+    type: FilesetType
+}
+
+export interface ImageFileset extends Fileset {
+    type: FilesetType.Image
+    forceResolve: bool
+    architecture: string
+    variant: string
+}
+
+export interface GitFileset extends Fileset {
+    type: FilesetType.Git
+    keepDir: bool
+}
+
+export interface HTTPFileset extends Fileset {
+    type: FilesetType.HTTP
+    checksum?: string
+    filename?: string
+}
+
+export interface LocalFileset extends Fileset {
+    type: FilesetType.Local
+    includePattern?: string[]
+    excludePattern?: string[]
+}
+
 
 // A log entry is a timestamp and some content
 export type LogEntry = {
@@ -224,7 +272,7 @@ export type LogEntry = {
     content: string
 }
 
-export type CoreNode = {
+export type Action = {
     id: string
     name: string
     digest: digest.Digest
@@ -236,135 +284,63 @@ export type CoreNode = {
     status: ActionStatus
     stdout: string
     stderr: string
-    parents: digest.Digest[]
+    parents: digest.Digest[] | ParentAction[]
     progressGroup: Types.ProgressGroup
+    type: ActionType
 }
 
-/*
-export enum FilesetType {
-    Git = "git",
-    HTTP = "http",
-    File = "file",
-    Image = "docker",
-    Scratch = "scratch"
-}
-
- */
-
-type Fileset = {
-    // URL of the source
-    // Examples:
-    // - git://foo
-    // - http://bla
-    // - file:///bla/../bar
-    source: string
-    typeHint: string
-    // type: FilesetType
-} & CoreNode
-
-export type ImageFileset = {
-    source: string
-    forceResolve: bool
-    architecture: string
-    variant: string
-} & Fileset
-
-export type GitFileset = {
-    source: string
-    keepDir: bool
-} & Fileset
-
-export type HTTPFileset = {
-    source: string
-    checksum?: string
-    filename?: string
-} & Fileset
-
-export type LocalFileset = {
-    source: string
-    includePattern?: string[]
-    excludePattern?: string[]
-} & Fileset
-
-export type AtomicAction = {
-    // Parents
-    typeHint: string
-} & CoreNode
-
-export type MvAtomicAction = {
-
-} & AtomicAction
-
-export type MkdirAtomicAction = {
-
-} & AtomicAction
-
-export type AddFileAtomicAction = {
-
-} & AtomicAction
-
-export type PatchAtomicAction = {
-
-} & AtomicAction
-
-export type SymlinkAtomicAction = {
-
-} & AtomicAction
-
-export type MergeAction = {
-
-} & AtomicAction
-
-export type UserAction = {
-
-} & AtomicAction
-
-export type ActionInstance = AtomicAction /*{
-    // Parents actions
-    parents:        digest.Digest[]
-} & CoreNode */
-
-export type ActionInstancePREV = {
-    // Unique identifier to the action
-    id:    string
-
-    // User defined name
+type ParentAction = {
+    digest: digest.Digest[]
     name: string
+};
 
-    // A timestamp in date (string) format for easy consumption within Elastic / Kibana
-    // datestamp:     string
+type ActionType =
+    | UtilityActionType
+    | 'custom'
 
-    // Parents actions
-    parents:        digest.Digest[]
+type UtilityActionType =
+    | 'utility'
+    | 'merge'
+    | 'prepareFileset'
+    | 'makeDirectory'
+    | 'addFile'
+    | 'move'
+    | 'createSymbolicLink'
+    | 'patch'
 
-    // An action has a digest
-    // It is unique based on the action instance *content* (parents + command)
-    // It MAY appear in unrelated, different plans, that would share the same atomic action
-    // for example, if you use the same docker image as a base, this is the same digest
-    // Henceforth, you can NOT assume that said digests are unique
-    // Examples:
-    // - sha256:b613bcf3ce5197ec6f850a64b523cfbb105165c735f8aee2d9a94db25ee7e8c4
-    digest:        digest.Digest
+export interface UserAction extends Action {
+    type: 'custom'
+}
 
-    // When did it start (is not set if it did not start)
-    started:       uint64 // string
+export interface UtilityAction extends Action {
+    type: UtilityActionType
+}
 
-    // When did it end (is not set if it did not complete)
-    completed:     uint64 // string
+export interface MakeDirectoryAction extends UtilityAction {
+    type: 'makeDirectory'
+}
 
-    // If the task ran, the amount of time it took to run (otherwise 0)
-    runtime: int
+export interface MoveAction extends UtilityAction {
+    type: 'move'
+}
 
-    // Was it cached
-    cached:        bool
-    // Did it error, and if yes, with what message
-    error:         string
-    // Aggregate status
-    status:  ActionStatus
-    // This is largely TBD - logs may be really sizable and blow-up elastic limits
-    stdout: string // [] // {[key: int]: string}
-    stderr: string //[] // {[key: int]: string}
+export interface AddFileAction extends UtilityAction {
+    type: 'addFile'
+}
 
-    // XXX ignore for now
-    progressGroup: Types.ProgressGroup
+export interface PatchAction extends UtilityAction {
+    type: 'patch'
+}
+
+export interface CreateSymbolicLinkAction extends UtilityAction {
+    type: 'createSymbolicLink'
+}
+
+export interface MergeAction extends UtilityAction {
+    type: 'merge'
+}
+
+export interface PrepareFilesetAction extends UtilityAction {
+    type: 'prepareFileset'
+    filesetType: FilesetType
 }

@@ -1,24 +1,30 @@
 <script lang="ts">
-	import type { Status } from '$lib/types/pipeline';
+	import type { PipelineStatus, ActionStatus } from '../../../../data_importer/lib/model';
 
 	import { checkmarkCircle } from 'ionicons/icons';
 	import { alertCircle } from "ionicons/icons";
 
 
 	type ColorMap = {
-		[ key in Status ] : 'success' | 'danger' | 'medium';
+		[ key in PipelineStatus | ActionStatus ]? : 'success' | 'danger' | 'medium' | 'warning' | 'tertiary';
 	};
 
 
-	export let status : Status;
+	export let status : PipelineStatus | ActionStatus;
 	export let size : undefined | 'small' | 'medium' | 'large' = undefined;
+
+	const successStatus = [
+		'completed',
+		'cached',
+	];
 
 	const statusColorMap : ColorMap = {
 		completed: 'success',
 		errored: 'danger',
+		degraded: 'warning',
 		canceled: 'medium',
 		ignored: 'medium',
-		cached: 'medium',
+		cached: 'tertiary',
 	};
 </script>
 
@@ -27,7 +33,8 @@
 
 
 <ion-icon
-	icon={ status === 'completed' ? checkmarkCircle : alertCircle }
-	color={ statusColorMap[status] }
+	class="status-icon"
+	icon={ successStatus.includes(status) ? checkmarkCircle : alertCircle }
+	color={ statusColorMap[status] ?? 'medium' }
 	size={ size }
 ></ion-icon>

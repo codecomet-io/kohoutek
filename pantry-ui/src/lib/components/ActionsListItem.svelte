@@ -1,11 +1,12 @@
 <script lang="ts">
-	import type { Action } from '$lib/types/pipeline';
+	import type { Action, PrepareFilesetAction } from '../../../../data_importer/lib/model';
 
 	import { createEventDispatcher } from 'svelte';
 
-	import { parseDate, parseTime } from '$lib/helper';
+	import { getDateString, getTimeString } from '$lib/helper';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
+	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
 
 
@@ -17,12 +18,22 @@
 	function handleSpanwedByHoverFocus(actionId : string, active : boolean) : void {
 		dispatch('highlightAction', { actionId, active });
 	}
+
+	function parseMillisecondsOrSeconds(ms : number) : string {
+		return ms < 1000
+			? `${ ms }ms`
+			: `${ Math.floor(ms / 1000) }s`;
+	}
 </script>
 
 
 <style lang="scss">
 	[slot="header"] {
-		ion-label {
+		:global(.fileset-or-action-type-icon) {
+			margin-right: 0.25em;
+		}
+
+		:global(.status-icon) {
 			margin-left: 0.25em;
 		}
 	}
@@ -49,6 +60,10 @@
 		}
 
 		.value {
+			display: block;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
 			color: #24292f;
 			font-size: 16px;
 			font-weight: 600;
@@ -58,6 +73,11 @@
 			margin-top: 0;
 			margin-bottom: 0;
 			padding-inline-start: 1.25em;
+
+			&[data-count="1"] {
+				list-style: none;
+				padding-inline-start: 0;
+			}
 
 			li {
 				+ li {
@@ -78,16 +98,24 @@
 		color="light"
 		class:ion-focused={ highlight }
 	>
-		<StatusIcon status={ action.status } />
+		<FilesetOrActionTypeIcon
+			slot="start"
+			type={ action.filesetType ?? action.type }
+		/>
 
-		<ion-label>{ action.title }</ion-label>
+		<ion-label>{ action.name }</ion-label>
 
 		<ChunkyLabel
-			allcaps={ false }
 			slot="end"
+			allcaps={ false }
 		>
-			{ action.elapsedSeconds }s
+			{ parseMillisecondsOrSeconds(action.runtime) }
 		</ChunkyLabel>
+
+		<StatusIcon
+			slot="end"
+			status={ action.status }
+		/>
 	</ion-item>
 
 	<article
@@ -95,21 +123,9 @@
 		slot="content"
 	>
 		<div class="column-container">
-			<header class="key">started at</header>
+			<header class="key">type</header>
 
-			<div
-				class="value"
-				title={ parseDate(action.startedAt) }
-			>{ parseTime(action.startedAt) }</div>
-		</div>
-
-		<div class="column-container">
-			<header class="key">ended at</header>
-
-			<div
-				class="value"
-				title={ parseDate(action.endedAt) }
-			>{ parseTime(action.endedAt) }</div>
+			<div class="value">{ action.type }</div>
 		</div>
 
 		<div class="column-container">
@@ -119,34 +135,45 @@
 		</div>
 
 		<div class="column-container">
-			{#if action.type === 'merge' }
-				<header class="key">merged actions</header>
+			{#if action.started }
+				<header class="key">started at</header>
 
-				<ol>
-					{#each action.parentAction as parentAction }
-						<li>
+				<div
+					class="value"
+					title={ getDateString(action.started) }
+				>{ getTimeString(action.started) }</div>
+			{/if}
+		</div>
+
+		<div class="column-container">
+			{#if action.completed }
+				<header class="key">ended at</header>
+
+				<div
+					class="value"
+					title={ getDateString(action.completed) }
+				>{ getTimeString(action.completed) }</div>
+			{/if}
+		</div>
+
+		<div class="column-container">
+			{#if action.parents && action.parents.length }
+				<header class="key">{ action.type === 'merge' ? 'merged' : 'parent' } action{ action.parents.length === 1 ? '' : 's' }</header>
+
+				<ol data-count={ action.parents.length }>
+					{#each action.parents as parentAction }
+						<li title={ parentAction.name }>
 							<a
 								class="value"
-								href="#{ parentAction.id }"
-								on:mouseover={ handleSpanwedByHoverFocus(parentAction.id, true) }
-								on:mouseout={ handleSpanwedByHoverFocus(parentAction.id, false) }
-								on:focus={ handleSpanwedByHoverFocus(parentAction.id, true) }
-								on:blur={ handleSpanwedByHoverFocus(parentAction.id, false) }
-							>{ parentAction.title }</a>
+								href="#{ parentAction.digest }"
+								on:mouseover={ handleSpanwedByHoverFocus(parentAction.digest, true) }
+								on:mouseout={ handleSpanwedByHoverFocus(parentAction.digest, false) }
+								on:focus={ handleSpanwedByHoverFocus(parentAction.digest, true) }
+								on:blur={ handleSpanwedByHoverFocus(parentAction.digest, false) }
+							>{ parentAction.name }</a>
 						</li>
 					{/each}
 				</ol>
-			{:else if action.parentAction?.id && action.parentAction?.title }
-				<header class="key">parent action</header>
-
-				<a
-					class="value"
-					href="#{ action.parentAction.id }"
-					on:mouseover={ handleSpanwedByHoverFocus(action.parentAction.id, true) }
-					on:mouseout={ handleSpanwedByHoverFocus(action.parentAction.id, false) }
-					on:focus={ handleSpanwedByHoverFocus(action.parentAction.id, true) }
-					on:blur={ handleSpanwedByHoverFocus(action.parentAction.id, false) }
-				>{ action.parentAction.title }</a>
 			{/if}
 		</div>
 	</article>

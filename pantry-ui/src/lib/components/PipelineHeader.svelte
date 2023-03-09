@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PipelinePostRunData } from '$lib/types/pipeline';
+	import type { Pipeline } from '../../../../data_importer/lib/model';
 
 	import { parseLapsed } from '$lib/helper';
 
@@ -8,7 +8,7 @@
 	import Ago from '$lib/components/Ago.svelte';
 
 
-	export let pipeline : PipelinePostRunData;
+	export let pipeline : Pipeline;
 </script>
 
 
@@ -68,11 +68,11 @@
 				size="large"
 			/>
 
-			<h1>{ pipeline.title }</h1>
+			<h1>{ pipeline.name }</h1>
 		</div>
 
 		<div class="subtitle">
-			<ChunkyLabel>{ pipeline.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline.endedAt } /> <span title="{ pipeline.elapsedSeconds } seconds">in { parseLapsed(pipeline.elapsedSeconds * 1000) }</span></ChunkyLabel>
+			<ChunkyLabel>{ pipeline.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline.completed } /> <span title="{ pipeline.runtime } milliseconds">in { parseLapsed(pipeline.runtime) }</span></ChunkyLabel>
 		</div>
 
 		<a

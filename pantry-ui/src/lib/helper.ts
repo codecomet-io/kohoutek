@@ -1,17 +1,19 @@
-export function parseDate(date : string | Date) : string {
-	const dateObj = typeof date === 'string'
-		? new Date(date)
-		: date;
+export function parseDate(date: Date | string | number) : Date {
+	return date instanceof Date
+		? date
+		: new Date(date);
+}
+
+export function getDateString(date: Date | string | number) : string {
+	const dateObj = parseDate(date);
 
 	return !dateObj || dateObj.toString() === 'Invalid Date'
 		? ''
 		: dateObj.toString();
 }
 
-export function parseTime(date : string | Date) : string {
-	const dateObj = typeof date === 'string'
-		? new Date(date)
-		: date;
+export function getTimeString(date: Date | string | number) : string {
+	const dateObj = parseDate(date);
 
 	return !dateObj || dateObj.toString() === 'Invalid Date'
 		? ''
@@ -20,16 +22,19 @@ export function parseTime(date : string | Date) : string {
 
 // adapted from https://coolaj86.com/articles/time-ago-in-under-50-lines-of-javascript/
 export function parseLapsed(ms : number) : string {
-	let ago = Math.floor(ms / 1000);
-	let part = 0;
-
-	if (ago < 2) {
+	if (ms < 250) {
 		return 'a moment';
 	}
 
-	if (ago < 5) {
+	if (ms < 500) {
 		return 'moments';
 	}
+
+	if (ms < 1000) {
+		return ms + ' milliseconds';
+	}
+
+	let ago = Math.floor(ms / 1000);
 
 	if (ago < 60) {
 		return ago + ' seconds';
@@ -38,6 +43,8 @@ export function parseLapsed(ms : number) : string {
 	if (ago < 120) {
 		return 'a minute';
 	}
+
+	let part = 0;
 
 	if (ago < 3600) {
 		while (ago >= 60) {

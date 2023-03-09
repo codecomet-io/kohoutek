@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Action } from '$lib/types/pipeline';
+	import type { Action } from '../../../../data_importer/lib/model';
 
 	import ActionsListItem from '$lib/components/ActionsListItem.svelte';
 

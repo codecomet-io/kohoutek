@@ -2,10 +2,10 @@
   "id": "uuid-for-the-super-pipeline",
   "name": "User defined name",
   "description": "This is a pipeline that does foo and boom and go",
-  "runID": "sha256:589d852bf3802a7ae3bbfa3873575936c07b5a3cf5dec84e328e2df2d3d911b6",
+  "runID": "sha256:d5133ad09aeb22b3d9fb90b800fd548f5c2b018713bfaa04b6522f8fc8615562",
   "started": 1678260822000,
   "completed": 1678260822974,
-  "status": "Completed",
+  "status": "completed",
   "runtime": 974,
   "machineTime": 970,
   "trigger": "manual",
@@ -147,7 +147,10 @@
       "runtime": 0,
       "status": "cached",
       "parents": [
-        "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77"
+        {
+          "digest": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
+          "name": "[source:image] docker.io/library/debian:bullseye-slim"
+        }
       ]
     },
     {
@@ -161,7 +164,10 @@
       "runtime": 0,
       "status": "cached",
       "parents": [
-        "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e"
+        {
+          "digest": "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
+          "name": "apt-get upgrade"
+        }
       ]
     },
     {

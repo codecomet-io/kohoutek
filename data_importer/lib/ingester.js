@@ -1,6 +1,5 @@
 import * as model from "./model.js";
 import { ActionStatus } from "./model.js";
-import * as readline from 'node:readline/promises';
 import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
 import { createHash } from "node:crypto";
@@ -93,12 +92,15 @@ class Build {
                 cached: false,
                 status: ActionStatus.Ignored,
             };
-            if (vertice.Inputs)
-                action.parents = vertice.Inputs.filter(function (idx) {
-                    if (!(idx in this.actionsObject))
-                        return;
-                    return true;
-                }.bind(this));
+            if (vertice.Inputs) {
+                action.parents = vertice.Inputs
+                    .filter((digest) => this.actionsObject[digest])
+                    .sort((a, b) => this.actionsObject[a].started - this.actionsObject[b].started) // sort values chronologically, based on start time
+                    .map((digest) => ({
+                    digest,
+                    name: this.actionsObject[digest].name,
+                }));
+            }
             this.actionsObject[vertice.Digest] = action;
         }
         if (vertice.Started) {
@@ -156,14 +158,14 @@ class Build {
             && !this.actionsObject[key].error
             && !this.actionsObject[key].completed)
             .length;
+        // if any action errored, the pipeline errored
+        if (actionKeys.some((key) => this.actionsObject[key].error)) {
+            this.status = model.PipelineStatus.Errored;
+        }
+        else if (!actionKeys.some((key) => this.actionsObject[key].completed)) { // if any action didn't complete, and we have NOT errored, it means we got cancelled
+            this.status = model.PipelineStatus.Cancelled;
+        }
         actionKeys.forEach((key) => {
-            // If there is an errored task, that means... we errored
-            if (this.actionsObject[key].error) {
-                this.status = model.PipelineStatus.Errored;
-            }
-            else if (!this.actionsObject[key].completed) { // If there is a not completed task, and we have NOT errored, it means we got cancelled
-                this.status = model.PipelineStatus.Cancelled;
-            }
             // If there is a more recent finish time, use it
             if (!this.completed || this.actionsObject[key].completed > this.completed) {
                 this.completed = this.actionsObject[key].completed;
@@ -184,70 +186,66 @@ class Build {
 /**
  * Consume a ReadStream and marshal a stream of JSON buildkit graph objects into our data model
  */
-export class StdinIngester {
-    constructor(file, onfinish) {
-        let transaction = Sentry.startTransaction({
-            op: "Ingester",
-            name: "Data ingesting transaction",
-        });
-        this.reader = readline.createInterface(file);
-        let bd = this.build = new Build();
-        this.reader.on("line", function (data) {
-            let d;
-            if (data.trim() == "")
-                return;
-            // We do resist badly formated lines
-            try {
-                d = JSON.parse(data);
-                if (d.Logs) {
-                    d.Logs.forEach(bd.addLog.bind(bd));
-                }
-                if (d.Vertexes) {
-                    d.Vertexes.forEach(bd.addVertex.bind(bd));
-                }
-            }
-            catch (e) {
-                console.error("Failed to marshal JSON data into object. Exception was", e, "and data was:", data);
-                Sentry.captureException(e, {
-                    extra: {
-                        data: data
-                    }
-                });
-            }
-        });
-        this.reader.on("close", function () {
-            // Post-processing and sending to callback
-            bd.wrap();
-            // Sentry transaction done
-            transaction.finish();
-            let tsk = bd.actionsObject;
-            bd.actionsObject = {};
-            onfinish(bd, tsk); // Object.values(tsk))
-        });
-    }
-}
+// export class StdinIngester {
+//     private reader: readline.Interface
+//     private build: Build
+//     constructor(file: ReadStream, onfinish: (plan: model.BuildPipeline, tasksc: model.ActionsObject)=>void){
+//         let transaction = Sentry.startTransaction({
+//             op: "Ingester",
+//             name: "Data ingesting transaction",
+//         })
+//         this.reader = readline.createInterface(file)
+//         this.build = new Build()
+//         this.reader.on('line', (data : string) => {
+//             if (data.trim() === '')
+//                 return
+//             let solveStatus: SolveStatus
+//             try {
+//                 solveStatus = <SolveStatus>JSON.parse(data)
+//                 if (solveStatus.Logs) {
+//                     solveStatus.Logs.forEach(this.build.addLog.bind(this.build))
+//                 }
+//                 if (solveStatus.Vertexes) {
+//                     solveStatus.Vertexes.forEach(this.build.addVertex.bind(this.build))
+//                 }
+//             } catch(e) {
+//                 console.error("Failed to marshal JSON data into object. Exception was", e, "and data was:", data)
+//                 Sentry.captureException(e, {
+//                     extra: { data }
+//                 })
+//             }
+//         })
+//         this.reader.on('close', () => {
+//             // Post-processing and sending to callback
+//             this.build.wrap()
+//             // Sentry transaction done
+//             transaction.finish()
+//             this.build.actionsObject = {}
+//             onfinish(<BuildPipeline>this.build, this.build.actionsObject)
+//         })
+//     }
+// }
 export class BuffIngester {
     constructor() {
         this.build = new Build();
     }
-    ingest(buff /*, onfinish: (plan: model.BuildPipeline, tasksc: model.ActionsObject)=>void*/) {
+    ingest(buff) {
         let transaction = Sentry.startTransaction({
             op: "Ingester",
             name: "Data ingesting transaction",
         });
-        let bd = this.build; // = new Build()
-        buff.toString().split("\n").forEach(function (data) {
-            if (data.trim() == "")
+        buff.toString().split('\n').forEach((data) => {
+            // resist badly formated lines
+            if (data.trim() == '')
                 return;
-            let d;
-            // Resist badly formated lines
+            let solveStatus;
             try {
-                d = JSON.parse(data);
-                if (d.Logs) {
-                    d.Logs.forEach(bd.addLog.bind(bd));
+                solveStatus = JSON.parse(data);
+                if (solveStatus.Logs) {
+                    solveStatus.Logs.forEach(this.build.addLog.bind(this.build));
                 }
-                if (d.Vertexes) {
-                    d.Vertexes.forEach(bd.addVertex.bind(bd));
+                if (solveStatus.Vertexes) {
+                    solveStatus.Vertexes.forEach(this.build.addVertex.bind(this.build));
                 }
             }
             catch (e) {
@@ -259,14 +257,11 @@ export class BuffIngester {
                 });
             }
         });
-        // Post-processing and sending to callback
-        bd.wrap();
+        // post-processing and sending to callback
+        this.build.wrap();
         // Sentry transaction done
         transaction.finish();
-        // let tsk = bd.actionsObject
-        // bd.actionsObject = {}
-        return bd; //, tsk]
-        // onfinish(<BuildPipeline>bd, tsk) // Object.values(tsk))
+        return this.build;
     }
 }
 //# sourceMappingURL=ingester.js.map

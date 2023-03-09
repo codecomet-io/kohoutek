@@ -2,10 +2,10 @@
   "id": "uuid-for-the-super-pipeline",
   "name": "User defined name",
   "description": "This is a pipeline that does foo and boom and go",
-  "runID": "sha256:6e7871abb1b9f1e7babe71e1598e4e7fa86fc36700643fff67314f506003a36e",
+  "runID": "sha256:6d48b80b0f2705dbe07234aa8c33b19101fd6b302e76bfaee08041c7e2ef7eda",
   "started": 1678236812874,
   "completed": 1678236816538,
-  "status": "Completed",
+  "status": "completed",
   "runtime": 3664,
   "machineTime": 3474,
   "trigger": "manual",
@@ -112,7 +112,10 @@
       "runtime": 0,
       "status": "cached",
       "parents": [
-        "sha256:b99ce3485ce561a5f7a5abf8351b9e3a4f03f535eecb108a7014b91a3a10bbd2"
+        {
+          "digest": "sha256:b99ce3485ce561a5f7a5abf8351b9e3a4f03f535eecb108a7014b91a3a10bbd2",
+          "name": "[action:addfile] foofoo in "
+        }
       ]
     },
     {
@@ -126,7 +129,10 @@
       "runtime": 0,
       "status": "cached",
       "parents": [
-        "sha256:4b3deaafcf9203124555f0d3fdd1e10a29b0e58cf5d3ec0177647e0e7971b955"
+        {
+          "digest": "sha256:4b3deaafcf9203124555f0d3fdd1e10a29b0e58cf5d3ec0177647e0e7971b955",
+          "name": "[action:mkdir] bal"
+        }
       ]
     },
     {
@@ -140,7 +146,10 @@
       "runtime": 0,
       "status": "cached",
       "parents": [
-        "sha256:bcaaab2204846af162ffde85e59fd27e15fe54a615a25ae704f4275d983260b2"
+        {
+          "digest": "sha256:bcaaab2204846af162ffde85e59fd27e15fe54a615a25ae704f4275d983260b2",
+          "name": "[action:mv] foofoo barbar in "
+        }
       ]
     },
     {
@@ -154,7 +163,10 @@
       "runtime": 0,
       "status": "cached",
       "parents": [
-        "sha256:d110e48b06bcfd26ee5fe67952aa39a9e0ee736b4b66fa8b5b9ec9d7ebca0ad2"
+        {
+          "digest": "sha256:d110e48b06bcfd26ee5fe67952aa39a9e0ee736b4b66fa8b5b9ec9d7ebca0ad2",
+          "name": "[action:symlink] barbar symlink in "
+        }
       ]
     },
     {
@@ -204,11 +216,26 @@
       "runtime": 481,
       "status": "completed",
       "parents": [
-        "sha256:a152893d8f2b7f74618e3ef70e7139ff1c236f09b4e8bab0d27b317005571e02",
-        "sha256:6804b9787c08978f56e1ae472bd2425ce4296377cade301d66e8a4fa1835cc49",
-        "sha256:6405373021a56353f5a90f54d537c58ae5e64c506eb673d831bac8e8cbfb373a",
-        "sha256:ff9c5b9a2d29e69b89e1bfbd2684b24b121c73aa720018fe5bc605ceab43909a",
-        "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77"
+        {
+          "digest": "sha256:a152893d8f2b7f74618e3ef70e7139ff1c236f09b4e8bab0d27b317005571e02",
+          "name": "[action:patch]  (number of patches: 0)"
+        },
+        {
+          "digest": "sha256:6804b9787c08978f56e1ae472bd2425ce4296377cade301d66e8a4fa1835cc49",
+          "name": "[source:local] /Users/dmp/Projects/GitHub/codecomet/installers/codecomet/docs"
+        },
+        {
+          "digest": "sha256:6405373021a56353f5a90f54d537c58ae5e64c506eb673d831bac8e8cbfb373a",
+          "name": "[source:http] https://codecomet.io/"
+        },
+        {
+          "digest": "sha256:ff9c5b9a2d29e69b89e1bfbd2684b24b121c73aa720018fe5bc605ceab43909a",
+          "name": "[source:git] https://github.com/moby/buildkit"
+        },
+        {
+          "digest": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
+          "name": "[source:image] docker.io/library/debian:bullseye-slim"
+        }
       ]
     }
   ]

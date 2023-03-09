@@ -125,14 +125,14 @@ export type Repository = {
  */
 export enum PipelineStatus {
     // At least one non optional task errored out
-    Errored = "Errored",
+    Errored = 'errored',
     // The plan was interrupted (user interrupt, crash, network shutdown, poney, whatever)
-    Cancelled = "Cancelled",
+    Cancelled = 'canceled',
     // All tasks returned succesfully
-    Completed = "Completed",
+    Completed = 'completed',
     // All non-optional tasks returned successfully, but some optional ones failed
     // This is provisional, and not used right now
-    Degraded = "Degraded"
+    Degraded = 'degraded',
 }
 
 /*
@@ -284,17 +284,17 @@ export type Action = {
     status: ActionStatus
     stdout: string
     stderr: string
-    parents: digest.Digest[] | ParentAction[]
+    parents: ParentAction[]
     progressGroup: Types.ProgressGroup
     type: ActionType
 }
 
 type ParentAction = {
-    digest: digest.Digest[]
+    digest: digest.Digest
     name: string
 };
 
-type ActionType =
+export type ActionType =
     | UtilityActionType
     | 'custom'
 

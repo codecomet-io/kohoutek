@@ -2,10 +2,10 @@
   "id": "uuid-for-the-super-pipeline",
   "name": "User defined name",
   "description": "This is a pipeline that does foo and boom and go",
-  "runID": "sha256:60bcab1cb7f4bc175fe7b54dfc45f2aa1ebe39126a431316941cf1384f725362",
+  "runID": "sha256:db73467171893543aabb6c54766f0f2cb4f56430f6d4ff12ffcad70cbaef417c",
   "started": 1677892428344,
   "completed": 1677892457682,
-  "status": "Completed",
+  "status": "completed",
   "runtime": 29338,
   "machineTime": 28330,
   "trigger": "manual",
@@ -159,7 +159,10 @@
       "stdout": "",
       "stderr": "",
       "parents": [
-        "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77"
+        {
+          "digest": "sha256:1fbbc4badd25a127fd4fadc9695046d27c048e2401041b62bedf36d229e45f77",
+          "name": "[source:image] docker.io/library/debian:bullseye-slim"
+        }
       ]
     },
     {
@@ -175,7 +178,10 @@
       "stdout": "Fri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) Selecting previously unselected package libncursesw6:armhf.\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ...\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 5%\r(Reading database ... 10%\r(Reading database ... 15%\r(Reading database ... 20%\r(Reading database ... 25%\r(Reading database ... 30%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 35%\r(Reading database ... 40%\r(Reading database ... 45%\r(Reading database ... 50%\r(Reading database ... 55%\r(Reading database ... 60%\r(Reading database ... 65%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 70%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 75%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 80%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 85%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 90%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 95%\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) (Reading database ... 100%\r(Reading database ...\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) 6654 files and directories currently installed.)\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) Preparing to unpack .../0-libncursesw6_6.2+20201114-2_armhf.deb ...\nFri Mar 03 2023 17:14:12 GMT-0800 (Pacific Standard Time) Unpacking libncursesw6:armhf (6.2+20201114-2) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package nano.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../1-nano_5.4-2+deb11u2_armhf.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking nano (5.4-2+deb11u2) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package libeatmydata1:armhf.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../2-libeatmydata1_105-9_armhf.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking libeatmydata1:armhf (105-9) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package eatmydata.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../3-eatmydata_105-9_all.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking eatmydata (105-9) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package libwrap0:armhf.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../4-libwrap0_7.6.q-31_armhf.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking libwrap0:armhf (7.6.q-31) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Selecting previously unselected package socat.\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Preparing to unpack .../5-socat_1.7.4.1-3_armhf.deb ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Unpacking socat (1.7.4.1-3) ...\nFri Mar 03 2023 17:14:13 GMT-0800 (Pacific Standard Time) Setting up libwrap0:armhf (7.6.q-31) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up socat (1.7.4.1-3) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up libncursesw6:armhf (6.2+20201114-2) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up nano (5.4-2+deb11u2) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) update-alternatives:\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) using /bin/nano to provide /usr/bin/editor (editor) in auto mode\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) update-alternatives: warning: skip creation of /usr/share/man/man1/editor.1.gz because associated file /usr/share/man/man1/nano.1.gz (of link group editor) doesn't exist\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) update-alternatives: using /bin/nano to provide /usr/bin/pico (pico) in auto mode\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) update-alternatives: warning: skip creation of /usr/share/man/man1/pico.1.gz because associated file /usr/share/man/man1/nano.1.gz (of link group pico) doesn't exist\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up libeatmydata1:armhf (105-9) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Setting up eatmydata (105-9) ...\nFri Mar 03 2023 17:14:14 GMT-0800 (Pacific Standard Time) Processing triggers for libc-bin (2.31-13+deb11u5) ...\n",
       "stderr": "Fri Mar 03 2023 17:14:15 GMT-0800 (Pacific Standard Time) real\t0m4.010s\nuser\t0m3.604s\nsys\t0m0.404s\nFri Mar 03 2023 17:14:15 GMT-0800 (Pacific Standard Time) \u001b[37m\nFri Mar 03 2023 17:14:15 GMT-0800 (Pacific Standard Time) \u001b[40m\n",
       "parents": [
-        "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e"
+        {
+          "digest": "sha256:55ec848cf7d65106bee358f2ac6a5bba29563bf30924f0ee03dac01e2cbbc43e",
+          "name": "apt-get upgrade"
+        }
       ]
     },
     {

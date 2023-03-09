@@ -50,14 +50,14 @@ export class Host {
 export var PipelineStatus;
 (function (PipelineStatus) {
     // At least one non optional task errored out
-    PipelineStatus["Errored"] = "Errored";
+    PipelineStatus["Errored"] = "errored";
     // The plan was interrupted (user interrupt, crash, network shutdown, poney, whatever)
-    PipelineStatus["Cancelled"] = "Cancelled";
+    PipelineStatus["Cancelled"] = "canceled";
     // All tasks returned succesfully
-    PipelineStatus["Completed"] = "Completed";
+    PipelineStatus["Completed"] = "completed";
     // All non-optional tasks returned successfully, but some optional ones failed
     // This is provisional, and not used right now
-    PipelineStatus["Degraded"] = "Degraded";
+    PipelineStatus["Degraded"] = "degraded";
 })(PipelineStatus || (PipelineStatus = {}));
 /*
  * Represents action statuses

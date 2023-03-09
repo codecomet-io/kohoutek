@@ -1,5 +1,5 @@
 import {Tracer} from "./dependencies/ts-core/sentry.js"
-import {StdinIngester, BuffIngester} from "./lib/ingester.js";
+import { BuffIngester } from "./lib/ingester.js";
 import {
     AddFileAction,
     UtilityAction,

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Action, PrepareFilesetAction } from '../../../../data_importer/lib/model';
+	import type { Action, UtilityAction, PrepareFilesetAction } from '../../../../data_importer/lib/model';
 
 	import { createEventDispatcher } from 'svelte';
 
@@ -10,13 +10,13 @@
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
 
 
-	export let action : Action;
-	export let highlight : boolean;
+	export let action : Action | UtilityAction | PrepareFilesetAction
+	export let highlight : boolean
 
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher()
 
 	function handleSpanwedByHoverFocus(actionId : string, active : boolean) : void {
-		dispatch('highlightAction', { actionId, active });
+		dispatch('highlightAction', { actionId, active })
 	}
 </script>
 
@@ -30,6 +30,23 @@
 		:global(.status-icon) {
 			margin-left: 0.25em;
 		}
+
+		// code to display utility name in accordion header
+		// commenting out for now
+		// it looks a little too busy and is redundant with info when expanding the accordion
+		// ion-label {
+		// 	display: flex;
+
+		// 	span {
+		// 		+ span {
+		// 			&::before {
+		// 				content: '|';
+		// 				padding-left: 0.5em;
+		// 				padding-right: 0.5em;
+		// 			}
+		// 		}
+		// 	}
+		// }
 	}
 
 	article {
@@ -97,7 +114,17 @@
 			type={ action.filesetType ?? action.type }
 		/>
 
-		<ion-label>{ action.name }</ion-label>
+		<ion-label>
+			<!--
+			// commenting out for now
+			// it looks a little too busy and is redundant with info when expanding the accordion
+			{#if action.utilityName }
+				<span>{ action.utilityName }</span>
+			{/if}
+			-->
+
+			<span>{ action.name }</span>
+		</ion-label>
 
 		<ChunkyLabel
 			slot="end"
@@ -119,7 +146,7 @@
 		<div class="column-container">
 			<header class="key">type</header>
 
-			<div class="value">{ action.type }</div>
+			<div class="value">{ action.utilityName ?? action.type }</div>
 		</div>
 
 		<div class="column-container">

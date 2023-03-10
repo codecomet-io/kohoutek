@@ -167,6 +167,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
             protoActions[llbOperation.digest] = <PrepareFilesetAction>{
                 name,
+                utilityName: 'prepare fileset',
                 type: 'prepareFileset',
                 filesetType: type,
             }
@@ -174,23 +175,41 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
             let descriptor: UtilityAction
 
             switch (actionTypeKey) {
+                case 'atomic.mkdir':
+                    descriptor = <MakeDirectoryAction>{
+                        utilityName: 'make directory',
+                    }
+
+                    break
                 case 'atomic.mv':
-                    descriptor = <MoveAction>{}
+                    descriptor = <MoveAction>{
+                        utilityName: 'move',
+                    }
+
                     break
                 case 'atomic.addfile':
-                    descriptor = <AddFileAction>{}
-                    break
-                case 'atomic.mkdir':
-                    descriptor = <MakeDirectoryAction>{}
+                    descriptor = <AddFileAction>{
+                        utilityName: 'add file',
+                    }
+
                     break
                 case 'atomic.patch':
-                    descriptor = <PatchAction>{}
+                    descriptor = <PatchAction>{
+                        utilityName: 'patch',
+                    }
+
                     break
                 case 'atomic.symlink':
-                    descriptor = <CreateSymbolicLinkAction>{}
+                    descriptor = <CreateSymbolicLinkAction>{
+                        utilityName: 'create symbolic link',
+                    }
+
                     break
                 case 'atomic.merge':
-                    descriptor = <MergeAction>{}
+                    descriptor = <MergeAction>{
+                        utilityName: 'merge',
+                    }
+
                     break
                 default:
                     console.warn(`Unrecognized atomic action type|${actionTypeKey }|`)

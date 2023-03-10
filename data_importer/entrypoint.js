@@ -79,6 +79,7 @@ export default async function Pantry(buffer, trace, meta) {
             filesets.push(fileset);
             protoActions[llbOperation.digest] = {
                 name,
+                utilityName: 'prepare fileset',
                 type: 'prepareFileset',
                 filesetType: type,
             };
@@ -86,23 +87,35 @@ export default async function Pantry(buffer, trace, meta) {
         else if (actionTypeKey) {
             let descriptor;
             switch (actionTypeKey) {
+                case 'atomic.mkdir':
+                    descriptor = {
+                        utilityName: 'make directory',
+                    };
+                    break;
                 case 'atomic.mv':
-                    descriptor = {};
+                    descriptor = {
+                        utilityName: 'move',
+                    };
                     break;
                 case 'atomic.addfile':
-                    descriptor = {};
-                    break;
-                case 'atomic.mkdir':
-                    descriptor = {};
+                    descriptor = {
+                        utilityName: 'add file',
+                    };
                     break;
                 case 'atomic.patch':
-                    descriptor = {};
+                    descriptor = {
+                        utilityName: 'patch',
+                    };
                     break;
                 case 'atomic.symlink':
-                    descriptor = {};
+                    descriptor = {
+                        utilityName: 'create symbolic link',
+                    };
                     break;
                 case 'atomic.merge':
-                    descriptor = {};
+                    descriptor = {
+                        utilityName: 'merge',
+                    };
                     break;
                 default:
                     console.warn(`Unrecognized atomic action type|${actionTypeKey}|`);

@@ -315,33 +315,41 @@ export interface UserAction extends Action {
 
 export interface UtilityAction extends Action {
     type: UtilityActionType
+    utilityName : string;
 }
 
 export interface MakeDirectoryAction extends UtilityAction {
     type: 'makeDirectory'
+    utilityName: 'make directory'
 }
 
 export interface MoveAction extends UtilityAction {
     type: 'move'
+    utilityName: 'move'
 }
 
 export interface AddFileAction extends UtilityAction {
     type: 'addFile'
+    utilityName: 'add file'
 }
 
 export interface PatchAction extends UtilityAction {
     type: 'patch'
+    utilityName: 'patch'
 }
 
 export interface CreateSymbolicLinkAction extends UtilityAction {
     type: 'createSymbolicLink'
+    utilityName: 'create symbolic link'
 }
 
 export interface MergeAction extends UtilityAction {
     type: 'merge'
+    utilityName: 'merge'
 }
 
 export interface PrepareFilesetAction extends UtilityAction {
     type: 'prepareFileset'
+    utilityName: 'prepare fileset'
     filesetType: FilesetType
 }

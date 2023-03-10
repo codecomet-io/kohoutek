@@ -72,7 +72,7 @@
 		</div>
 
 		<div class="subtitle">
-			<ChunkyLabel>{ pipeline.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline.completed } /> <span title="{ pipeline.runtime } milliseconds">in { parseLapsed(pipeline.runtime) }</span></ChunkyLabel>
+			<ChunkyLabel>{ pipeline.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline.completed } /> <span title="{ pipeline.runtime } milliseconds">in { parseLapsed(pipeline.runtime, false, true) }</span></ChunkyLabel>
 		</div>
 
 		<a

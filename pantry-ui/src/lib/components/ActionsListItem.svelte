@@ -3,7 +3,7 @@
 
 	import { createEventDispatcher } from 'svelte';
 
-	import { getDateString, getTimeString } from '$lib/helper';
+	import { parseLapsed, getDateString, getTimeString } from '$lib/helper';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
@@ -17,12 +17,6 @@
 
 	function handleSpanwedByHoverFocus(actionId : string, active : boolean) : void {
 		dispatch('highlightAction', { actionId, active });
-	}
-
-	function parseMillisecondsOrSeconds(ms : number) : string {
-		return ms < 1000
-			? `${ ms }ms`
-			: `${ Math.floor(ms / 1000) }s`;
 	}
 </script>
 
@@ -109,7 +103,7 @@
 			slot="end"
 			allcaps={ false }
 		>
-			{ parseMillisecondsOrSeconds(action.runtime) }
+			{ parseLapsed(action.runtime, true) }
 		</ChunkyLabel>
 
 		<StatusIcon

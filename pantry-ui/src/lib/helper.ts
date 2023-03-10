@@ -20,96 +20,108 @@ export function getTimeString(date: Date | string | number) : string {
 		: dateObj.toLocaleTimeString();
 }
 
-// adapted from https://coolaj86.com/articles/time-ago-in-under-50-lines-of-javascript/
-export function parseLapsed(ms : number) : string {
-	if (ms < 250) {
-		return 'a moment';
-	}
+export function parseLapsed(ms : number, abbreviate : boolean = false, precise : boolean = false, separator? : string) : string {
+	if (!abbreviate && !precise && ms < 500) {
+		const unit = 'moment'
 
-	if (ms < 500) {
-		return 'moments';
-	}
-
-	if (ms < 1000) {
-		return ms + ' milliseconds';
-	}
-
-	let ago = Math.floor(ms / 1000);
-
-	if (ago < 60) {
-		return ago + ' seconds';
-	}
-
-	if (ago < 120) {
-		return 'a minute';
-	}
-
-	let part = 0;
-
-	if (ago < 3600) {
-		while (ago >= 60) {
-			ago -= 60;
-			part += 1;
+		if (ms < 250) {
+			return `a ${ unit }`
 		}
 
-		return part + ' minutes';
+		return `${ unit }s`
 	}
 
-	if (ago < 7200) {
-		return 'an hour';
-	}
+	const unitList = [
+		{
+			short : 'ms',
+			long : ' millisecond',
+			divisor : 1000,
+		},
+		{
+			short : 's',
+			long : ' second',
+			divisor : 60,
+		},
+		{
+			short : 'm',
+			long : ' minute',
+			divisor : 60,
+		},
+		{
+			short : 'h',
+			long : ' hour',
+			divisor : 24,
+		},
+		{
+			short : 'd',
+			long : ' day',
+			divisor : 7,
+		},
+		{
+			short : 'w',
+			long : ' week',
+			divisor : 4,
+		},
+		{
+			short : 'mo',
+			long : ' month',
+			divisor : 12,
+		},
+		{
+			short : 'yr',
+			long : ' year',
+		},
+	]
 
-	if (ago < 86400) {
-		while (ago >= 3600) {
-			ago -= 3600;
-			part += 1;
+	const parseCount = (count : number) : string =>
+		!abbreviate && !precise && count === 1
+			? 'a'
+			: count.toString()
+
+	const parsePlural = (count : number) : string =>
+		!abbreviate && count !== 1
+			? 's'
+			: ''
+
+	const timeList : string[] = []
+
+	let dividend : number = ms
+
+	for (const i in unitList) {
+		if (dividend === 0) {
+			break
 		}
 
-		return part + ' hours';
-	}
+		const unit = unitList[i]
 
-	if (ago < 172800) {
-		return 'a day';
-	}
+		let remainder : number = 0
 
-	if (ago < 604800) {
-		while (ago >= 172800) {
-			ago -= 172800;
-			part += 1;
+		if (unit.divisor) {
+			remainder = dividend % unit.divisor
+
+			dividend = Math.floor(dividend / unit.divisor)
+
+			if (remainder === 0) {
+				continue
+			} else if (!precise && dividend === 0 && remainder / unit.divisor >= 0.9) {
+				dividend = 1
+
+				continue
+			}
 		}
 
-		return part + ' days';
+		const timeStr = parseCount(remainder) + unit[ abbreviate ? 'short' : 'long' ] + parsePlural(remainder)
+
+		timeList.unshift(timeStr)
 	}
 
-	if (ago < 1209600) {
-		return 'a week';
+	if (separator == null) {
+		separator = abbreviate
+			? ' '
+			: ', '
 	}
 
-	if (ago < 2592000) {
-		while (ago >= 604800) {
-			ago -= 604800;
-			part += 1;
-		}
-
-		return part + ' weeks';
-	}
-
-	if (ago < 5184000) {
-		return 'a month';
-	}
-
-	if (ago < 31536000) {
-		while (ago >= 2592000) {
-			ago -= 2592000;
-			part += 1;
-		}
-
-		return part + ' months';
-	}
-
-	if (ago < 1419120000) { // 45 years, approximately the epoch
-		return 'more than year';
-	}
-
-	return '';
+	return precise
+		? timeList.join(separator)
+		: timeList.shift() ?? ''
 }

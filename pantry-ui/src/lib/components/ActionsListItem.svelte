@@ -130,7 +130,7 @@
 			slot="end"
 			allcaps={ false }
 		>
-			{ parseLapsed(action.runtime, true) }
+			{ parseLapsed(action.runtime, true) || '0ms' }
 		</ChunkyLabel>
 
 		<StatusIcon

@@ -17,6 +17,7 @@
   },
   "type": "module",
   "scripts": {
+    "build": "npm run build:typescript && ./build.sh",
     "build:typescript": "tsc"
   }
 }

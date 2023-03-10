@@ -8,7 +8,7 @@
 		folderOutline,
 		arrowRedoOutline,
 		gitMergeOutline,
-		hammerOutline,
+		magnetOutline,
 		globeOutline,
 		folderOpenOutline,
 		bandageOutline,
@@ -41,5 +41,5 @@
 
 <ion-icon
 	class="fileset-or-action-type-icon"
-	icon={ iconMap[type] ?? hammerOutline }
+	icon={ iconMap[type] ?? magnetOutline }
 ></ion-icon>

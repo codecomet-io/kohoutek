@@ -3,8 +3,6 @@
 node_modules
 /pantry-ui/build
 /pantry-ui/.svelte-kit
-/pantry-ui/.svelte-kit/
-/pantry-ui/.svelte-kit/*
 .svelte-kit
 /pantry-ui/package
 .env
@@ -12,4 +10,4 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-pantry-ui/static/data/*
+pantry-ui/static/data

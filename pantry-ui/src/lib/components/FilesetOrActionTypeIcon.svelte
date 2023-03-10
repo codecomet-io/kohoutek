@@ -14,12 +14,18 @@
 		bandageOutline,
 		logoDocker,
 		logoGithub,
+		logoGitlab,
 	} from 'ionicons/icons';
 
 
-	export let type : ActionType | FilesetType;
+	type CustomIcon =
+		| 'gitlab'
 
-	const iconMap : { [ key in ActionType | FilesetType ]? : any } = {
+
+	export let type : ActionType | FilesetType
+	export let icon : undefined | CustomIcon = undefined
+
+	const iconMap : { [ key in typeof type | CustomIcon ]? : any } = {
 		custom: colorPaletteOutline,
 		addFile: createOutline,
 		makeDirectory: folderOutline,
@@ -32,7 +38,12 @@
 		local: folderOpenOutline,
 		docker: logoDocker,
 		git: logoGithub,
-	};
+		gitlab: logoGitlab,
+	}
+
+	$: iconMapKey = icon && iconMap[icon]
+		? icon
+		: type
 </script>
 
 
@@ -41,5 +52,5 @@
 
 <ion-icon
 	class="fileset-or-action-type-icon"
-	icon={ iconMap[type] ?? magnetOutline }
+	icon={ iconMap[ iconMapKey ] ?? magnetOutline }
 ></ion-icon>

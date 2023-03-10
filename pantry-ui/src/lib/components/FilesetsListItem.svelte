@@ -10,6 +10,13 @@
 
 
 	export let fileset : Fileset;
+
+	// support GitLab icon for GitLab-hosted filesets
+	let icon : 'gitlab'
+
+	$: if (fileset?.type === 'git' && /\/\/(?:www\.)?gitlab\.com\//.test(fileset?.source)) {
+		icon = 'gitlab'
+	}
 </script>
 
 
@@ -74,6 +81,7 @@
 		<FilesetOrActionTypeIcon
 			slot="start"
 			type={ fileset.type }
+			icon={ icon }
 		/>
 
 		<ion-label>{ fileset.name }</ion-label>

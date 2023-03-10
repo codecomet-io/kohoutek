@@ -73,9 +73,9 @@ export function parseLapsed(ms : number, abbreviate : boolean = false, precise :
 		},
 	]
 
-	const parseCount = (count : number) : string =>
+	const parseCount = (count : number, unitFirstLetter : string) : string =>
 		!abbreviate && !precise && count === 1
-			? 'a'
+			? `a${ unitFirstLetter === 'h' ? 'n' : '' }`
 			: count.toString()
 
 	const parsePlural = (count : number) : string =>
@@ -110,7 +110,9 @@ export function parseLapsed(ms : number, abbreviate : boolean = false, precise :
 			}
 		}
 
-		const timeStr = parseCount(remainder) + unit[ abbreviate ? 'short' : 'long' ] + parsePlural(remainder)
+		const unitName : string = unit[ abbreviate ? 'short' : 'long' ]
+
+		const timeStr = parseCount(remainder, unitName.charAt(0)) + unitName + parsePlural(remainder)
 
 		timeList.unshift(timeStr)
 	}

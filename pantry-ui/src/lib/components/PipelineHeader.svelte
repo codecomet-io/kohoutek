@@ -16,6 +16,13 @@
 	ion-header {
 		ion-toolbar {
 			padding: var(--ion-padding, 16px);
+
+			@media (min-width: 1280px) {
+				--max-width-gutter-padding: calc((100vw - 1280px) / 2 + 16px);
+
+				padding-left: var(--max-width-gutter-padding);
+				padding-right: var(--max-width-gutter-padding);
+			}
 		}
 	}
 

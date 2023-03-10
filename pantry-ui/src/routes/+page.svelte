@@ -7,9 +7,9 @@
 	import ActionsList from '$lib/components/ActionsList.svelte';
 
 
-	export let data: PageData;
+	export let data: PageData
 
-	const pipeline = <Pipeline>data.pipeline;
+	const pipeline = <Pipeline>data.pipeline
 </script>
 
 
@@ -18,17 +18,27 @@
 		padding-top: 0;
 		padding-bottom: 0;
 	}
+
+	@media (min-width: 1280px) {
+		.max-width-wrapper {
+			max-width: 1280px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+	}
 </style>
 
 
 <PipelineHeader pipeline={ pipeline } />
 
 <ion-content fullscreen={ true }>
-	<h2 class="ion-padding">Fileset{ pipeline.filesets.length === 1 ? '' : 's' }</h2>
+	<div class="max-width-wrapper">
+		<h2 class="ion-padding">Fileset{ pipeline.filesets.length === 1 ? '' : 's' }</h2>
 
-	<FilesetsList filesets={ pipeline.filesets } />
+		<FilesetsList filesets={ pipeline.filesets } />
 
-	<h2 class="ion-padding">Actions</h2>
+		<h2 class="ion-padding">Actions</h2>
 
-	<ActionsList actions={ pipeline.actions } />
+		<ActionsList actions={ pipeline.actions } />
+	</div>
 </ion-content>

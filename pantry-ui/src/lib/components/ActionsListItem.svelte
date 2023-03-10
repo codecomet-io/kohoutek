@@ -59,6 +59,14 @@
 		flex: 1;
 		min-width: 100px;
 
+		&.parents-container {
+			min-width: 50%;
+
+			@media (min-width: 768px) {
+				min-width: calc(1 / 3 * 100% );
+			}
+		}
+
 		.key,
 		.value {
 			white-space: nowrap;
@@ -177,7 +185,7 @@
 			{/if}
 		</div>
 
-		<div class="column-container">
+		<div class="column-container parents-container">
 			{#if action.parents && action.parents.length }
 				<header class="key">{ action.type === 'merge' ? 'merged' : 'parent' } action{ action.parents.length === 1 ? '' : 's' }</header>
 

@@ -239,6 +239,7 @@ export type Fileset = {
     name: string
     source: string
     type: FilesetType
+    link?: string
 }
 
 export interface ImageFileset extends Fileset {

@@ -51,6 +51,15 @@
 			font-weight: 600;
 		}
 	}
+
+	a[target="_blank"] {
+		&::after {
+			content: url(data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpb25pY29uIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHRpdGxlPk9wZW48L3RpdGxlPjxwYXRoIGQ9Ik0zODQgMjI0djE4NGE0MCA0MCAwIDAxLTQwIDQwSDEwNGE0MCA0MCAwIDAxLTQwLTQwVjE2OGE0MCA0MCAwIDAxNDAtNDBoMTY3LjQ4TTMzNiA2NGgxMTJ2MTEyTTIyNCAyODhMNDQwIDcyIiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjMyIi8+PC9zdmc+);
+			display: inline-block;
+			width: 1em;
+			padding-left: 0.25em;
+		}
+	}
 </style>
 
 
@@ -86,7 +95,17 @@
 		>
 			<header class="key">source</header>
 
-			<div class="value">{ fileset.source }</div>
+			<div class="value">
+				{#if fileset.link }
+					<a
+						href={ fileset.link }
+						target="_blank"
+						rel="noreferrer"
+					>{ fileset.source }</a>
+				{:else}
+					{ fileset.source }
+				{/if}
+			</div>
 		</div>
 	</article>
 </ion-accordion>

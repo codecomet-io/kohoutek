@@ -41,6 +41,7 @@ export default async function Pantry(buffer, trace, meta) {
     const [llbOperations, err] = ingest(buffer);
     const filesets = [];
     const protoActions = {};
+    const filesetDockerImageUrlRegex = /^docker-image:/;
     llbOperations.forEach((llbOperation) => {
         var _a, _b, _c, _d;
         const name = (_a = llbOperation.metadata.description) === null || _a === void 0 ? void 0 : _a['llb.customname'];
@@ -59,10 +60,13 @@ export default async function Pantry(buffer, trace, meta) {
             if (llbOperation.metadata.caps['source.image']) {
                 type = FilesetType.Image;
                 fileset = Object.assign(Object.assign({}, fileset), { type, forceResolve: llbOperation.operation.source.attrs['image.resolvemode'] === 'pull', architecture: llbOperation.operation.platform.Architecture, variant: llbOperation.operation.platform.Variant });
+                if (filesetDockerImageUrlRegex.test(fileset.source)) {
+                    fileset.link = fileset.source.replace(filesetDockerImageUrlRegex, 'https:');
+                }
             }
             else if (llbOperation.metadata.caps['source.git']) {
                 type = FilesetType.Git;
-                fileset = Object.assign(Object.assign({}, fileset), { type, source: llbOperation.operation.source.identifier, keepDir: llbOperation.operation.source.attrs['git.keepgitdir'] === 'true' });
+                fileset = Object.assign(Object.assign({}, fileset), { type, source: llbOperation.operation.source.identifier, keepDir: llbOperation.operation.source.attrs['git.keepgitdir'] === 'true', link: fileset.source.replace(/^git:/, 'https:') });
             }
             else if (llbOperation.metadata.caps['source.local']) {
                 type = FilesetType.Local;
@@ -70,7 +74,7 @@ export default async function Pantry(buffer, trace, meta) {
             }
             else if (llbOperation.metadata.caps['source.http']) {
                 type = FilesetType.HTTP;
-                fileset = Object.assign(Object.assign({}, fileset), { type, source: llbOperation.operation.source.identifier, checksum: llbOperation.operation.source.attrs['http.checksum'], filename: llbOperation.operation.source.attrs['http.filename'] });
+                fileset = Object.assign(Object.assign({}, fileset), { type, source: llbOperation.operation.source.identifier, checksum: llbOperation.operation.source.attrs['http.checksum'], filename: llbOperation.operation.source.attrs['http.filename'], link: fileset.source });
             }
             filesets.push(fileset);
             protoActions[llbOperation.digest] = {

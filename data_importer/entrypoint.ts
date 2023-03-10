@@ -95,6 +95,8 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     const filesets: Fileset[] = []
     const protoActions: ActionsObject = {}
 
+    const filesetDockerImageUrlRegex : RegExp = /^docker-image:/
+
     llbOperations.forEach((llbOperation) => {
         const name : string = llbOperation.metadata.description?.['llb.customname']
         const actionTypeKey : string = llbOperation?.metadata?.description?.['codecomet.op']
@@ -124,6 +126,10 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
                     architecture: llbOperation.operation.platform.Architecture,
                     variant: llbOperation.operation.platform.Variant,
                 }
+
+                if (filesetDockerImageUrlRegex.test(fileset.source)) {
+                    fileset.link = fileset.source.replace(filesetDockerImageUrlRegex, 'https:')
+                }
             } else if (llbOperation.metadata.caps['source.git']) {
                 type = FilesetType.Git
 
@@ -132,6 +138,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
                     type,
                     source: llbOperation.operation.source.identifier,
                     keepDir: llbOperation.operation.source.attrs['git.keepgitdir'] === 'true',
+                    link: fileset.source.replace(/^git:/, 'https:'),
                 }
             } else if (llbOperation.metadata.caps['source.local']) {
                 type = FilesetType.Local
@@ -152,6 +159,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
                     source: llbOperation.operation.source.identifier,
                     checksum: llbOperation.operation.source.attrs['http.checksum'],
                     filename: llbOperation.operation.source.attrs['http.filename'],
+                    link: fileset.source,
                 }
             }
 

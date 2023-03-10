@@ -24,6 +24,7 @@ meta="$(echo '{}' | jq -c --arg id "$id" --arg name "$name" --arg desc "$descrip
   location: $loc,
 }')"
 
+cd ./data_importer/
 destination=../pantry-ui/static/data
 mkdir -p "$destination"
 npm run build:typescript
@@ -31,3 +32,6 @@ node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/no-cac
 node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/cached.json" "$meta" "$destination/simple-with-cache.json"
 node ./entrypoint.js "mocks/simple-debian/llb.proto" "mocks/simple-debian/fail.json" "$meta" "$destination/simple-fail.json"
 node ./entrypoint.js "mocks/exhaustive/llb.proto" "mocks/exhaustive/trace.json" "$meta" "$destination/exhaustive.json"
+cd ../pantry-ui/
+npm run build
+npm run preview -- --open ?pipeline=exhaustive

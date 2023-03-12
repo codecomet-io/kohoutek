@@ -6,7 +6,7 @@
 
 
 	type ColorMap = {
-		[ key in PipelineStatus | ActionStatus ]? : 'success' | 'danger' | 'medium' | 'warning' | 'tertiary';
+		[ key in PipelineStatus | ActionStatus ]? : 'success' | 'danger' | 'medium' | 'light' | 'warning' | 'tertiary';
 	};
 
 
@@ -23,7 +23,7 @@
 		errored: 'danger',
 		degraded: 'warning',
 		canceled: 'medium',
-		ignored: 'medium',
+		ignored: 'light',
 		cached: 'tertiary',
 	};
 </script>

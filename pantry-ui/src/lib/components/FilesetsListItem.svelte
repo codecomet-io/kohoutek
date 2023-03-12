@@ -116,7 +116,7 @@
 		<div class="column-container">
 			<header class="key">status</header>
 
-			<div class="value">{ fileset.status }</div>
+			<div class="value">{ fileset.status === 'completed' || fileset.status === 'cached' ? 'successfully retrieved' : 'failed to retrieve' }</div>
 		</div>
 
 		<div

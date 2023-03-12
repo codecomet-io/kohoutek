@@ -3,19 +3,16 @@ import { BuffIngester } from "./lib/ingester.js";
 import {
     AddFileAction,
     UtilityAction,
-    Fileset,
+    FilesetAction,
     FilesetType,
     Action,
-    ActionsObject,
-    GitFileset,
-    HTTPFileset,
-    ImageFileset,
-    LocalFileset,
+    BuildAction,
+    BuildActionsObject,
     MergeAction,
-    PrepareFilesetAction,
     MakeDirectoryAction,
     MoveAction,
     PatchAction,
+    ParentAction,
     BuildPipeline,
     Pipeline,
     CreateSymbolicLinkAction,
@@ -92,8 +89,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     // Suck up the serialized protobuf, spit out semi-acceptable objects
     const [ llbOperations, err ] = ingest(buffer);
 
-    const filesets: Fileset[] = []
-    const protoActions: ActionsObject = {}
+    const buildActionsObject: BuildActionsObject = {}
 
     const filesetDockerImageUrlRegex : RegExp = /^docker-image:/
 
@@ -107,21 +103,17 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
             || llbOperation.metadata.caps['source.local']
             || llbOperation.metadata.caps['source.http']
         ) {
-            let type = FilesetType.Scratch
-
-            let fileset : Fileset = {
+            let fileset = <FilesetAction>{
                 name,
-                type,
-                id: 'tempNonUniqueFilesetId',
+                type: 'fileset',
+                filesetType : FilesetType.Scratch,
                 source: llbOperation.operation.source.identifier,
             }
 
             if (llbOperation.metadata.caps['source.image']) {
-                type = FilesetType.Image
-
-                fileset = <ImageFileset>{
+                fileset = {
                     ...fileset,
-                    type,
+                    filesetType : FilesetType.Image,
                     forceResolve: llbOperation.operation.source.attrs['image.resolvemode'] === 'pull',
                     architecture: llbOperation.operation.platform.Architecture,
                     variant: llbOperation.operation.platform.Variant,
@@ -131,46 +123,30 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
                     fileset.link = fileset.source.replace(filesetDockerImageUrlRegex, 'https:')
                 }
             } else if (llbOperation.metadata.caps['source.git']) {
-                type = FilesetType.Git
-
-                fileset = <GitFileset>{
+                fileset = {
                     ...fileset,
-                    type,
-                    source: llbOperation.operation.source.identifier,
+                    filesetType : FilesetType.Git,
                     keepDir: llbOperation.operation.source.attrs['git.keepgitdir'] === 'true',
                     link: fileset.source.replace(/^git:/, 'https:'),
                 }
             } else if (llbOperation.metadata.caps['source.local']) {
-                type = FilesetType.Local
-
-                fileset = <LocalFileset>{
+                fileset = {
                     ...fileset,
-                    type,
-                    source: llbOperation.operation.source.identifier,
+                    filesetType : FilesetType.Local,
                     excludePattern: JSON.parse(llbOperation.operation.source.attrs['local.excludepattern'] || '[]'),
                     includePattern: JSON.parse(llbOperation.operation.source.attrs['local.includepattern'] || '[]'),
                 }
             } else if (llbOperation.metadata.caps['source.http']) {
-                type = FilesetType.HTTP
-
-                fileset = <HTTPFileset>{
+                fileset = {
                     ...fileset,
-                    type,
-                    source: llbOperation.operation.source.identifier,
+                    filesetType : FilesetType.HTTP,
                     checksum: llbOperation.operation.source.attrs['http.checksum'],
                     filename: llbOperation.operation.source.attrs['http.filename'],
                     link: fileset.source,
                 }
             }
 
-            filesets.push(fileset)
-
-            protoActions[llbOperation.digest] = <PrepareFilesetAction>{
-                name,
-                utilityName: 'prepare fileset',
-                type: 'prepareFileset',
-                filesetType: type,
-            }
+            buildActionsObject[llbOperation.digest] = fileset
         } else if (actionTypeKey) {
             let descriptor: UtilityAction
 
@@ -221,9 +197,9 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
             descriptor.type = actionTypeMap[ actionTypeKey ] ?? 'utility'
             descriptor.name = name
 
-            protoActions[llbOperation.digest] = descriptor
+            buildActionsObject[llbOperation.digest] = descriptor
         } else {
-            protoActions[llbOperation.digest] = <UserAction>{
+            buildActionsObject[llbOperation.digest] = <UserAction>{
                 type: 'custom',
                 name: name ?? '',
             }
@@ -232,10 +208,10 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
     // throw "lol"
     // Suck up stdin for the logs
-    // new StdinIngester(stdin, function(pl: BuildPipeline, tsks: ActionsObject){
+    // new StdinIngester(stdin, function(pl: BuildPipeline, tsks: BuildActionsObject){
     const buffIngester = new BuffIngester()
     const buildPipeline : BuildPipeline = buffIngester.ingest(trace)
-//        , function(pl: BuildPipeline, tsks: ActionsObject){
+//        , function(pl: BuildPipeline, tsks: BuildActionsObject){
     // XXX piggyback on metadata
     buildPipeline.id = metadata.id
     buildPipeline.description = metadata.description
@@ -253,28 +229,26 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     Object.keys(buildPipeline.actionsObject).forEach(function(digest){
         const traceObject = buildPipeline.actionsObject[digest]
 
-        let typedObject: Action
+        let typedObject: BuildAction
 
-        if (!protoActions[digest]) {
+        if (buildActionsObject[digest]) {
+            typedObject = buildActionsObject[digest]
+        } else {
             // This is not good. Bad shit here: https://github.com/moby/buildkit/issues/3693
             // So, try very-very hard to still retrieve the object, even with a different digest
-            // if (traceObject.name.startsWith("[source:local]")){
-            Object.keys(protoActions).some(function(key){
-                // console.warn("Trying ", protoActions[key].name, "vs", pipeline.actionsObject[digest].name)
-                if (protoActions[key].name && protoActions[key].name == buildPipeline.actionsObject[digest].name){
-                    typedObject = protoActions[key]
+            for (const key of Object.keys(buildActionsObject)) {
+                if (buildActionsObject[key]?.name === buildPipeline.actionsObject[digest]?.name) {
+                    typedObject = buildActionsObject[key]
 
-                    return true
+                    break
                 }
-            })
-            //}
+            }
+
             if (!typedObject){
                 console.warn("Unable to find proto object for vertex", digest)
 
                 return
             }
-        } else {
-            typedObject = protoActions[digest]
         }
 
         // console.warn("still ok")
@@ -289,14 +263,40 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         typedObject.status = traceObject.status
         typedObject.stdout = traceObject.stdout
         typedObject.stderr = traceObject.stderr
-        typedObject.parents = traceObject.parents
+        typedObject.buildParents = traceObject.buildParents
 
         buildPipeline.actionsObject[digest] = typedObject
     })
 
-    // extract actionObject values into an array
-    const actions = Object.values(buildPipeline.actionsObject)
+    const filesets : FilesetAction[] = []
+    const actions : Action[] = []
+
+    Object.values(buildPipeline.actionsObject)
         .sort((a, b) => a.started - b.started) // sort values chronologically, based on start time
+        .forEach((item) => {
+            if (item.type === 'fileset') {
+                filesets.push(item as FilesetAction)
+            } else {
+                let parents : ParentAction[]
+
+                if (item.buildParents) {
+                    parents = item.buildParents
+                        .filter((digest) => buildPipeline.actionsObject[digest])
+                        .sort((a, b) => buildPipeline.actionsObject[a].started - buildPipeline.actionsObject[b].started) // sort values chronologically, based on start time
+                        .map((digest) : ParentAction => ({
+                            digest,
+                            name: buildPipeline.actionsObject[digest].name,
+                        }))
+                }
+
+                delete item.buildParents
+
+                actions.push(<Action>{
+                    ...item,
+                    parents,
+                })
+            }
+        })
 
     delete buildPipeline.actionsObject
 
@@ -304,7 +304,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         ...buildPipeline,
         filesets,
         actions,
-    };
+    }
 }
 
 

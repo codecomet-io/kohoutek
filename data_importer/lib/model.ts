@@ -209,63 +209,17 @@ type GeneralPipeline = {
 }
 
 export interface BuildPipeline extends GeneralPipeline {
-    actionsObject: ActionsObject
+    actionsObject: BuildActionsObject
 }
 
-export type ActionsObject = {
-    [key: digest.Digest]: Action
+export type BuildActionsObject = {
+    [key: digest.Digest]: BuildAction
 }
 
 export interface Pipeline extends GeneralPipeline {
-    filesets: Fileset[]
+    filesets: FilesetAction[]
     actions: Action[]
 }
-
-export enum FilesetType {
-    Git = 'git',
-    HTTP = 'http',
-    Image = 'docker',
-    Local = 'local',
-    Scratch = 'scratch',
-}
-
-export type Fileset = {
-    // URL of the source
-    // Examples:
-    // - git://foo
-    // - http://bla
-    // - file:///bla/../bar
-    id: string
-    name: string
-    source: string
-    type: FilesetType
-    link?: string
-}
-
-export interface ImageFileset extends Fileset {
-    type: FilesetType.Image
-    forceResolve: bool
-    architecture: string
-    variant: string
-}
-
-export interface GitFileset extends Fileset {
-    type: FilesetType.Git
-    keepDir: bool
-}
-
-export interface HTTPFileset extends Fileset {
-    type: FilesetType.HTTP
-    checksum?: string
-    filename?: string
-}
-
-export interface LocalFileset extends Fileset {
-    type: FilesetType.Local
-    includePattern?: string[]
-    excludePattern?: string[]
-}
-
 
 // A log entry is a timestamp and some content
 export type LogEntry = {
@@ -273,7 +227,7 @@ export type LogEntry = {
     content: string
 }
 
-export type Action = {
+type GeneralAction = {
     id: string
     name: string
     digest: digest.Digest
@@ -285,24 +239,36 @@ export type Action = {
     status: ActionStatus
     stdout: string
     stderr: string
-    parents: ParentAction[]
     progressGroup: Types.ProgressGroup
-    type: ActionType
 }
 
-type ParentAction = {
+export interface BuildAction extends GeneralAction {
+    type: BuildActionType
+    buildParents?: digest.Digest[]
+}
+
+export interface Action extends GeneralAction {
+    type: ActionType
+    parents?: ParentAction[]
+}
+
+export type ParentAction = {
     digest: digest.Digest
     name: string
-};
+}
 
 export type ActionType =
     | UtilityActionType
     | 'custom'
 
+type BuildActionType =
+    | UtilityActionType
+    | 'custom'
+    | 'fileset'
+
 type UtilityActionType =
     | 'utility'
     | 'merge'
-    | 'prepareFileset'
     | 'makeDirectory'
     | 'addFile'
     | 'move'
@@ -315,7 +281,7 @@ export interface UserAction extends Action {
 
 export interface UtilityAction extends Action {
     type: UtilityActionType
-    utilityName : string;
+    utilityName : string
 }
 
 export interface MakeDirectoryAction extends UtilityAction {
@@ -348,8 +314,33 @@ export interface MergeAction extends UtilityAction {
     utilityName: 'merge'
 }
 
-export interface PrepareFilesetAction extends UtilityAction {
-    type: 'prepareFileset'
-    utilityName: 'prepare fileset'
+export interface BuildUtilityAction extends BuildAction {
+    type: BuildActionType
+}
+
+export interface FilesetAction extends BuildUtilityAction {
+    type: 'fileset'
     filesetType: FilesetType
+    source: string
+    link?: string
+    // ImageFileset
+    forceResolve?: bool
+    architecture?: string
+    variant?: string
+    // GitFileset
+    keepDir?: bool
+    // HTTPFileset
+    checksum?: string
+    filename?: string
+    // LocalFileset
+    includePattern?: string[]
+    excludePattern?: string[]
+}
+
+export enum FilesetType {
+    Git = 'git',
+    HTTP = 'http',
+    Image = 'docker',
+    Local = 'local',
+    Scratch = 'scratch',
 }

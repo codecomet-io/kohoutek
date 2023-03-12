@@ -102,7 +102,7 @@ class Build implements BuildPipeline {
         }
 
         if (!this.actionsObject[vertice.Digest]) {
-            let action = <model.Action>{
+            let action = <model.BuildAction>{
                 id: vertice.Digest,
                 name: vertice.Name,
                 digest: vertice.Digest,
@@ -111,13 +111,7 @@ class Build implements BuildPipeline {
             }
 
             if (vertice.Inputs) {
-                action.parents = vertice.Inputs
-                    .filter((digest) => this.actionsObject[digest])
-                    .sort((a, b) => this.actionsObject[a].started - this.actionsObject[b].started) // sort values chronologically, based on start time
-                    .map((digest) => ({
-                        digest,
-                        name: this.actionsObject[digest].name,
-                    }))
+                action.buildParents = vertice.Inputs
             }
 
             this.actionsObject[vertice.Digest] = action
@@ -223,7 +217,7 @@ class Build implements BuildPipeline {
 //     private reader: readline.Interface
 //     private build: Build
 
-//     constructor(file: ReadStream, onfinish: (plan: model.BuildPipeline, tasksc: model.ActionsObject)=>void){
+//     constructor(file: ReadStream, onfinish: (plan: model.BuildPipeline, tasksc: model.BuildActionsObject)=>void){
 //         let transaction = Sentry.startTransaction({
 //             op: "Ingester",
 //             name: "Data ingesting transaction",

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Action, UtilityAction, PrepareFilesetAction } from '../../../../data_importer/lib/model';
+	import type { Action, UtilityAction } from '../../../../data_importer/lib/model';
 
 	import { createEventDispatcher } from 'svelte';
 
@@ -10,13 +10,13 @@
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
 
 
-	export let action : Action | UtilityAction | PrepareFilesetAction
+	export let action : Action | UtilityAction
 	export let highlight : boolean
 
 	const dispatch = createEventDispatcher()
 
-	function handleSpanwedByHoverFocus(actionId : string, active : boolean) : void {
-		dispatch('highlightAction', { actionId, active })
+	function handleSpanwedByHoverFocus(digest : string, active : boolean) : void {
+		dispatch('highlightFilesetOrAction', { digest, active })
 	}
 </script>
 
@@ -119,7 +119,7 @@
 	>
 		<FilesetOrActionTypeIcon
 			slot="start"
-			type={ action.filesetType ?? action.type }
+			type={ action.type }
 		/>
 
 		<ion-label>
@@ -134,12 +134,16 @@
 			<span>{ action.name }</span>
 		</ion-label>
 
-		<ChunkyLabel
-			slot="end"
-			allcaps={ false }
-		>
-			{ parseLapsed(action.runtime, true) || '0ms' }
-		</ChunkyLabel>
+		{#if action.status === 'cached' }
+			<ChunkyLabel slot="end">cached</ChunkyLabel>
+		{:else}
+			<ChunkyLabel
+				slot="end"
+				allcaps={ false }
+			>
+				{ parseLapsed(action.runtime, true) || '0ms' }
+			</ChunkyLabel>
+		{/if}
 
 		<StatusIcon
 			slot="end"

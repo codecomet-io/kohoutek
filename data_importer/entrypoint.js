@@ -39,8 +39,7 @@ export default async function Pantry(buffer, trace, meta) {
     // Retrieve the data model from protobuf first, chain that into the ingester
     // Suck up the serialized protobuf, spit out semi-acceptable objects
     const [llbOperations, err] = ingest(buffer);
-    const filesets = [];
-    const protoActions = {};
+    const buildActionsObject = {};
     const filesetDockerImageUrlRegex = /^docker-image:/;
     llbOperations.forEach((llbOperation) => {
         var _a, _b, _c, _d;
@@ -50,39 +49,28 @@ export default async function Pantry(buffer, trace, meta) {
             || llbOperation.metadata.caps['source.git']
             || llbOperation.metadata.caps['source.local']
             || llbOperation.metadata.caps['source.http']) {
-            let type = FilesetType.Scratch;
             let fileset = {
                 name,
-                type,
-                id: 'tempNonUniqueFilesetId',
+                type: 'fileset',
+                filesetType: FilesetType.Scratch,
                 source: llbOperation.operation.source.identifier,
             };
             if (llbOperation.metadata.caps['source.image']) {
-                type = FilesetType.Image;
-                fileset = Object.assign(Object.assign({}, fileset), { type, forceResolve: llbOperation.operation.source.attrs['image.resolvemode'] === 'pull', architecture: llbOperation.operation.platform.Architecture, variant: llbOperation.operation.platform.Variant });
+                fileset = Object.assign(Object.assign({}, fileset), { filesetType: FilesetType.Image, forceResolve: llbOperation.operation.source.attrs['image.resolvemode'] === 'pull', architecture: llbOperation.operation.platform.Architecture, variant: llbOperation.operation.platform.Variant });
                 if (filesetDockerImageUrlRegex.test(fileset.source)) {
                     fileset.link = fileset.source.replace(filesetDockerImageUrlRegex, 'https:');
                 }
             }
             else if (llbOperation.metadata.caps['source.git']) {
-                type = FilesetType.Git;
-                fileset = Object.assign(Object.assign({}, fileset), { type, source: llbOperation.operation.source.identifier, keepDir: llbOperation.operation.source.attrs['git.keepgitdir'] === 'true', link: fileset.source.replace(/^git:/, 'https:') });
+                fileset = Object.assign(Object.assign({}, fileset), { filesetType: FilesetType.Git, keepDir: llbOperation.operation.source.attrs['git.keepgitdir'] === 'true', link: fileset.source.replace(/^git:/, 'https:') });
             }
             else if (llbOperation.metadata.caps['source.local']) {
-                type = FilesetType.Local;
-                fileset = Object.assign(Object.assign({}, fileset), { type, source: llbOperation.operation.source.identifier, excludePattern: JSON.parse(llbOperation.operation.source.attrs['local.excludepattern'] || '[]'), includePattern: JSON.parse(llbOperation.operation.source.attrs['local.includepattern'] || '[]') });
+                fileset = Object.assign(Object.assign({}, fileset), { filesetType: FilesetType.Local, excludePattern: JSON.parse(llbOperation.operation.source.attrs['local.excludepattern'] || '[]'), includePattern: JSON.parse(llbOperation.operation.source.attrs['local.includepattern'] || '[]') });
             }
             else if (llbOperation.metadata.caps['source.http']) {
-                type = FilesetType.HTTP;
-                fileset = Object.assign(Object.assign({}, fileset), { type, source: llbOperation.operation.source.identifier, checksum: llbOperation.operation.source.attrs['http.checksum'], filename: llbOperation.operation.source.attrs['http.filename'], link: fileset.source });
+                fileset = Object.assign(Object.assign({}, fileset), { filesetType: FilesetType.HTTP, checksum: llbOperation.operation.source.attrs['http.checksum'], filename: llbOperation.operation.source.attrs['http.filename'], link: fileset.source });
             }
-            filesets.push(fileset);
-            protoActions[llbOperation.digest] = {
-                name,
-                utilityName: 'prepare fileset',
-                type: 'prepareFileset',
-                filesetType: type,
-            };
+            buildActionsObject[llbOperation.digest] = fileset;
         }
         else if (actionTypeKey) {
             let descriptor;
@@ -124,10 +112,10 @@ export default async function Pantry(buffer, trace, meta) {
             }
             descriptor.type = (_d = actionTypeMap[actionTypeKey]) !== null && _d !== void 0 ? _d : 'utility';
             descriptor.name = name;
-            protoActions[llbOperation.digest] = descriptor;
+            buildActionsObject[llbOperation.digest] = descriptor;
         }
         else {
-            protoActions[llbOperation.digest] = {
+            buildActionsObject[llbOperation.digest] = {
                 type: 'custom',
                 name: name !== null && name !== void 0 ? name : '',
             };
@@ -135,10 +123,10 @@ export default async function Pantry(buffer, trace, meta) {
     });
     // throw "lol"
     // Suck up stdin for the logs
-    // new StdinIngester(stdin, function(pl: BuildPipeline, tsks: ActionsObject){
+    // new StdinIngester(stdin, function(pl: BuildPipeline, tsks: BuildActionsObject){
     const buffIngester = new BuffIngester();
     const buildPipeline = buffIngester.ingest(trace);
-    //        , function(pl: BuildPipeline, tsks: ActionsObject){
+    //        , function(pl: BuildPipeline, tsks: BuildActionsObject){
     // XXX piggyback on metadata
     buildPipeline.id = metadata.id;
     buildPipeline.description = metadata.description;
@@ -152,27 +140,25 @@ export default async function Pantry(buffer, trace, meta) {
     // Geez this is shit. @spacedub burn all of this with fire and rewrite the stitching probably (later...)
     // briznad: @spacedub you're too hard on yourself
     Object.keys(buildPipeline.actionsObject).forEach(function (digest) {
+        var _a, _b;
         const traceObject = buildPipeline.actionsObject[digest];
         let typedObject;
-        if (!protoActions[digest]) {
+        if (buildActionsObject[digest]) {
+            typedObject = buildActionsObject[digest];
+        }
+        else {
             // This is not good. Bad shit here: https://github.com/moby/buildkit/issues/3693
             // So, try very-very hard to still retrieve the object, even with a different digest
-            // if (traceObject.name.startsWith("[source:local]")){
-            Object.keys(protoActions).some(function (key) {
-                // console.warn("Trying ", protoActions[key].name, "vs", pipeline.actionsObject[digest].name)
-                if (protoActions[key].name && protoActions[key].name == buildPipeline.actionsObject[digest].name) {
-                    typedObject = protoActions[key];
-                    return true;
+            for (const key of Object.keys(buildActionsObject)) {
+                if (((_a = buildActionsObject[key]) === null || _a === void 0 ? void 0 : _a.name) === ((_b = buildPipeline.actionsObject[digest]) === null || _b === void 0 ? void 0 : _b.name)) {
+                    typedObject = buildActionsObject[key];
+                    break;
                 }
-            });
-            //}
+            }
             if (!typedObject) {
                 console.warn("Unable to find proto object for vertex", digest);
                 return;
             }
-        }
-        else {
-            typedObject = protoActions[digest];
         }
         // console.warn("still ok")
         typedObject.id = traceObject.id;
@@ -186,12 +172,32 @@ export default async function Pantry(buffer, trace, meta) {
         typedObject.status = traceObject.status;
         typedObject.stdout = traceObject.stdout;
         typedObject.stderr = traceObject.stderr;
-        typedObject.parents = traceObject.parents;
+        typedObject.buildParents = traceObject.buildParents;
         buildPipeline.actionsObject[digest] = typedObject;
     });
-    // extract actionObject values into an array
-    const actions = Object.values(buildPipeline.actionsObject)
-        .sort((a, b) => a.started - b.started); // sort values chronologically, based on start time
+    const filesets = [];
+    const actions = [];
+    Object.values(buildPipeline.actionsObject)
+        .sort((a, b) => a.started - b.started) // sort values chronologically, based on start time
+        .forEach((item) => {
+        if (item.type === 'fileset') {
+            filesets.push(item);
+        }
+        else {
+            let parents;
+            if (item.buildParents) {
+                parents = item.buildParents
+                    .filter((digest) => buildPipeline.actionsObject[digest])
+                    .sort((a, b) => buildPipeline.actionsObject[a].started - buildPipeline.actionsObject[b].started) // sort values chronologically, based on start time
+                    .map((digest) => ({
+                    digest,
+                    name: buildPipeline.actionsObject[digest].name,
+                }));
+            }
+            delete item.buildParents;
+            actions.push(Object.assign(Object.assign({}, item), { parents }));
+        }
+    });
     delete buildPipeline.actionsObject;
     return Object.assign(Object.assign({}, buildPipeline), { filesets,
         actions });

@@ -1,20 +1,18 @@
 <script lang="ts">
-	import type { Fileset } from '../../../../data_importer/lib/model';
-
-	import { createEventDispatcher } from 'svelte';
-
-	import { getDateString, getTimeString } from '$lib/helper';
+	import type { FilesetAction } from '../../../../data_importer/lib/model';
 
 	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
+	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
 
 
-	export let fileset : Fileset;
+	export let fileset : FilesetAction
+	export let highlight : boolean
 
 	// support GitLab icon for GitLab-hosted filesets
 	let icon : 'gitlab'
 
-	$: if (fileset?.type === 'git' && /\/\/(?:www\.)?gitlab\.com\//.test(fileset?.source)) {
+	$: if (fileset?.filesetType === 'git' && /\/\/(?:www\.)?gitlab\.com\//.test(fileset?.source)) {
 		icon = 'gitlab'
 	}
 </script>
@@ -24,6 +22,10 @@
 	[slot="header"] {
 		:global(.fileset-or-action-type-icon) {
 			margin-right: 0.25em;
+		}
+
+		:global(.status-icon) {
+			margin-left: 0.25em;
 		}
 	}
 
@@ -36,6 +38,10 @@
 	.column-container {
 		flex: 1;
 		min-width: 100px;
+
+		&.source-container {
+			min-width: 50%;
+		}
 
 		.key,
 		.value {
@@ -77,14 +83,24 @@
 	<ion-item
 		slot="header"
 		color="light"
+		class:ion-focused={ highlight }
 	>
 		<FilesetOrActionTypeIcon
 			slot="start"
-			type={ fileset.type }
+			type={ fileset.filesetType }
 			icon={ icon }
 		/>
 
 		<ion-label>{ fileset.name }</ion-label>
+
+		{#if fileset.status === 'cached' }
+			<ChunkyLabel slot="end">cached</ChunkyLabel>
+		{/if}
+
+		<StatusIcon
+			slot="end"
+			status={ fileset.status }
+		/>
 	</ion-item>
 
 	<article
@@ -94,11 +110,17 @@
 		<div class="column-container">
 			<header class="key">type</header>
 
-			<div class="value">{ fileset.type }</div>
+			<div class="value">{ fileset.filesetType }</div>
+		</div>
+
+		<div class="column-container">
+			<header class="key">status</header>
+
+			<div class="value">{ fileset.status }</div>
 		</div>
 
 		<div
-			class="column-container"
+			class="column-container source-container"
 			title={ fileset.source }
 		>
 			<header class="key">source</header>

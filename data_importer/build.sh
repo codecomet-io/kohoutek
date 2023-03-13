@@ -21,5 +21,9 @@ meta="$(echo '{}' | jq -c --arg id "$id" --arg name "$name" --arg desc "$descrip
 }')"
 
 destination=../pantry-ui/static/data
-mkdir -p "$destination"
-node ./entrypoint.js "mocks/exhaustive/llb.proto" "mocks/exhaustive/trace.json" "$meta" "$destination/exhaustive.json"
+node ./entrypoint.js "mocks/exhaustive/failure/llb.proto" "mocks/exhaustive/failure/trace.json" "$meta" "$destination/exhaustive-failure.json"
+node ./entrypoint.js "mocks/exhaustive/success/llb.proto" "mocks/exhaustive/success/trace.json" "$meta" "$destination/exhaustive-success.json"
+node ./entrypoint.js "mocks/exhaustive/cached/llb.proto" "mocks/exhaustive/cached/trace.json" "$meta" "$destination/exhaustive-cached.json"
+
+# Short term
+cp "$destination/exhaustive-failure.json" "$destination/exhaustive.json"

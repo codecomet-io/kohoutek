@@ -271,33 +271,38 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     const filesets : FilesetAction[] = []
     const actions : Action[] = []
 
-    Object.values(buildPipeline.actionsObject)
-        .sort((a, b) => a.started - b.started) // sort values chronologically, based on start time
-        .forEach((item) => {
-            if (item.type === 'fileset') {
-                filesets.push(item as FilesetAction)
-            } else {
-                let parents : ParentAction[]
+    for (const digest of buildPipeline.actionsOrder) {
+        const item = buildPipeline.actionsObject[digest]
 
-                if (item.buildParents) {
-                    parents = item.buildParents
-                        .filter((digest) => buildPipeline.actionsObject[digest])
-                        .sort((a, b) => buildPipeline.actionsObject[a].started - buildPipeline.actionsObject[b].started) // sort values chronologically, based on start time
-                        .map((digest) : ParentAction => ({
-                            digest,
-                            name: buildPipeline.actionsObject[digest].name,
-                        }))
-                }
+        if (!item) {
+            continue
+        }
 
-                delete item.buildParents
+        if (item.type === 'fileset') {
+            filesets.push(item as FilesetAction)
+        } else {
+            let parents : ParentAction[]
 
-                actions.push(<Action>{
-                    ...item,
-                    parents,
-                })
+            if (item.buildParents) {
+                parents = item.buildParents
+                    .filter((digest) => buildPipeline.actionsObject[digest])
+                    .sort((a, b) => buildPipeline.actionsObject[a].started - buildPipeline.actionsObject[b].started) // sort values chronologically, based on start time
+                    .map((digest) : ParentAction => ({
+                        digest,
+                        name: buildPipeline.actionsObject[digest].name,
+                    }))
             }
-        })
 
+            delete item.buildParents
+
+            actions.push(<Action>{
+                ...item,
+                parents,
+            })
+        }
+    }
+
+    delete buildPipeline.actionsOrder
     delete buildPipeline.actionsObject
 
     return {

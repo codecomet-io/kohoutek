@@ -209,6 +209,7 @@ type GeneralPipeline = {
 }
 
 export interface BuildPipeline extends GeneralPipeline {
+    actionsOrder: digest.Digest[]
     actionsObject: BuildActionsObject
 }
 

@@ -177,9 +177,11 @@ export default async function Pantry(buffer, trace, meta) {
     });
     const filesets = [];
     const actions = [];
-    Object.values(buildPipeline.actionsObject)
-        .sort((a, b) => a.started - b.started) // sort values chronologically, based on start time
-        .forEach((item) => {
+    for (const digest of buildPipeline.actionsOrder) {
+        const item = buildPipeline.actionsObject[digest];
+        if (!item) {
+            continue;
+        }
         if (item.type === 'fileset') {
             filesets.push(item);
         }
@@ -197,7 +199,8 @@ export default async function Pantry(buffer, trace, meta) {
             delete item.buildParents;
             actions.push(Object.assign(Object.assign({}, item), { parents }));
         }
-    });
+    }
+    delete buildPipeline.actionsOrder;
     delete buildPipeline.actionsObject;
     return Object.assign(Object.assign({}, buildPipeline), { filesets,
         actions });

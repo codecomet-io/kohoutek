@@ -15,6 +15,7 @@ class Build {
         this.runtime = 0;
         this.machineTime = 0;
         this.trigger = "manual";
+        this.actionsOrder = [];
         this.actionsObject = {};
         this.actionsInfo = {
             total: 0,
@@ -45,19 +46,22 @@ class Build {
     //     label2: "bar",
     // })
     addLog(log) {
-        if (this.actionsObject[log.Vertex] == null)
+        if (this.actionsObject[log.Vertex] == null) {
             throw new Error("Logs without a registered vertex - panic");
+        }
         if (!this.actionsObject[log.Vertex].stdout) {
             this.actionsObject[log.Vertex].stdout = "";
             this.actionsObject[log.Vertex].stderr = "";
         }
         let dt = Buffer.from(log.Data.toString(), "base64").toString("utf-8").trim();
-        // let dt = atob(log.Data.toString()).trim()
-        if (dt != "")
-            if (log.Stream == 2)
+        if (dt != '') {
+            if (log.Stream == 2) {
                 this.actionsObject[log.Vertex].stderr += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n";
-            else
+            }
+            else {
                 this.actionsObject[log.Vertex].stdout += new Date(Date.parse(log.Timestamp)) + " " + dt.trim() + "\n";
+            }
+        }
         /*
         add.push(<LogEntry>{
             Timestamp: Date.parse(log.Timestampslack
@@ -95,6 +99,7 @@ class Build {
             if (vertice.Inputs) {
                 action.buildParents = vertice.Inputs;
             }
+            this.actionsOrder.push(vertice.Digest);
             this.actionsObject[vertice.Digest] = action;
         }
         if (vertice.Started) {
@@ -175,6 +180,8 @@ class Build {
         this.runID = 'sha256:' + createHash('sha256')
             .update(Math.random().toString())
             .digest('hex');
+        // insure actionsOrder list is unique
+        this.actionsOrder = this.actionsOrder.filter((value, index, arr) => arr.indexOf(value) === index);
     }
 }
 /**
@@ -223,12 +230,15 @@ export class BuffIngester {
     constructor() {
         this.build = new Build();
     }
-    ingest(buff) {
+    ingest(buffer) {
         let transaction = Sentry.startTransaction({
             op: "Ingester",
             name: "Data ingesting transaction",
         });
-        buff.toString().split('\n').forEach((data) => {
+        buffer
+            .toString()
+            .split('\n')
+            .forEach((data) => {
             // resist badly formated lines
             if (data.trim() == '')
                 return;

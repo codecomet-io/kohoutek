@@ -7,8 +7,7 @@
 
 	import PipelineHeader from '$lib/components/PipelineHeader.svelte';
 	import IconKey from '$lib/components/IconKey.svelte';
-	import FilesetsList from '$lib/components/FilesetsList.svelte';
-	import ActionsList from '$lib/components/ActionsList.svelte';
+	import FilesetsOrActionsList from '$lib/components/FilesetsOrActionsList.svelte';
 
 
 	export let data: PageData
@@ -22,8 +21,14 @@
 		active : false,
 	}
 
-	function handleHighlightAction(event : any) : void {
+	let expand : string
+
+	function highlightParent(event : any) : void {
 		highlight = event.detail
+	}
+
+	function expandParent(event : any) : void {
+		expand = event.detail?.digest
 	}
 </script>
 
@@ -70,17 +75,20 @@
 			<IconKey />
 		</div>
 
-		<FilesetsList
+		<FilesetsOrActionsList
 			filesets={ pipeline.filesets }
 			highlight={ highlight }
+			expand={ expand }
 		/>
 
 		<h2 class="ion-padding">Action{ pipeline.actions.length === 1 ? '' : 's' }</h2>
 
-		<ActionsList
+		<FilesetsOrActionsList
 			actions={ pipeline.actions }
 			highlight={ highlight }
-			on:highlightFilesetOrAction="{ handleHighlightAction }"
+			expand={ expand }
+			on:highlightParent={ highlightParent }
+			on:expandParent={ expandParent }
 		/>
 	</div>
 </ion-content>

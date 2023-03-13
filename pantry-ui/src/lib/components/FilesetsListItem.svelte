@@ -77,7 +77,7 @@
 
 
 <ion-accordion
-	value={ fileset.source }
+	value={ fileset.digest }
 	toggle-icon-slot="start"
 >
 	<ion-item

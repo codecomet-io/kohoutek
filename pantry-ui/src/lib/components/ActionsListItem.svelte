@@ -15,8 +15,12 @@
 
 	const dispatch = createEventDispatcher()
 
-	function handleSpanwedByHoverFocus(digest : string, active : boolean) : void {
-		dispatch('highlightFilesetOrAction', { digest, active })
+	function handleParentHoverFocus(digest : string, active : boolean) : void {
+		dispatch('highlightParent', { digest, active })
+	}
+
+	function handleParentClick(digest : string) : void {
+		dispatch('expandParent', { digest })
 	}
 </script>
 
@@ -109,7 +113,7 @@
 
 
 <ion-accordion
-	value={ action.id }
+	value={ action.digest }
 	toggle-icon-slot="start"
 >
 	<ion-item
@@ -199,10 +203,11 @@
 							<a
 								class="value"
 								href="#{ parentAction.digest }"
-								on:mouseover={ handleSpanwedByHoverFocus(parentAction.digest, true) }
-								on:mouseout={ handleSpanwedByHoverFocus(parentAction.digest, false) }
-								on:focus={ handleSpanwedByHoverFocus(parentAction.digest, true) }
-								on:blur={ handleSpanwedByHoverFocus(parentAction.digest, false) }
+								on:mouseover={ handleParentHoverFocus(parentAction.digest, true) }
+								on:mouseout={ handleParentHoverFocus(parentAction.digest, false) }
+								on:focus={ handleParentHoverFocus(parentAction.digest, true) }
+								on:blur={ handleParentHoverFocus(parentAction.digest, false) }
+								on:click={ handleParentClick(parentAction.digest) }
 							>{ parentAction.name }</a>
 						</li>
 					{/each}

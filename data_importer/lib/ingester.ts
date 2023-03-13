@@ -89,6 +89,7 @@ class Build implements BuildPipeline {
             throw new Error("Missing name" + vertice)
         }
 
+        // Some actions are hidden away - either CodeComet internal shenanigans, or actions authors who want to hide their own internal dance
         if (vertice.ProgressGroup && vertice.ProgressGroup.weak == true) {
             return
             // this.actionsObject[vertice.Digest].progressGroup = vertice.ProgressGroup
@@ -99,6 +100,11 @@ class Build implements BuildPipeline {
                 weak: vertice.ProgressGroup.weak
             }
             */
+        }
+
+        // Currently, BK leaks internal operations. The right solution is to finish replacing the default client with our own. Short term, very dirty hack by ignoring anything that starts with "[auth] "
+        if (vertice.Name.startsWith("[auth] ")){
+            return
         }
 
         if (!this.actionsObject[vertice.Digest]) {
@@ -289,13 +295,14 @@ export class BuffIngester {
             try {
                 solveStatus = <SolveStatus>JSON.parse(data)
 
+                if (solveStatus.Vertexes) {
+                    solveStatus.Vertexes.forEach(this.build.addVertex.bind(this.build))
+                }
+
                 if (solveStatus.Logs) {
                     solveStatus.Logs.forEach(this.build.addLog.bind(this.build))
                 }
 
-                if (solveStatus.Vertexes) {
-                    solveStatus.Vertexes.forEach(this.build.addVertex.bind(this.build))
-                }
             } catch(e) {
                 console.error("Failed to marshal JSON data into object. Exception was", e, "and data was", data)
 

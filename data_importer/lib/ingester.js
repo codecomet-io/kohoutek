@@ -73,6 +73,7 @@ class Build {
         if (!vertice.Name) {
             throw new Error("Missing name" + vertice);
         }
+        // Some actions are hidden away - either CodeComet internal shenanigans, or actions authors who want to hide their own internal dance
         if (vertice.ProgressGroup && vertice.ProgressGroup.weak == true) {
             return;
             // this.actionsObject[vertice.Digest].progressGroup = vertice.ProgressGroup
@@ -83,6 +84,10 @@ class Build {
                 weak: vertice.ProgressGroup.weak
             }
             */
+        }
+        // Currently, BK leaks internal operations. The right solution is to finish replacing the default client with our own. Short term, very dirty hack by ignoring anything that starts with "[auth] "
+        if (vertice.Name.startsWith("[auth] ")) {
+            return;
         }
         if (!this.actionsObject[vertice.Digest]) {
             let action = {
@@ -235,11 +240,11 @@ export class BuffIngester {
             let solveStatus;
             try {
                 solveStatus = JSON.parse(data);
-                if (solveStatus.Logs) {
-                    solveStatus.Logs.forEach(this.build.addLog.bind(this.build));
-                }
                 if (solveStatus.Vertexes) {
                     solveStatus.Vertexes.forEach(this.build.addVertex.bind(this.build));
+                }
+                if (solveStatus.Logs) {
+                    solveStatus.Logs.forEach(this.build.addLog.bind(this.build));
                 }
             }
             catch (e) {

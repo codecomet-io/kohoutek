@@ -19,6 +19,10 @@
 <style lang="scss">
 	ion-button {
 		margin: 0;
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.4px;
+		text-transform: uppercase;
 	}
 </style>
 
@@ -28,4 +32,4 @@
 	size="small"
 	on:click={ showPopover }
 	on:keypress={ showPopover }
->View Icon Key</ion-button>
+>view icon key</ion-button>

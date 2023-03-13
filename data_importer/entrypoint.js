@@ -60,11 +60,10 @@ export default async function Pantry(buffer, trace, meta) {
                 if (filesetDockerImageUrlRegex.test(fileset.source)) {
                     // By default, just replace the scheme with https for any docker image
                     let link = fileset.source.replace(filesetDockerImageUrlRegex, 'https:');
-                    let url = new URL(fileset.source);
+                    const url = new URL(fileset.source);
                     // If it is a Docker Hub image though, tranform it into http://hub.docker.com/r/OWNER/NAME
-                    // console.warn(url)
-                    if (url.hostname.match(/docker.io$/)) {
-                        link = "https://hub.docker.com/r" + url.pathname.replace(/:[^:]+$/, "");
+                    if (/docker\.io$/.test(url.hostname)) {
+                        link = 'https://hub.docker.com/r' + url.pathname.replace(/:[^:]+$/, '');
                     }
                     // More special cases may be added in the future if need be (GHCR, ECR, etc)
                     fileset.link = link;

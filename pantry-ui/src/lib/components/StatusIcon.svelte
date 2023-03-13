@@ -6,12 +6,12 @@
 
 
 	type ColorMap = {
-		[ key in PipelineStatus | ActionStatus ]? : 'success' | 'danger' | 'medium' | 'light' | 'warning' | 'tertiary';
-	};
+		[ key in PipelineStatus | ActionStatus ]? : 'success' | 'danger' | 'medium' | 'dark' | 'warning' | 'tertiary';
+	}
 
 
-	export let status : PipelineStatus | ActionStatus;
-	export let size : undefined | 'small' | 'medium' | 'large' = undefined;
+	export let status : PipelineStatus | ActionStatus
+	export let size : undefined | 'small' | 'default' | 'large' = undefined
 
 	const successStatus = [
 		'completed',
@@ -22,8 +22,8 @@
 		completed: 'success',
 		errored: 'danger',
 		degraded: 'warning',
-		canceled: 'medium',
-		ignored: 'light',
+		cancelled: 'dark',
+		ignored: 'medium',
 		cached: 'tertiary',
 	};
 </script>

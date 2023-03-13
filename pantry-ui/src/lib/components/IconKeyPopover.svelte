@@ -1,81 +1,51 @@
 <script lang="ts">
-	// status icons
-	import {
-		// status
-		checkmarkCircle,
-		alertCircle,
-		// fileset type
-		globeOutline,
-		folderOpenOutline,
-		logoDocker,
-		logoGithub,
-		logoGitlab,
-		// action type
-		colorPaletteOutline,
-		createOutline,
-		folderOutline,
-		moveOutline,
-		arrowRedoOutline,
-		gitMergeOutline,
-		bandageOutline,
-		magnetOutline,
-	} from 'ionicons/icons';
+	import type { ActionType } from '../../../../data_importer/lib/model';
+
+	import { PipelineStatus, ActionStatus, FilesetType } from '../../../../data_importer/lib/model';
+
+	import StatusIcon from '$lib/components/StatusIcon.svelte';
+	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
 
 
 	type GroupedIconsList = IconGroup[]
 
 	type IconGroup = {
 		name : string
-		icons : Icon[]
+		icons : StatusIcon[] | TypeIcon[]
 	}
 
-	type Icon = {
-		name : string
-		icon : any
-		color? : IconColor
+	type StatusIcon = {
+		name? : string
+		status : PipelineStatus | ActionStatus
 	}
 
-	type IconColor =
-		| 'success'
-		| 'danger'
-		| 'warning'
-		| 'medium'
-		| 'light'
-		| 'tertiary'
+	type TypeIcon = {
+		name? : string
+		type : ActionType | FilesetType
+		icon? : 'gitlab'
+	}
 
 	const groupedIconsList : GroupedIconsList = [
 		{
 			name : 'status',
 			icons : [
 				{
-					name : 'completed',
-					icon : checkmarkCircle,
-					color : 'success',
+					status : PipelineStatus.Completed,
 				},
 				{
-					name : 'cached',
-					icon : checkmarkCircle,
-					color : 'tertiary',
+					status : ActionStatus.Cached,
 				},
 				{
-					name : 'errored',
-					icon : alertCircle,
-					color : 'danger',
+					status : PipelineStatus.Errored,
 				},
 				{
-					name : 'degraded',
-					icon : alertCircle,
-					color : 'warning',
+					status : PipelineStatus.Degraded,
 				},
 				{
-					name : 'canceled',
-					icon : alertCircle,
-					color : 'medium',
+					status : PipelineStatus.Cancelled,
 				},
 				{
-					name : 'ignored',
-					icon : alertCircle,
-					color : 'light',
+					status : ActionStatus.Ignored,
 				},
 			],
 		},
@@ -83,28 +53,20 @@
 			name : 'fileset type',
 			icons : [
 				{
-					name : 'http',
-					icon : globeOutline,
+					type : FilesetType.HTTP,
 				},
 				{
-					name : 'local',
-					icon : folderOpenOutline,
+					type : FilesetType.Local,
 				},
 				{
-					name : 'docker',
-					icon : logoDocker,
+					type : FilesetType.Image,
 				},
 				{
-					name : 'git',
-					icon : logoGithub,
+					type : FilesetType.Git,
 				},
 				{
-					name : 'gitlab',
-					icon : logoGitlab,
-				},
-				{
-					name : 'unknown',
-					icon : magnetOutline,
+					type : FilesetType.Git,
+					icon : 'gitlab',
 				},
 			],
 		},
@@ -112,36 +74,28 @@
 			name : 'action type',
 			icons : [
 				{
-					name : 'custom',
-					icon : colorPaletteOutline,
+					type : 'custom',
 				},
 				{
+					type : 'addFile',
 					name : 'add file',
-					icon : createOutline,
 				},
 				{
+					type : 'makeDirectory',
 					name : 'make directory',
-					icon : folderOutline,
 				},
 				{
-					name : 'move',
-					icon : moveOutline,
+					type : 'move',
 				},
 				{
+					type : 'createSymbolicLink',
 					name : 'create symbolic link',
-					icon : arrowRedoOutline,
 				},
 				{
-					name : 'merge',
-					icon : gitMergeOutline,
+					type : 'merge',
 				},
 				{
-					name : 'patch',
-					icon : bandageOutline,
-				},
-				{
-					name : 'unknown',
-					icon : magnetOutline,
+					type : 'patch',
 				},
 			],
 		},
@@ -150,6 +104,10 @@
 
 
 <style lang="scss">
+	ion-list-header {
+		margin-bottom: 7px;
+	}
+
 	@media (min-width: 768px) {
 		:global(.icon-key-popover) {
 			--width: calc(2 / 3 * 100%);
@@ -178,15 +136,24 @@
 		<ion-list>
 			<ion-list-header>{ iconGroup.name }</ion-list-header>
 
-			{#each iconGroup.icons as icon }
+			{#each iconGroup.icons as item }
 				<ion-item>
-					<ion-icon
-						slot="start"
-						icon={ icon.icon }
-						color={ icon.color }
-					></ion-icon>
+					<div slot="start">
+						{#if item.status }
+							<StatusIcon
+								status={ item.status }
+								size="large"
+							/>
+						{:else if item.type }
+							<FilesetOrActionTypeIcon
+								type={ item.type }
+								icon={ item.icon }
+								size="large"
+							/>
+						{/if}
+					</div>
 
-					<ion-label class="specificity-class">{ icon.name }</ion-label>
+					<ion-label class="specificity-class">{ item.name ?? item.status ?? item.icon ?? item.type }</ion-label>
 				</ion-item>
 			{/each}
 		</ion-list>

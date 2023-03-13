@@ -52,7 +52,7 @@ export var PipelineStatus;
     // At least one non optional task errored out
     PipelineStatus["Errored"] = "errored";
     // The plan was interrupted (user interrupt, crash, network shutdown, poney, whatever)
-    PipelineStatus["Cancelled"] = "canceled";
+    PipelineStatus["Cancelled"] = "cancelled";
     // All tasks returned succesfully
     PipelineStatus["Completed"] = "completed";
     // All non-optional tasks returned successfully, but some optional ones failed

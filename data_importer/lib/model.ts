@@ -127,7 +127,7 @@ export enum PipelineStatus {
     // At least one non optional task errored out
     Errored = 'errored',
     // The plan was interrupted (user interrupt, crash, network shutdown, poney, whatever)
-    Cancelled = 'canceled',
+    Cancelled = 'cancelled',
     // All tasks returned succesfully
     Completed = 'completed',
     // All non-optional tasks returned successfully, but some optional ones failed

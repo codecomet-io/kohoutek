@@ -24,6 +24,7 @@
 
 	export let type : ActionType | FilesetType
 	export let icon : undefined | CustomIcon = undefined
+	export let size : undefined | 'small' | 'default' | 'large' = undefined
 
 	const iconMap : { [ key in typeof type | CustomIcon ]? : any } = {
 		custom: colorPaletteOutline,
@@ -53,4 +54,5 @@
 <ion-icon
 	class="fileset-or-action-type-icon"
 	icon={ iconMap[ iconMapKey ] ?? magnetOutline }
+	size={ size }
 ></ion-icon>

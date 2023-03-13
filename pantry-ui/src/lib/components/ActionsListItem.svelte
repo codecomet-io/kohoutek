@@ -121,10 +121,7 @@
 		color="light"
 		class:ion-focused={ highlight }
 	>
-		<FilesetOrActionTypeIcon
-			slot="start"
-			type={ action.type }
-		/>
+		<FilesetOrActionTypeIcon type={ action.type } />
 
 		<ion-label>
 			<!--

@@ -82,18 +82,17 @@ class Build {
             }
             else if (log.Stream == 2) {
                 this.actionsObject[log.Vertex].stderr.push({
-                    Timestamp: Date.parse(log.Timestamp),
-                    LogLine: dt
+                    timestamp: Date.parse(log.Timestamp),
+                    logLine: dt
                 });
             }
             else {
                 this.actionsObject[log.Vertex].stderr.push({
-                    Timestamp: Date.parse(log.Timestamp),
-                    LogLine: dt
+                    timestamp: Date.parse(log.Timestamp),
+                    logLine: dt
                 });
             }
         }
-        // console.warn("Added log", this.actionsObject[log.Vertex].stderr)
         /*
         add.push(<LogEntry>{
             Timestamp: Date.parse(log.Timestampslack

@@ -228,8 +228,8 @@ export type LogEntry = {
 }
 
 type LogLine  = {
-    Timestamp: Date
-    Line: string
+    timestamp: Date
+    line: string
 }
 
 export type Stack = {

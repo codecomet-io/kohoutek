@@ -1,5 +1,6 @@
 <script lang="ts">
-	export let allcaps : boolean = true;
+	export let allcaps : boolean = true
+	export let title : undefined | string = undefined
 </script>
 
 
@@ -14,6 +15,9 @@
 </style>
 
 
-<ion-card-subtitle class={ allcaps ? '' : 'mixed-case' }>
+<ion-card-subtitle
+	title={ title }
+	class:mixed-case={ !allcaps }
+>
 	<slot></slot>
 </ion-card-subtitle>

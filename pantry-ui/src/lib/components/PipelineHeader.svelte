@@ -1,14 +1,11 @@
 <script lang="ts">
-	import type { Pipeline } from '../../../../data_importer/lib/model';
+	import type { Pipeline } from '../../../../data_importer/lib/model'
 
-	import { parseLapsed } from '$lib/helper';
-
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
-	import Ago from '$lib/components/Ago.svelte';
+	import PipelineTitleInfo from '$lib/components/PipelineTitleInfo.svelte'
+	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte'
 
 
-	export let pipeline : Pipeline;
+	export let pipeline : Pipeline
 </script>
 
 
@@ -26,76 +23,21 @@
 		}
 	}
 
-	.title-container {
+	.header-wrapper {
 		display: flex;
+		justify-content: space-between;
 		align-items: center;
-	}
-
-	h1 {
-		margin-top: 0;
-		margin-bottom: 0;
-		margin-left: 0.25em;
-	}
-
-	.subtitle {
-		margin-top: 7px;
-		margin-bottom: 0;
-	}
-
-	.corp-site-link {
-		display: flex;
-		height: 2rem;
-		align-items: center;
-		color: #1c1e21;
-		text-decoration: none;
-		font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-
-		&:hover {
-			color: #5468ff;
-
-			img {
-				transform: translateX(-2px) translateY(2px) scale(110%);
-			}
-		}
-
-		img {
-			height: 100%;
-			margin-right: 0.25rem;
-			transition: transform 125ms ease-in-out;
-		}
+		gap: 0.5em;
 	}
 </style>
 
 
 <ion-header translucent={ true }>
   <ion-toolbar>
-		<div class="title-container">
-			<StatusIcon
-				status={ pipeline.status }
-				size="large"
-			/>
+		<div class="header-wrapper">
+			<PipelineTitleInfo pipeline={ pipeline } />
 
-			<h1>{ pipeline.name }</h1>
+			<CodeCometLogo />
 		</div>
-
-		<div class="subtitle">
-			<ChunkyLabel>{ pipeline.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline.completed } /> <span title="{ pipeline.runtime } milliseconds">in { parseLapsed(pipeline.runtime, false, true) }</span></ChunkyLabel>
-		</div>
-
-		<a
-			slot="end"
-			class="corp-site-link"
-			href="https://codecomet.io/"
-			itemtype="http://schema.org/Corporation"
-			itemscope
-		>
-			<img
-				src="/CodeComet-logo.svg"
-				alt="CodeComet logo showing an illustrated comet entering the atmosphere"
-				itemprop="image"
-			/>
-
-			<strong itemprop="name">CodeComet</strong>
-		</a>
   </ion-toolbar>
 </ion-header>

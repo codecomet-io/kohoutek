@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { PipelineStatus, ActionStatus } from '../../../../data_importer/lib/model';
 
-	import { checkmarkCircle } from 'ionicons/icons';
-	import { alertCircle } from "ionicons/icons";
+	import { checkmarkCircle, alertCircle } from 'ionicons/icons';
 
 
 	type ColorMap = {

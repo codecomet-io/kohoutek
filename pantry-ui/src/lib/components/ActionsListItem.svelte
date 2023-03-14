@@ -35,23 +35,6 @@
 		:global(.status-icon) {
 			margin-left: 0.25em;
 		}
-
-		// code to display utility name in accordion header
-		// commenting out for now
-		// it looks a little too busy and is redundant with info when expanding the accordion
-		// ion-label {
-		// 	display: flex;
-
-		// 	span {
-		// 		+ span {
-		// 			&::before {
-		// 				content: '|';
-		// 				padding-left: 0.5em;
-		// 				padding-right: 0.5em;
-		// 			}
-		// 		}
-		// 	}
-		// }
 	}
 
 	article {
@@ -106,17 +89,7 @@
 	>
 		<FilesetOrActionTypeIcon type={ action.type } />
 
-		<ion-label>
-			<!--
-			// commenting out for now
-			// it looks a little too busy and is redundant with info when expanding the accordion
-			{#if action.utilityName }
-				<span>{ action.utilityName }</span>
-			{/if}
-			-->
-
-			<span>{ action.name }</span>
-		</ion-label>
+		<ion-label>{ action.name }</ion-label>
 
 		{#if action.status === 'cached' }
 			<ChunkyLabel>cached</ChunkyLabel>
@@ -158,26 +131,31 @@
 			title={ action.completed ? getDateString(action.completed) : undefined }
 		/>
 
-		<DetailField
-			key="{ action.type === 'merge' ? 'merged' : 'parent' } action{ action.parents?.length === 1 ? '' : 's' }"
-			customClass="parents-container"
-		>
-			{#if action.parents?.length }
+		{#if action.parents?.length }
+			<DetailField
+				key="{ action.type === 'merge' ? 'merged' : 'parent' } action{ action.parents?.length === 1 ? '' : 's' }"
+				customClass="parents-container"
+			>
 				<ol data-count={ action.parents.length }>
 					{#each action.parents as parentAction }
 						<li title={ parentAction.name }>
 							<a
 								href="#{ parentAction.digest }"
-								on:mouseover={ handleParentHoverFocus(parentAction.digest, true) }
-								on:mouseout={ handleParentHoverFocus(parentAction.digest, false) }
-								on:focus={ handleParentHoverFocus(parentAction.digest, true) }
-								on:blur={ handleParentHoverFocus(parentAction.digest, false) }
-								on:click={ handleParentClick(parentAction.digest) }
+								on:mouseover={ () => handleParentHoverFocus(parentAction.digest, true) }
+								on:mouseout={ () => handleParentHoverFocus(parentAction.digest, false) }
+								on:focus={ () => handleParentHoverFocus(parentAction.digest, true) }
+								on:blur={ () => handleParentHoverFocus(parentAction.digest, false) }
+								on:click={ () => handleParentClick(parentAction.digest) }
 							>{ parentAction.name }</a>
 						</li>
 					{/each}
 				</ol>
+			</DetailField>
+			{:else}
+				<DetailField
+					key=""
+					customClass="parents-container"
+				/>
 			{/if}
-		</DetailField>
 	</article>
 </ion-accordion>

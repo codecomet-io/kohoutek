@@ -227,6 +227,18 @@ export type LogEntry = {
     content: string
 }
 
+type LogLine  = {
+    Timestamp: Date
+    Line: string
+}
+
+export type Stack = {
+    linenumber: uint64,
+    exitcode: uint64,
+    command: string,
+    source: string[],
+}
+
 type GeneralAction = {
     id: string
     name: string
@@ -237,8 +249,9 @@ type GeneralAction = {
     cached: bool
     error: string
     status: ActionStatus
-    stdout: string
-    stderr: string
+    stdout: LogLine[]
+    stderr: LogLine[]
+    stack: Stack
     progressGroup: Types.ProgressGroup
 }
 

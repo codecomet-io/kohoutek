@@ -8,6 +8,7 @@
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import DetailField from '$lib/components/DetailField.svelte';
 
 
 	export let action : Action | UtilityAction
@@ -57,56 +58,38 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 1em;
-	}
 
-	.column-container {
-		flex: 1;
-		min-width: 100px;
-
-		&.parents-container {
+		:global(.parents-container) {
 			min-width: 50%;
 
 			@media (min-width: 768px) {
 				min-width: calc(1 / 3 * 100% );
 			}
 		}
+	}
 
-		.key,
-		.value {
-			white-space: nowrap;
+	ol {
+		margin-top: 0;
+		margin-bottom: 0;
+		padding-inline-start: 1.25em;
+
+		&[data-count="1"] {
+			list-style: none;
+			padding-inline-start: 0;
 		}
 
-		.key {
-			margin-bottom: 4px;
-			color: #57606a;
-			font-size: 12px;
+		li {
+			+ li {
+				margin-top: 4px;
+			}
 		}
 
-		.value {
+		a {
 			display: block;
 			overflow: hidden;
 			white-space: nowrap;
 			text-overflow: ellipsis;
 			color: #24292f;
-			font-size: 16px;
-			font-weight: 600;
-		}
-
-		ol {
-			margin-top: 0;
-			margin-bottom: 0;
-			padding-inline-start: 1.25em;
-
-			&[data-count="1"] {
-				list-style: none;
-				padding-inline-start: 0;
-			}
-
-			li {
-				+ li {
-					margin-top: 4px;
-				}
-			}
 		}
 	}
 </style>
@@ -136,69 +119,54 @@
 		</ion-label>
 
 		{#if action.status === 'cached' }
-			<ChunkyLabel slot="end">cached</ChunkyLabel>
-		{:else}
+			<ChunkyLabel>cached</ChunkyLabel>
+		{:else if action.runtime }
 			<ChunkyLabel
-				slot="end"
+				title={ parseLapsed(action.runtime, false, true) || undefined }
 				allcaps={ false }
 			>
 				{ parseLapsed(action.runtime, true) || '0ms' }
 			</ChunkyLabel>
 		{/if}
 
-		<StatusIcon
-			slot="end"
-			status={ action.status }
-		/>
+		<StatusIcon status={ action.status } />
 	</ion-item>
 
 	<article
 		class="ion-padding"
 		slot="content"
 	>
-		<div class="column-container">
-			<header class="key">type</header>
+		<DetailField
+			key="type"
+			value={ action.utilityName ?? action.type }
+		/>
 
-			<div class="value">{ action.utilityName ?? action.type }</div>
-		</div>
+		<DetailField
+			key="status"
+			value={ action.status }
+		/>
 
-		<div class="column-container">
-			<header class="key">status</header>
+		<DetailField
+			key="started at"
+			value={ action.started ? getTimeString(action.started) : undefined }
+			title={ action.started ? getDateString(action.started) : undefined }
+		/>
 
-			<div class="value">{ action.status }</div>
-		</div>
+		<DetailField
+			key="ended at"
+			value={ action.completed ? getTimeString(action.completed) : undefined }
+			title={ action.completed ? getDateString(action.completed) : undefined }
+		/>
 
-		<div class="column-container">
-			{#if action.started }
-				<header class="key">started at</header>
-
-				<div
-					class="value"
-					title={ getDateString(action.started) }
-				>{ getTimeString(action.started) }</div>
-			{/if}
-		</div>
-
-		<div class="column-container">
-			{#if action.completed }
-				<header class="key">ended at</header>
-
-				<div
-					class="value"
-					title={ getDateString(action.completed) }
-				>{ getTimeString(action.completed) }</div>
-			{/if}
-		</div>
-
-		<div class="column-container parents-container">
-			{#if action.parents && action.parents.length }
-				<header class="key">{ action.type === 'merge' ? 'merged' : 'parent' } action{ action.parents.length === 1 ? '' : 's' }</header>
-
+		<DetailField
+			key="{ action.type === 'merge' ? 'merged' : 'parent' } action{ action.parents?.length === 1 ? '' : 's' }"
+			customClass="parents-container"
+		>
+			{#if action.parents?.length }
 				<ol data-count={ action.parents.length }>
 					{#each action.parents as parentAction }
 						<li title={ parentAction.name }>
 							<a
-								class="value"
 								href="#{ parentAction.digest }"
 								on:mouseover={ handleParentHoverFocus(parentAction.digest, true) }
 								on:mouseout={ handleParentHoverFocus(parentAction.digest, false) }
@@ -210,6 +178,6 @@
 					{/each}
 				</ol>
 			{/if}
-		</div>
+		</DetailField>
 	</article>
 </ion-accordion>

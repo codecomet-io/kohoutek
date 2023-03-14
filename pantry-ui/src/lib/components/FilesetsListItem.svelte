@@ -1,9 +1,13 @@
 <script lang="ts">
 	import type { FilesetAction } from '../../../../data_importer/lib/model';
 
+	import { parseLapsed } from '$lib/helper';
+
 	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import FilesetSpecialFields from '$lib/components/FilesetSpecialFields.svelte';
+	import DetailField from '$lib/components/DetailField.svelte';
 
 
 	export let fileset : FilesetAction
@@ -33,35 +37,13 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 1em;
-	}
 
-	.column-container {
-		flex: 1;
-		min-width: 100px;
-
-		&.source-container {
+		:global(.source-container) {
 			min-width: 50%;
-		}
 
-		.key,
-		.value {
-			white-space: nowrap;
-		}
-
-		.key {
-			margin-bottom: 4px;
-			color: #57606a;
-			font-size: 12px;
-		}
-
-		.value {
-			display: block;
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			color: #24292f;
-			font-size: 16px;
-			font-weight: 600;
+			@media (min-width: 768px) {
+				min-width: calc(1 / 3 * 100% );
+			}
 		}
 	}
 
@@ -86,7 +68,6 @@
 		class:ion-focused={ highlight }
 	>
 		<FilesetOrActionTypeIcon
-			slot="start"
 			type={ fileset.filesetType }
 			icon={ icon }
 		/>
@@ -94,48 +75,52 @@
 		<ion-label>{ fileset.name }</ion-label>
 
 		{#if fileset.status === 'cached' }
-			<ChunkyLabel slot="end">cached</ChunkyLabel>
+			<ChunkyLabel>cached</ChunkyLabel>
+		{:else if fileset.runtime }
+			<ChunkyLabel
+				title={ parseLapsed(fileset.runtime, false, true) || undefined }
+				allcaps={ false }
+			>
+				{ parseLapsed(fileset.runtime, true) || '0ms' }
+			</ChunkyLabel>
 		{/if}
 
-		<StatusIcon
-			slot="end"
-			status={ fileset.status }
-		/>
+		<StatusIcon status={ fileset.status } />
 	</ion-item>
 
 	<article
 		class="ion-padding"
 		slot="content"
 	>
-		<div class="column-container">
-			<header class="key">type</header>
+		<DetailField
+			key="type"
+			value={ fileset.filesetType }
+		/>
 
-			<div class="value">{ fileset.filesetType }</div>
-		</div>
+		<DetailField
+			key="status"
+			value={ fileset.status === 'completed' || fileset.status === 'cached'
+				? 'successfully retrieved'
+				: 'failed to retrieve'
+			}
+		/>
 
-		<div class="column-container">
-			<header class="key">status</header>
+		<FilesetSpecialFields fileset={ fileset } />
 
-			<div class="value">{ fileset.status === 'completed' || fileset.status === 'cached' ? 'successfully retrieved' : 'failed to retrieve' }</div>
-		</div>
-
-		<div
-			class="column-container source-container"
+		<DetailField
+			key="source"
 			title={ fileset.source }
+			customClass="source-container"
 		>
-			<header class="key">source</header>
-
-			<div class="value">
-				{#if fileset.link }
-					<a
-						href={ fileset.link }
-						target="_blank"
-						rel="noreferrer"
-					>{ fileset.source }</a>
-				{:else}
-					{ fileset.source }
-				{/if}
-			</div>
-		</div>
+			{#if fileset.link }
+				<a
+					href={ fileset.link }
+					target="_blank"
+					rel="noreferrer"
+				>{ fileset.source }</a>
+			{:else}
+				{ fileset.source }
+			{/if}
+		</DetailField>
 	</article>
 </ion-accordion>

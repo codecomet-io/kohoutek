@@ -54,31 +54,31 @@ class Build {
             this.actionsObject[log.Vertex].stderr = [];
         }
         let dt = Buffer.from(log.Data.toString(), "base64").toString("utf-8").trim();
-        // let dt = atob(log.Data.toString()).trim()
         if (dt != "") {
             // Structured stack traces are transmitted in a data url form
-            // console.warn("line", dt.substring(0, 10))
             if (dt.startsWith("data:application/json;base64,")) {
                 // Decode it, parse it
-                let structured = JSON.parse(Buffer.from(dt.substring(dt.indexOf(",") + 1), "base64").toString());
+                let structured = JSON.parse(Buffer.from(dt.substring(dt.indexOf(",") + 1), "base64").toString("utf-8"));
                 // Copy that over into a Structured type
                 this.actionsObject[log.Vertex].stack = {
-                    linenumber: parseInt(structured.linenumber, 10) - 1,
-                    exitcode: parseInt(structured.exitcode, 10),
+                    lineNumber: parseInt(structured.linenumber, 10) - 1,
+                    exitCode: parseInt(structured.exitcode, 10),
                     command: structured.command,
                     // Source is double encoded, so, decode it, and split by line to facilitate accessing source[linenumber]
-                    source: Buffer.from(structured.source, "base64").toString().split("\n"),
+                    source: Buffer.from(structured.source, "base64").toString("utf-8").split("\n"),
                 };
-                let stack = this.actionsObject[log.Vertex].stack;
-                console.warn("line", stack.linenumber);
-                console.warn("exit", stack.exitcode);
-                console.warn("command", stack.command);
+                /*
+                let stack = this.actionsObject[log.Vertex].stack
+                console.warn("line", stack.linenumber)
+                console.warn("exit", stack.exitCode)
+                console.warn("command", stack.command)
                 // XXX obviously this needs to be tested for boundaries against 0 / stack.source.length
-                console.warn("source before:", stack.source[stack.linenumber - 2]);
-                console.warn("source before:", stack.source[stack.linenumber - 1]);
-                console.warn("guilty line", stack.source[stack.linenumber]);
-                console.warn("source after", stack.source[stack.linenumber + 1]);
-                console.warn("source after", stack.source[stack.linenumber + 2]);
+                console.warn("source before:", stack.source[stack.linenumber-2])
+                console.warn("source before:", stack.source[stack.linenumber-1])
+                console.warn("guilty line", stack.source[stack.linenumber])
+                console.warn("source after", stack.source[stack.linenumber+1])
+                console.warn("source after", stack.source[stack.linenumber+2])
+                 */
             }
             else if (log.Stream == 2) {
                 this.actionsObject[log.Vertex].stderr.push({

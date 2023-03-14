@@ -233,8 +233,8 @@ type LogLine  = {
 }
 
 export type Stack = {
-    linenumber: uint64,
-    exitcode: uint64,
+    lineNumber: uint64,
+    exitCode: uint64,
     command: string,
     source: string[],
 }

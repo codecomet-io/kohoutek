@@ -21,6 +21,10 @@ export function getTimeString(date: Date | string | number) : string {
 }
 
 export function parseLapsed(ms : number, abbreviate : boolean = false, precise : boolean = false, separator? : string) : string {
+	if (ms == null) {
+		return ''
+	}
+
 	if (!abbreviate && !precise && ms < 500) {
 		const unit = 'moment'
 

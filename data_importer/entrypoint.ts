@@ -282,32 +282,80 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     const filesets : FilesetAction[] = []
     const actions : Action[] = []
 
-    Object.values(buildPipeline.actionsObject)
-        .sort((a, b) => a.started - b.started) // sort values chronologically, based on start time
-        .forEach((item) => {
-            if (item.type === 'fileset') {
-                filesets.push(item as FilesetAction)
-            } else {
-                let parents : ParentAction[]
+    const actionsOrder : string[] = Object.keys(buildPipeline.actionsObject)
+        .sort((a, b) => // sort values chronologically, based on start time
+            buildPipeline.actionsObject[a]?.started - buildPipeline.actionsObject[b]?.started
+        )
 
-                if (item.buildParents) {
-                    parents = item.buildParents
-                        .filter((digest) => buildPipeline.actionsObject[digest])
-                        .sort((a, b) => buildPipeline.actionsObject[a].started - buildPipeline.actionsObject[b].started) // sort values chronologically, based on start time
-                        .map((digest) : ParentAction => ({
-                            digest,
-                            name: buildPipeline.actionsObject[digest].name,
-                        }))
-                }
+    // after initial chronological sort, run an additional check to insure no parent action comes after a child
+    outermostLoop: while (true) {
+        for (const key of actionsOrder) {
+            const parents = buildPipeline.actionsObject[key]?.buildParents
 
-                delete item.buildParents
-
-                actions.push(<Action>{
-                    ...item,
-                    parents,
-                })
+            if (!(parents && parents.length)) {
+                continue
             }
-        })
+
+            const itemIndex = actionsOrder.indexOf(key)
+
+            for (const parent of parents) {
+                const parentIndex = actionsOrder.indexOf(parent)
+
+                if (parentIndex > itemIndex) {
+                    console.info(
+                        `item ${ key } appears before parent ${ parent }`,
+                        `\ninserting item #${ itemIndex } after parent #${ parentIndex }`,
+                        '\n',
+                    )
+
+                    actionsOrder.splice(parentIndex, 0, ...actionsOrder.splice(itemIndex, 1))
+
+                    continue outermostLoop
+                }
+            }
+        }
+
+        break
+    }
+
+    for (const key of actionsOrder) {
+        const item = buildPipeline.actionsObject[key]
+
+        if (item.type === 'fileset') {
+            filesets.push(item as FilesetAction)
+        } else {
+            let parents : ParentAction[] = []
+
+            if (item.buildParents) {
+                for (const digest of item.buildParents) {
+                    if (!buildPipeline.actionsObject[digest]) {
+                        continue
+                    }
+
+                    // insert the entry into the parents list at the same index as the parent in the overall list
+                    // this insures the correct order
+                    parents[actionsOrder.indexOf(digest)] = {
+                        digest,
+                        name: buildPipeline.actionsObject[digest].name,
+                    }
+                }
+            }
+
+            // eliminate empty entries that may have resulted from inserting arbitrary index values
+            parents = parents.filter((item) => item)
+
+            if (!parents.length) {
+                parents = null
+            }
+
+            delete item.buildParents
+
+            actions.push(<Action>{
+                ...item,
+                parents,
+            })
+        }
+    }
 
     delete buildPipeline.actionsObject
 

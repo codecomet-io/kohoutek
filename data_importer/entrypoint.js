@@ -190,19 +190,7 @@ export default async function Pantry(buffer, trace, meta) {
         .sort((a, b) => // sort values chronologically, based on start time
      { var _a, _b; // sort values chronologically, based on start time
     return ((_a = buildPipeline.actionsObject[a]) === null || _a === void 0 ? void 0 : _a.started) - ((_b = buildPipeline.actionsObject[b]) === null || _b === void 0 ? void 0 : _b.started); });
-    // after initial chronological sort, run an additional sort to insure no parent action comes after a child
-    // actionsOrder.sort((a, b) => {
-    //     const itemA = buildPipeline.actionsObject[b]
-    //     if (!itemA?.buildParents) {
-    //         return 0
-    //     }
-    //     for (const parent of itemA.buildParents) {
-    //         if (parent === b) {
-    //             return 1
-    //         }
-    //     }
-    //     return 0
-    // })
+    // after initial chronological sort, run an additional check to insure no parent action comes after a child
     outermostLoop: while (true) {
         for (const key of actionsOrder) {
             const parents = (_a = buildPipeline.actionsObject[key]) === null || _a === void 0 ? void 0 : _a.buildParents;

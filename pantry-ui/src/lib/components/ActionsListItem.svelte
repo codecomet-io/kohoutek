@@ -19,10 +19,6 @@
 	function handleParentHoverFocus(digest : string, active : boolean) : void {
 		dispatch('highlightParent', { digest, active })
 	}
-
-	function handleParentClick(digest : string) : void {
-		dispatch('expandParent', { digest })
-	}
 </script>
 
 
@@ -145,7 +141,6 @@
 								on:mouseout={ () => handleParentHoverFocus(parentAction.digest, false) }
 								on:focus={ () => handleParentHoverFocus(parentAction.digest, true) }
 								on:blur={ () => handleParentHoverFocus(parentAction.digest, false) }
-								on:click={ () => handleParentClick(parentAction.digest) }
 							>{ parentAction.name }</a>
 						</li>
 					{/each}

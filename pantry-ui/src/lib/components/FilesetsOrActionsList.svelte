@@ -12,14 +12,16 @@
 	export let highlight : HighlightInfo
 	export let expand : string
 
-	let accordionGroup : HTMLIonAccordionGroupElement
-
-	$: if (accordionGroup) {
-		accordionGroup.value = expand
-	}
-
 	function isPopulated(list : typeof filesets | typeof actions) : boolean {
 		return Array.isArray(list) && list.length > 0
+	}
+
+	function handleValueChange(event : any) : void {
+		const digest : string = event.detail.value
+
+		if (digest !== expand) {
+			window.location.hash = digest ?? ''
+		}
 	}
 </script>
 
@@ -30,7 +32,8 @@
 {#if isPopulated(filesets) || isPopulated(actions) }
 	<ion-accordion-group
 		expand="inset"
-		bind:this={ accordionGroup }
+		value={ expand }
+		on:ionChange={ handleValueChange }
 	>
 		{#if filesets && isPopulated(filesets) }
 			{#each filesets as fileset }
@@ -45,7 +48,6 @@
 					action={ action }
 					highlight={ highlight.active && highlight.digest === action.digest }
 					on:highlightParent
-					on:expandParent
 				/>
 			{/each}
 		{/if}

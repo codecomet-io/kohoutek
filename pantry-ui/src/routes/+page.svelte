@@ -3,6 +3,8 @@
 	import type { Pipeline } from '../../../data_importer/lib/model';
 	import type { HighlightInfo } from '$lib/types/highlight';
 
+	import { page } from '$app/stores';
+
 	import PipelineHeader from '$lib/components/PipelineHeader.svelte';
 	import IconKey from '$lib/components/IconKey.svelte';
 	import FilesetsOrActionsList from '$lib/components/FilesetsOrActionsList.svelte';
@@ -13,6 +15,8 @@
 
 	const pipeline = <Pipeline>data.pipeline
 
+	const hashReplaceRegex : RegExp = /^(?:.+)?#/
+
 	let highlight : HighlightInfo = {
 		digest : '',
 		active : false,
@@ -20,12 +24,22 @@
 
 	let expand : string
 
-	function highlightParent(event : any) : void {
-		highlight = event.detail
+	page.subscribe((pageData) => {
+		const { hash } = pageData?.url
+
+		if (hash) {
+			expand = hash.replace(hashReplaceRegex, '')
+		}
+	})
+
+	function handleHashchange(event : any) : void {
+		const digest : string = event.newURL.replace(hashReplaceRegex, '')
+
+		expand = digest
 	}
 
-	function expandParent(event : any) : void {
-		expand = event.detail?.digest
+	function highlightParent(event : any) : void {
+		highlight = event.detail
 	}
 </script>
 
@@ -62,7 +76,8 @@
 			highlight={ highlight }
 			expand={ expand }
 			on:highlightParent={ highlightParent }
-			on:expandParent={ expandParent }
 		/>
 	</div>
 </ion-content>
+
+<svelte:window on:hashchange={ handleHashchange } />

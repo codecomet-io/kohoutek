@@ -3,6 +3,7 @@
 
 	import PipelineTitleInfo from '$lib/components/PipelineTitleInfo.svelte'
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte'
+	import TimingChart from '$lib/components/TimingChart.svelte'
 
 
 	export let pipeline : Pipeline
@@ -23,7 +24,7 @@
 		}
 	}
 
-	.header-wrapper {
+	.top-header-wrapper {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -32,12 +33,14 @@
 </style>
 
 
-<ion-header translucent={ true }>
+<ion-header>
   <ion-toolbar>
-		<div class="header-wrapper">
+		<div class="top-header-wrapper">
 			<PipelineTitleInfo pipeline={ pipeline } />
 
 			<CodeCometLogo />
 		</div>
+
+		<TimingChart timingInfo={ pipeline.timingInfo } />
   </ion-toolbar>
 </ion-header>

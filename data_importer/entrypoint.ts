@@ -16,7 +16,8 @@ import {
     BuildPipeline,
     Pipeline,
     CreateSymbolicLinkAction,
-    UserAction
+    UserAction,
+    FilesetOrActionTiming,
 } from "./lib/model.js";
 import {stdin} from "node:process";
 import {bool, error, nil} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -222,7 +223,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     // new StdinIngester(stdin, function(pl: BuildPipeline, tsks: BuildActionsObject){
     const buffIngester = new BuffIngester()
     const buildPipeline : BuildPipeline = buffIngester.ingest(trace)
-//        , function(pl: BuildPipeline, tsks: BuildActionsObject){
+    //    , function(pl: BuildPipeline, tsks: BuildActionsObject){
     // XXX piggyback on metadata
     buildPipeline.id = metadata.id
     buildPipeline.description = metadata.description
@@ -237,9 +238,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
     // Geez this is shit. @spacedub burn all of this with fire and rewrite the stitching probably (later...)
     // briznad: @spacedub you're too hard on yourself
-    Object.keys(buildPipeline.actionsObject).forEach(function(digest){
-        const traceObject = buildPipeline.actionsObject[digest]
-
+    for (const [ digest, traceObject ] of Object.entries(buildPipeline.actionsObject)) {
         let typedObject: BuildAction
 
         if (buildActionsObject[digest]) {
@@ -277,10 +276,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         typedObject.buildParents = traceObject.buildParents
 
         buildPipeline.actionsObject[digest] = typedObject
-    })
-
-    const filesets : FilesetAction[] = []
-    const actions : Action[] = []
+    }
 
     const actionsOrder : string[] = Object.keys(buildPipeline.actionsObject)
         .sort((a, b) => // sort values chronologically, based on start time
@@ -318,8 +314,16 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         break
     }
 
+    const timingInfo : FilesetOrActionTiming[] = []
+    const filesets : FilesetAction[] = []
+    const actions : Action[] = []
+
     for (const key of actionsOrder) {
         const item = buildPipeline.actionsObject[key]
+
+        if (item.started && item.completed) {
+            timingInfo.push(parseActionTiming(item))
+        }
 
         if (item.type === 'fileset') {
             filesets.push(item as FilesetAction)
@@ -361,8 +365,35 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
     return {
         ...buildPipeline,
+        timingInfo,
         filesets,
         actions,
+    }
+}
+
+function parseActionTiming(item : BuildAction) : FilesetOrActionTiming {
+    let { name } = item
+
+    if (item.type === 'fileset') {
+        name = `${ (item as FilesetAction).filesetType } fileset: ${ name }`
+    }
+
+    // name = name
+    //     .replace(/\s/, ' ')
+    //     .replace(/[^a-zA-Z0-9-_():;,'"]/, '')
+    //     .replace(/\s{2,}/, ' ')
+
+    return {
+        name,
+        data: [
+            {
+                x : 'Fileset/Action',
+                y : [
+                    item.started,
+                    item.completed,
+                ],
+            },
+        ],
     }
 }
 

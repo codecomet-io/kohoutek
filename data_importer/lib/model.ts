@@ -149,7 +149,7 @@ export enum ActionStatus {
     Started = 'started',
 }
 
-type ActionsInfo = {
+export type ActionsInfo = {
     // Total number of tasks
     total: int
     // How many were cached
@@ -219,6 +219,7 @@ export type BuildActionsObject = {
 export interface Pipeline extends GeneralPipeline {
     filesets: FilesetAction[]
     actions: Action[]
+    timingInfo: FilesetOrActionTiming[]
 }
 
 // A log entry is a timestamp and some content
@@ -356,4 +357,19 @@ export enum FilesetType {
     Image = 'docker',
     Local = 'local',
     Scratch = 'scratch',
+}
+
+// data format required to render Timeline Charts by Apex Charts
+// https://apexcharts.com/javascript-chart-demos/timeline-charts/multiple-series-group-rows/
+export type FilesetOrActionTiming = {
+    name : string,
+    data : [
+        {
+            x : 'Fileset/Action',
+            y : [
+                number,
+                number,
+            ]
+        },
+    ],
 }

@@ -205,21 +205,13 @@ export default async function Pantry(buffer, trace, meta) {
         }
         break;
     }
-    const timingInfo = {
-        labels: [],
-        datasets: [
-            {
-                values: []
-            },
-        ],
-    };
+    const timingInfo = [];
     const filesets = [];
     const actions = [];
     for (const key of actionsOrder) {
         const item = buildPipeline.actionsObject[key];
         if (item.runtime != null) {
-            timingInfo.labels.push(parseActionTimingLabel(item));
-            timingInfo.datasets[0].values.push(item.runtime);
+            timingInfo.push(parseActionTiming(item));
         }
         if (item.type === 'fileset') {
             filesets.push(item);
@@ -249,20 +241,26 @@ export default async function Pantry(buffer, trace, meta) {
         }
     }
     delete buildPipeline.actionsObject;
+    const summedTimingRuntime = timingInfo.reduce((sum, item) => sum + item.runtime, 0);
+    for (const item of timingInfo) {
+        // calculate percent of total runtime, rounded to 3 decimal places
+        item.percent = Math.round(item.runtime / summedTimingRuntime * 100 * 1000) / 1000;
+    }
     return Object.assign(Object.assign({}, buildPipeline), { timingInfo,
         filesets,
         actions });
 }
-function parseActionTimingLabel(item) {
-    let label = item.name;
-    if (item.type === 'fileset') {
-        label = `${item.filesetType} fileset: ${label}`;
-    }
-    // name = name
-    //     .replace(/\s/, ' ')
-    //     .replace(/[^a-zA-Z0-9-_():;,'"]/, '')
-    //     .replace(/\s{2,}/, ' ')
-    return label;
+function parseActionTiming(item) {
+    const { digest, runtime } = item;
+    const name = item.type === 'fileset'
+        ? `${item.filesetType} fileset: ${item.name}`
+        : `action: ${item.name}`;
+    return {
+        name,
+        digest,
+        runtime,
+        percent: 0,
+    };
 }
 async function run(protoPath, tracePath, meta, destination) {
     // Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)

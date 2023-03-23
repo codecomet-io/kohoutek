@@ -55,7 +55,10 @@
 </style>
 
 
-<PipelineHeader pipeline={ pipeline } />
+<PipelineHeader
+	pipeline={ pipeline }
+	on:highlightParent={ highlightParent }
+/>
 
 <ion-content fullscreen={ true }>
 	<div class="max-width-wrapper">

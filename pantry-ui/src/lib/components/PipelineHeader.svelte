@@ -41,6 +41,9 @@
 			<CodeCometLogo />
 		</div>
 
-		<TimingChart timingInfo={ pipeline.timingInfo } />
+		<TimingChart
+			timingInfo={ pipeline.timingInfo }
+			on:highlightParent
+		/>
   </ion-toolbar>
 </ion-header>

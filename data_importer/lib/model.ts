@@ -217,9 +217,9 @@ export type BuildActionsObject = {
 }
 
 export interface Pipeline extends GeneralPipeline {
+    timingInfo: TimingInfo[]
     filesets: FilesetAction[]
     actions: Action[]
-    timingInfo: TimingInfo
 }
 
 // A log entry is a timestamp and some content
@@ -359,13 +359,9 @@ export enum FilesetType {
     Scratch = 'scratch',
 }
 
-// data format required to render percentage bar chart by Frappe Charts
-// https://frappe.io/charts/docs/basic/aggr_sliced_diags#percentage-charts-ftw
 export type TimingInfo = {
-    labels: string[],
-    datasets: [
-        {
-            values: number[]
-        },
-    ],
+    name: string
+    digest: digest.Digest
+    runtime: number
+    percent: number
 }

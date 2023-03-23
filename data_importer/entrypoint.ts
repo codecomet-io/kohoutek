@@ -315,15 +315,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         break
     }
 
-    const timingInfo : TimingInfo = {
-        labels: [],
-        datasets: [
-            {
-                values: []
-            },
-        ],
-    }
-
+    const timingInfo : TimingInfo[] = []
     const filesets : FilesetAction[] = []
     const actions : Action[] = []
 
@@ -331,9 +323,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         const item = buildPipeline.actionsObject[key]
 
         if (item.runtime != null) {
-            timingInfo.labels.push(parseActionTimingLabel(item))
-
-            timingInfo.datasets[0].values.push(item.runtime)
+            timingInfo.push(parseActionTiming(item))
         }
 
         if (item.type === 'fileset') {
@@ -374,6 +364,16 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
     delete buildPipeline.actionsObject
 
+    const summedTimingRuntime : number = timingInfo.reduce(
+        (sum, item) => sum + item.runtime,
+        0,
+    )
+
+    for (const item of timingInfo) {
+        // calculate percent of total runtime, rounded to 3 decimal places
+        item.percent = Math.round(item.runtime / summedTimingRuntime * 100 * 1000) / 1000
+    }
+
     return {
         ...buildPipeline,
         timingInfo,
@@ -382,14 +382,19 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     }
 }
 
-function parseActionTimingLabel(item : BuildAction) : string {
-    let label = item.name
+function parseActionTiming(item : BuildAction) : TimingInfo {
+    const { digest, runtime } = item
 
-    if (item.type === 'fileset') {
-        label = `${ (item as FilesetAction).filesetType } fileset: ${ label }`
+    const name : string = item.type === 'fileset'
+        ? `${ (item as FilesetAction).filesetType } fileset: ${ item.name }`
+        : `action: ${ item.name }`
+
+    return {
+        name,
+        digest,
+        runtime,
+        percent: 0,
     }
-
-    return label
 }
 
 

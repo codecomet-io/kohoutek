@@ -17,7 +17,7 @@ import {
     Pipeline,
     CreateSymbolicLinkAction,
     UserAction,
-    FilesetOrActionTiming,
+    TimingInfo,
 } from "./lib/model.js";
 import {stdin} from "node:process";
 import {bool, error, nil} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -28,6 +28,7 @@ import { digest as CryptoDigest } from "codecomet-js/source/buildkit-port/depend
 import {Types} from "codecomet-js/source/protobuf/types.js";
 import {readFileSync, writeFileSync} from "fs";
 import {description} from "codecomet-js/experimental/protoc/github.com/gogo/protobuf/gogoproto/gogo_pb.js";
+import { LocalVariables } from "@sentry/node/types/integrations/localvariables.js";
 
 // Init Sentry
 new Tracer("https://c02314800c4d4be2a32f1d28c4220f3f@o1370052.ingest.sentry.io/6673370")
@@ -314,15 +315,25 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         break
     }
 
-    const timingInfo : FilesetOrActionTiming[] = []
+    const timingInfo : TimingInfo = {
+        labels: [],
+        datasets: [
+            {
+                values: []
+            },
+        ],
+    }
+
     const filesets : FilesetAction[] = []
     const actions : Action[] = []
 
     for (const key of actionsOrder) {
         const item = buildPipeline.actionsObject[key]
 
-        if (item.started && item.completed) {
-            timingInfo.push(parseActionTiming(item))
+        if (item.runtime != null) {
+            timingInfo.labels.push(parseActionTimingLabel(item))
+
+            timingInfo.datasets[0].values.push(item.runtime)
         }
 
         if (item.type === 'fileset') {
@@ -371,30 +382,14 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     }
 }
 
-function parseActionTiming(item : BuildAction) : FilesetOrActionTiming {
-    let { name } = item
+function parseActionTimingLabel(item : BuildAction) : string {
+    let label = item.name
 
     if (item.type === 'fileset') {
-        name = `${ (item as FilesetAction).filesetType } fileset: ${ name }`
+        label = `${ (item as FilesetAction).filesetType } fileset: ${ label }`
     }
 
-    // name = name
-    //     .replace(/\s/, ' ')
-    //     .replace(/[^a-zA-Z0-9-_():;,'"]/, '')
-    //     .replace(/\s{2,}/, ' ')
-
-    return {
-        name,
-        data: [
-            {
-                x : 'Fileset/Action',
-                y : [
-                    item.started,
-                    item.completed,
-                ],
-            },
-        ],
-    }
+    return label
 }
 
 

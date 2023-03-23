@@ -205,13 +205,21 @@ export default async function Pantry(buffer, trace, meta) {
         }
         break;
     }
-    const timingInfo = [];
+    const timingInfo = {
+        labels: [],
+        datasets: [
+            {
+                values: []
+            },
+        ],
+    };
     const filesets = [];
     const actions = [];
     for (const key of actionsOrder) {
         const item = buildPipeline.actionsObject[key];
-        if (item.started && item.completed) {
-            timingInfo.push(parseActionTiming(item));
+        if (item.runtime != null) {
+            timingInfo.labels.push(parseActionTimingLabel(item));
+            timingInfo.datasets[0].values.push(item.runtime);
         }
         if (item.type === 'fileset') {
             filesets.push(item);
@@ -245,28 +253,16 @@ export default async function Pantry(buffer, trace, meta) {
         filesets,
         actions });
 }
-function parseActionTiming(item) {
-    const { started, completed } = item;
-    let { name } = item;
+function parseActionTimingLabel(item) {
+    let label = item.name;
     if (item.type === 'fileset') {
-        name = `${item.filesetType} fileset: ${name}`;
+        label = `${item.filesetType} fileset: ${label}`;
     }
     // name = name
     //     .replace(/\s/, ' ')
     //     .replace(/[^a-zA-Z0-9-_():;,'"]/, '')
     //     .replace(/\s{2,}/, ' ')
-    return {
-        name,
-        data: [
-            {
-                x: 'Fileset/Action',
-                y: [
-                    started,
-                    completed,
-                ],
-            },
-        ],
-    };
+    return label;
 }
 async function run(protoPath, tracePath, meta, destination) {
     // Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)

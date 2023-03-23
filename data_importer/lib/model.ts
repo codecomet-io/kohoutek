@@ -219,7 +219,7 @@ export type BuildActionsObject = {
 export interface Pipeline extends GeneralPipeline {
     filesets: FilesetAction[]
     actions: Action[]
-    timingInfo: FilesetOrActionTiming[]
+    timingInfo: TimingInfo
 }
 
 // A log entry is a timestamp and some content
@@ -359,17 +359,13 @@ export enum FilesetType {
     Scratch = 'scratch',
 }
 
-// data format required to render Timeline Charts by Apex Charts
-// https://apexcharts.com/javascript-chart-demos/timeline-charts/multiple-series-group-rows/
-export type FilesetOrActionTiming = {
-    name : string,
-    data : [
+// data format required to render percentage bar chart by Frappe Charts
+// https://frappe.io/charts/docs/basic/aggr_sliced_diags#percentage-charts-ftw
+export type TimingInfo = {
+    labels: string[],
+    datasets: [
         {
-            x : 'Fileset/Action',
-            y : [
-                number,
-                number,
-            ]
+            values: number[]
         },
     ],
 }

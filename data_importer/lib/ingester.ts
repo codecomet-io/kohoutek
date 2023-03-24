@@ -7,7 +7,7 @@ import {
     VertexLog,
 } from "codecomet-js/source/buildkit-port/client/graph.js"
 import * as model from "./model.js";
-import { ActionStatus, BuildPipeline, Stack } from "./model.js";
+import {ActionStatus, BuildActionsObject, BuildPipeline, ActionsInfo, Stack, User, Repository} from "./model.js";
 import * as readline from 'node:readline/promises';
 import {ReadStream} from "tty";
 
@@ -26,8 +26,8 @@ class Build implements BuildPipeline {
     runtime = 0
     machineTime = 0
     trigger = "manual"
-    actionsObject = {}
-    actionsInfo = {
+    actionsObject: BuildActionsObject = {}
+    actionsInfo: ActionsInfo = {
         total: 0,
         cached: 0,
         ran: 0,
@@ -44,7 +44,7 @@ class Build implements BuildPipeline {
     //     dirty: false,
     //     location: "",
     // }
-    actor = {
+    actor: User = {
         id: "spacedub",
         name: "Space Raccoon"
     }
@@ -73,33 +73,22 @@ class Build implements BuildPipeline {
                 let structured = JSON.parse(Buffer.from(dt.substring(dt.indexOf(",") + 1), "base64").toString("utf-8"))
                 // Copy that over into a Structured type
                 this.actionsObject[log.Vertex].stack = {
+                    timestamp: Date.parse(log.Timestamp),
                     lineNumber: parseInt(structured.linenumber, 10) - 1,
                     exitCode: parseInt(structured.exitcode, 10),
                     command: structured.command,
                     // Source is double encoded, so, decode it, and split by line to facilitate accessing source[linenumber]
                     source: Buffer.from(structured.source, "base64").toString("utf-8").split("\n"),
                 }
-                /*
-                let stack = this.actionsObject[log.Vertex].stack
-                console.warn("line", stack.linenumber)
-                console.warn("exit", stack.exitCode)
-                console.warn("command", stack.command)
-                // XXX obviously this needs to be tested for boundaries against 0 / stack.source.length
-                console.warn("source before:", stack.source[stack.linenumber-2])
-                console.warn("source before:", stack.source[stack.linenumber-1])
-                console.warn("guilty line", stack.source[stack.linenumber])
-                console.warn("source after", stack.source[stack.linenumber+1])
-                console.warn("source after", stack.source[stack.linenumber+2])
-                 */
             } else if (log.Stream == 2){
                 this.actionsObject[log.Vertex].stderr.push({
                     timestamp: Date.parse(log.Timestamp),
-                    logLine: dt
+                    line: dt
                 })
             } else {
-                this.actionsObject[log.Vertex].stderr.push({
+                this.actionsObject[log.Vertex].stdout.push({
                     timestamp: Date.parse(log.Timestamp),
-                    logLine: dt
+                    line: dt
                 })
             }
         }
@@ -305,6 +294,77 @@ class Build implements BuildPipeline {
 //     }
 // }
 
+// Purpose of this is to suck out the info out of console colored output
+// Hang-on to your butt
+function parseLogEntry(line){
+    let prior = 0
+    let original = line.line
+    let hasCommand = false
+    let hasOutput = false
+    let command = ""
+    let output = ""
+    // Match colored console break points
+    line.line.replace(/\x1B\x5B[a-z0-9]{3}/g, function(match, index, subject): string{
+        // If first match, or empty slice, move on
+        if (prior != 0 && (index-prior) != 0){
+            // Get the string then, after a bit of cleanup
+            let sub = subject.substring(prior, index).trim() // .trimLeft("▶").trim()
+            if (sub.charAt(0) == "▶")
+                sub = sub.substring(1).trim()
+            // Anything in there?
+            if (sub != ""){
+                // If we saw a command prompt, then it is a command
+                if (hasCommand){
+                    command = sub
+                    hasCommand = false
+                }
+                // If we saw an output prompt, then it is output (possibly multi line)
+                if (hasOutput){
+                    output += subject.substring(prior, index) // sub
+                    // splices.push("out", output)
+                    // hasOutput = false
+                }
+                // Have a command prompt, mark it
+                if (sub.trim() == "command"){
+                    hasCommand = true
+                }
+                // Have an output prompt, mark it
+                if (sub.trim() == "output"){
+                    hasOutput = true
+                }
+            }
+        }
+        // Seek
+        prior = index + match.length
+        // Whatever
+        return ""
+    })
+    // Get the tail part and consolidate the output
+    let tail = original.substring(prior).trim()
+    let plain = ""
+    if (hasOutput)
+        output += original.substring(prior).trim()
+
+    if (!original.match(/^\x1B\x5B[a-z0-9]{3}$/)){
+        if (!command)
+            plain = original
+    }
+
+    return {
+        timestamp: line.timestamp,
+        command: command,
+        output: output,
+        plain: plain
+    }
+        // throw "tantrum"
+        /*
+        line.line = line.line.replace(/\x5B[a-z0-9]+[\x1B]+/g, "")
+        for (let x = 0; x < 20; x++)
+            console.warn("ERR", line.timestamp, line.line.charCodeAt(x), line.line.charAt(x))
+
+         */
+}
+
 export class BuffIngester {
     private build: Build
 
@@ -337,8 +397,6 @@ export class BuffIngester {
                 }
 
             } catch(e) {
-                console.error("Failed to marshal JSON data into object. Exception was", e, "and data was", data)
-
                 Sentry.captureException(e, {
                     extra: {
                         data: data
@@ -346,6 +404,74 @@ export class BuffIngester {
                 })
             }
         })
+
+        // Sort the logs and process them into something manageable
+        // let logs = {}
+        Object.values(this.build.actionsObject).forEach(function(action){
+            // Sort stdout
+            if (action.stdout) {
+                action.stdout.sort(function (line1, line2) {
+                    return line1.timestamp < line2.timestamp ? -1 : 1;
+                })
+            }
+            // Sort stderr
+            if (action.stderr) {
+                action.stderr.sort(function (line1, line2) {
+                    return line1.timestamp < line2.timestamp ? -1 : 1;
+                })
+            }
+            // If we have anything in there
+            if (action.stdout) {
+                // Final form
+                let restructured: model.LogLog[] = []
+                // Look into stderr
+                action.stderr.forEach(function (line) {
+                    // If we have a stack trace, just get anything BEFORE
+                    if (!action.stack || action.stack.timestamp > line.timestamp){
+                        // Get the processed form of stderr
+                        let ret = parseLogEntry(line)
+                        // Geeeeeeez timestamps are not reliable - stdout may be off by a millisec...
+                        let stdout = null
+
+                        // GEEEEEEZZZ
+                        let magic = ret.output.split("\n")
+                        let moreMagic = magic.shift()
+                        let magicWithAKick = magic.join("\n")
+                        if (magicWithAKick === "")
+                            stdout = action.stdout.shift()
+
+                        // Stuff it into our LogLog entry
+                        if (!ret.plain){
+                            restructured.push({
+                                command: ret.command,
+                                resolved: moreMagic,
+                                timestamp: ret.timestamp,
+                                stdout: stdout ? stdout.line : "",
+                                stderr: magicWithAKick,
+                                exitCode: 0,
+                            })
+                        }else if (ret.plain != "."){
+                            try {
+                                restructured[restructured.length - 1 ].stderr = ret.plain
+                            }catch(e){
+                                console.warn("WTF", ret)
+                            }
+                        }
+                    }
+                })
+                action.logAssembly = restructured
+            }
+            // Fix action stack...
+            if (action.stack)
+                action.logAssembly[action.logAssembly.length - 1].exitCode = action.stack.exitCode
+
+        })
+
+        /*
+        Object.values(this.build.actionsObject).forEach(function(action){
+            console.warn(JSON.stringify(action.logAssembly, null, 2))
+        })
+         */
 
         // post-processing and sending to callback
         this.build.wrap()

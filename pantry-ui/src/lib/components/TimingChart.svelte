@@ -9,18 +9,26 @@
 	export let timingInfo : TimingInfo[]
 
 	const colors : string[] = [
-		'#00bdff',
-		'#1b3bff',
-		'#8f00ff',
-		'#ff0011',
-		'#ff7300',
-		'#ffd600',
-		'#00c30e',
-		'#65ff00',
-		'#d200ff',
-		'#ff00ff',
-		'#7d7d7d',
-		'#5d5d5d',
+		'#ffc312',
+		'#c4e538',
+		'#12cbc4',
+		'#fda7df',
+		'#ed4c67',
+		'#f79f1f',
+		'#a3cb38',
+		'#1289a7',
+		'#d980fa',
+		'#b53471',
+		'#ee5a24',
+		'#009432',
+		'#0652dd',
+		'#9980fa',
+		'#833471',
+		'#ea2027',
+		'#006266',
+		'#1b1464',
+		'#5758bb',
+		'#6f1e51',
 	]
 
 	function getColor(index : number) : string {
@@ -78,7 +86,7 @@
 			width: 100%;
 			height: calc(100% - 2px);
 			pointer-events: none;
-			background-color: rgba(255, 255, 255, 0.25);
+			background-color: rgba(255, 255, 255, 0.15);
 			transition: background-color 150ms ease-in-out;
 		}
 
@@ -86,7 +94,7 @@
 			transform: scaleY(115%);
 
 			&::after {
-				background-color: rgba(255, 255, 255, 0.15);
+				background-color: rgba(255, 255, 255, 0.05);
 			}
 		}
 	}

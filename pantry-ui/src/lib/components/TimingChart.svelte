@@ -75,7 +75,7 @@
 	}
 
 	@keyframes animateIn {
-    0% {
+		0% {
 			transform: scale(0, 1);
 		}
 		100% {

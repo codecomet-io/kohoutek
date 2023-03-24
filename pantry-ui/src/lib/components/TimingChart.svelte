@@ -1,7 +1,9 @@
 <script lang="ts">
 	import type { TimingInfo } from '../../../../data_importer/lib/model'
 
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher } from 'svelte'
+
+	import { tooltip } from '$lib/actions/tooltip'
 
 
 	export let timingInfo : TimingInfo[]
@@ -40,24 +42,36 @@
 		padding: 0;
 		list-style: none;
 		overflow: hidden;
-		border-radius: 10px;
+		border-radius: 11px;
 	}
 
 	li {
-		// flex-basis: 0%;
-		height: 1.25em;
-		min-width: 5px;
+		height: 25px;
+		min-width: 7.5px;
+		position: relative;
 		transform-origin: center left;
 		animation-duration: 1s;
 		animation-timing-function: ease-in-out;
 		animation-iteration-count: 1;
 		animation-fill-mode: forwards;
 		animation-name: animateIn;
+
+		&::after {
+			content: '';
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 100%;
+			height: 2px;
+			pointer-events: none;
+			background-color: inherit;
+		}
 	}
 	a {
 		display: block;
 		width: 100%;
 		height: 100%;
+		background-color: rgba(255, 255, 255, 0.25);
 	}
 
 	@keyframes animateIn {
@@ -81,6 +95,7 @@
 				on:mouseout={ () => handleHoverFocus(item.digest, false) }
 				on:focus={ () => handleHoverFocus(item.digest, true) }
 				on:blur={ () => handleHoverFocus(item.digest, false) }
+				use:tooltip={ item }
 			><span class="visually-hidden">{ item.name }</span></a>
 		</li>
 	{/each}

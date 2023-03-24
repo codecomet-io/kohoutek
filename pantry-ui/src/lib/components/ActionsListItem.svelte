@@ -76,6 +76,7 @@
 
 <ion-accordion
 	value={ action.digest }
+	data-digest={ action.digest }
 	toggle-icon-slot="start"
 >
 	<ion-item

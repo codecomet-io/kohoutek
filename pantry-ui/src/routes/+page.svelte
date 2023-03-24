@@ -15,7 +15,7 @@
 
 	const pipeline = <Pipeline>data.pipeline
 
-	const hashReplaceRegex : RegExp = /^(?:.+)?#/
+	let ionContent : HTMLIonContentElement
 
 	let highlight : HighlightInfo = {
 		digest : '',
@@ -23,6 +23,8 @@
 	}
 
 	let expand : string
+
+	const hashReplaceRegex : RegExp = /^(?:.+)?#/
 
 	page.subscribe((pageData) => {
 		const { hash } = pageData?.url
@@ -36,6 +38,18 @@
 		const digest : string = event.newURL.replace(hashReplaceRegex, '')
 
 		expand = digest
+
+		scrollTo(digest)
+	}
+
+	function scrollTo(digest : string) : void {
+		const accordion = document.querySelector(`ion-accordion[data-digest="${ digest }"]`)
+
+		if (!(accordion && accordion instanceof HTMLElement)) {
+			return
+		}
+
+		ionContent.scrollToPoint(null, accordion.offsetTop - 16, 1000)
 	}
 
 	function highlightParent(event : any) : void {
@@ -60,7 +74,10 @@
 	on:highlightParent={ highlightParent }
 />
 
-<ion-content fullscreen={ true }>
+<ion-content
+	fullscreen={ true }
+	bind:this={ ionContent }
+>
 	<div class="max-width-wrapper">
 		<FilesetsOrActionsHeader  filesets={ pipeline.filesets }>
 			<IconKey />

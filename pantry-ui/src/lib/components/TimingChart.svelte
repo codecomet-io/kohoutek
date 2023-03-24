@@ -41,8 +41,6 @@
 		margin-bottom: 0;
 		padding: 0;
 		list-style: none;
-		overflow: hidden;
-		border-radius: 11px;
 	}
 
 	li {
@@ -55,23 +53,42 @@
 		animation-iteration-count: 1;
 		animation-fill-mode: forwards;
 		animation-name: animateIn;
-
-		&::after {
-			content: '';
-			position: absolute;
-			left: 0;
-			bottom: 0;
-			width: 100%;
-			height: 2px;
-			pointer-events: none;
-			background-color: inherit;
-		}
 	}
 	a {
 		display: block;
 		width: 100%;
 		height: 100%;
-		background-color: rgba(255, 255, 255, 0.25);
+		transition: transform 150ms ease-in-out;
+
+		&.first {
+			border-top-left-radius: 11px;
+			border-bottom-left-radius: 11px;
+		}
+
+		&.last {
+			border-top-right-radius: 11px;
+			border-bottom-right-radius: 11px;
+		}
+
+		&::after {
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: calc(100% - 2px);
+			pointer-events: none;
+			background-color: rgba(255, 255, 255, 0.25);
+			transition: background-color 150ms ease-in-out;
+		}
+
+		&:hover {
+			transform: scaleY(115%);
+
+			&::after {
+				background-color: rgba(255, 255, 255, 0.15);
+			}
+		}
 	}
 
 	@keyframes animateIn {
@@ -87,15 +104,20 @@
 
 <ul>
 	{#each timingInfo as item, index }
-		<li style="background-color: { getColor(index) }; flex-basis: { item.percent }%;">
+		<li
+			style="flex-basis: { item.percent }%;"
+			title={ item.name }
+			use:tooltip={ item }
+		>
 			<a
+				class:first={ index === 0 }
+				class:last={ index === timingInfo.length - 1 }
 				href="#{ item.digest }"
-				title={ item.name }
+				style="background-color: { getColor(index) };"
 				on:mouseover={ () => handleHoverFocus(item.digest, true) }
 				on:mouseout={ () => handleHoverFocus(item.digest, false) }
 				on:focus={ () => handleHoverFocus(item.digest, true) }
 				on:blur={ () => handleHoverFocus(item.digest, false) }
-				use:tooltip={ item }
 			><span class="visually-hidden">{ item.name }</span></a>
 		</li>
 	{/each}

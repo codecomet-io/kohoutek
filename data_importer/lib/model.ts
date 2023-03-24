@@ -149,7 +149,7 @@ export enum ActionStatus {
     Started = 'started',
 }
 
-type ActionsInfo = {
+export type ActionsInfo = {
     // Total number of tasks
     total: int
     // How many were cached
@@ -228,11 +228,21 @@ export type LogEntry = {
 }
 
 type LogLine  = {
-    timestamp: Date
+    timestamp: int
     line: string
 }
 
+export type LogLog = {
+    timestamp: uint64
+    command: string
+    resolved: string
+    stdout: string
+    stderr: string
+    exitCode: uint64
+}
+
 export type Stack = {
+    timestamp: int
     lineNumber: uint64,
     exitCode: uint64,
     command: string,
@@ -251,6 +261,7 @@ type GeneralAction = {
     status: ActionStatus
     stdout: LogLine[]
     stderr: LogLine[]
+    logAssembly: LogLog[]
     stack: Stack
     progressGroup: Types.ProgressGroup
 }

@@ -3,7 +3,9 @@
 
 	import { createEventDispatcher } from 'svelte'
 
-	import { tooltip } from '$lib/actions/tooltip'
+	import { tooltipHelper } from '$lib/actions/tooltip-helper'
+
+	import TimingInfoTooltip from '$lib/components/TimingInfoTooltip.svelte'
 
 
 	export let timingInfo : TimingInfo[]
@@ -44,11 +46,28 @@
 
 
 <style lang="scss">
-	ul {
+	%hover-focus-a-styling {
+		transform: scaleY(115%);
+
+		&::after {
+			background-color: rgba(255, 255, 255, 0.05);
+		}
+	}
+
+	%hover-focus-tooltip-styling {
+		:global(.tooltip) {
+			opacity: 1;
+			pointer-events: auto;
+			top: 100%;
+		}
+	}
+
+	ol {
 		display: flex;
 		margin-bottom: 0;
 		padding: 0;
 		list-style: none;
+		position: relative;
 	}
 
 	li {
@@ -61,22 +80,35 @@
 		animation-iteration-count: 1;
 		animation-fill-mode: forwards;
 		animation-name: animateIn;
+
+		&:first-child {
+			a {
+				border-top-left-radius: 11px;
+				border-bottom-left-radius: 11px;
+			}
+		}
+
+		&:last-child {
+			a {
+				border-top-right-radius: 11px;
+				border-bottom-right-radius: 11px;
+			}
+		}
+
+		&:hover {
+			a {
+				@extend %hover-focus-a-styling;
+			}
+
+			@extend %hover-focus-tooltip-styling;
+		}
 	}
+
 	a {
 		display: block;
 		width: 100%;
 		height: 100%;
 		transition: transform 150ms ease-in-out;
-
-		&.first {
-			border-top-left-radius: 11px;
-			border-bottom-left-radius: 11px;
-		}
-
-		&.last {
-			border-top-right-radius: 11px;
-			border-bottom-right-radius: 11px;
-		}
 
 		&::after {
 			content: '';
@@ -90,11 +122,13 @@
 			transition: background-color 150ms ease-in-out;
 		}
 
-		&:hover {
-			transform: scaleY(115%);
+		&:focus {
+			@extend %hover-focus-a-styling;
 
-			&::after {
-				background-color: rgba(255, 255, 255, 0.05);
+			outline: none;
+
+			~ {
+				@extend %hover-focus-tooltip-styling;
 			}
 		}
 	}
@@ -110,16 +144,14 @@
 </style>
 
 
-<ul>
+<ol>
 	{#each timingInfo as item, index }
 		<li
 			style="flex-basis: { item.percent }%;"
 			title={ item.name }
-			use:tooltip={ item }
+			use:tooltipHelper
 		>
 			<a
-				class:first={ index === 0 }
-				class:last={ index === timingInfo.length - 1 }
 				href="#{ item.digest }"
 				style="background-color: { getColor(index) };"
 				on:mouseover={ () => handleHoverFocus(item.digest, true) }
@@ -127,6 +159,8 @@
 				on:focus={ () => handleHoverFocus(item.digest, true) }
 				on:blur={ () => handleHoverFocus(item.digest, false) }
 			><span class="visually-hidden">{ item.name }</span></a>
+
+			<TimingInfoTooltip timingInfo={ item } />
 		</li>
 	{/each}
-</ul>
+</ol>

@@ -389,12 +389,18 @@ function parseActionTiming(item : BuildAction) : TimingInfo {
         ? `${ (item as FilesetAction).filesetType } fileset: ${ item.name }`
         : `action: ${ item.name }`
 
-    return {
+    const timingInfo : TimingInfo = {
         name,
         digest,
         runtime,
         percent: 0,
     }
+
+    if (item.status === 'cached') {
+        timingInfo.cached = true
+    }
+
+    return timingInfo
 }
 
 

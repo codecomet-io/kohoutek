@@ -364,4 +364,5 @@ export type TimingInfo = {
     digest: digest.Digest
     runtime: number
     percent: number
+    cached?: true
 }

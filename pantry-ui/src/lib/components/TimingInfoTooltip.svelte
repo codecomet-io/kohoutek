@@ -1,56 +1,59 @@
 <script lang="ts">
 	import type { TimingInfo } from '../../../../data_importer/lib/model'
 
-	export let x : number
-	export let y : number
+	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+
 
 	export let timingInfo : TimingInfo
-
-	let contentX : number
-
-	const width : number = 250
-	const gutter : number = 16
-
-	const halfWidthPlusGutter : number = width / 2 + gutter
-
-	$: {
-		contentX = x
-
-		if (contentX < halfWidthPlusGutter) {
-			contentX = halfWidthPlusGutter
-		} else if (contentX + halfWidthPlusGutter > window.innerWidth) {
-			contentX = window.innerWidth - halfWidthPlusGutter
-		}
-	}
 </script>
 
 
 <style lang="scss">
-	.pointer,
-	aside {
-		position: absolute;
-		transform: translateX(-50%);
+	aside,
+	.tooltip-body {
+		width: 250px;
+		max-width: calc(100vw * 2 / 3);
 	}
 
-	.pointer {
-		z-index: 1;
-		border-left: 9px solid transparent;
-		border-right: 9px solid transparent;
-		border-bottom: 9px solid #ddd;
+	aside {
+		padding-top: 13px;
+		opacity: 0;
+		pointer-events: none;
+		top: calc(100% + 5px);
+		transition-duration: 250ms;
+		transition-timing-function: ease-in-out;
+		transition-property: opacity, top;
+
+		&,
+		&::before,
+		&::after {
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		&::before,
+		&::after {
+			content: '';
+		}
 
 		&::before {
-			content: '';
-			position: absolute;
-			left: -8px;
-			top: 1px;
+			top: 5px;
+			border-left: 9px solid transparent;
+			border-right: 9px solid transparent;
+			border-bottom: 9px solid #ddd;
+		}
+
+		&::after {
+			top: 6px;
 			border-left: 8px solid transparent;
 			border-right: 8px solid transparent;
 			border-bottom: 8px solid #fff;
 		}
 	}
 
-	aside {
-		max-width: calc(100vw * 2 / 3);
+	.tooltip-body {
+		position: absolute;
 		padding: 8px;
 		border-radius: 4px;
 		background: #fff;
@@ -69,16 +72,14 @@
 </style>
 
 
-<div
-	class="pointer"
-	aria-hidden="true"
-	style="left: { x }px; top: { y + 5 }px;"
-></div>
+<aside class="tooltip">
+	<div class="tooltip-body">
+		<strong title={ timingInfo.name }>{ timingInfo.name }</strong>
 
-<aside
-	style="left: { contentX }px; top: { y + 13 }px; width: { width }px;"
->
-	<strong>{ timingInfo.name }</strong>
-
-	<div>{ timingInfo.runtime }ms / { timingInfo.percent }%</div>
+		{#if timingInfo.cached }
+			<ChunkyLabel>cached</ChunkyLabel>
+		{:else}
+			<ChunkyLabel allcaps={ false }>{ timingInfo.runtime }ms / { timingInfo.percent }%</ChunkyLabel>
+		{/if}
+	</div>
 </aside>

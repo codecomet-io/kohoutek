@@ -255,12 +255,16 @@ function parseActionTiming(item) {
     const name = item.type === 'fileset'
         ? `${item.filesetType} fileset: ${item.name}`
         : `action: ${item.name}`;
-    return {
+    const timingInfo = {
         name,
         digest,
         runtime,
         percent: 0,
     };
+    if (item.status === 'cached') {
+        timingInfo.cached = true;
+    }
+    return timingInfo;
 }
 async function run(protoPath, tracePath, meta, destination) {
     // Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)

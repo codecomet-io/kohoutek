@@ -1,7 +1,20 @@
 export function tooltipHelper(element : HTMLElement) {
+	const link = element.querySelector('a')
+
 	let title : string | null
 
 	function handleMouseOver() {
+		// on hover focus, then blur the current link, to insure no other links will have retained focus
+		if (link && link instanceof HTMLElement) {
+			link.focus()
+
+			link.blur()
+		}
+
+		handleMouseOverOrFocus()
+	}
+
+	function handleMouseOverOrFocus() {
 		// remove the title attribute, to prevent showing the default browser tooltip
 		// remember to set it back on `mouseout`
 		title = element.getAttribute('title')
@@ -43,13 +56,13 @@ export function tooltipHelper(element : HTMLElement) {
 			return
 		}
 
-		const { offsetParent } = element
+		const parent = element.offsetParent
 
-		if (!(offsetParent && offsetParent instanceof HTMLElement)) {
+		if (!(parent && parent instanceof HTMLElement)) {
 			return
 		}
 
-		const containerWidth = offsetParent.offsetWidth
+		const containerWidth = parent.offsetWidth
 
 		// the opposite of element offsetLeft
 		// the number of pixels from the element's right edge to the right edge of the offsetParent node
@@ -77,20 +90,30 @@ export function tooltipHelper(element : HTMLElement) {
 		element.dataset.overflowChecked = 'true'
 	}
 
-	function handleMouseOut() {
+	function handleMouseOutOrBlur() {
 		// restore the title attribute
 		if (title) {
 			element.setAttribute('title', title)
 		}
 	}
 
-	element.addEventListener('mouseover', handleMouseOver)
-	element.addEventListener('mouseout', handleMouseOut)
+	function initEvents() : void {
+		element.addEventListener('mouseover', handleMouseOver)
+		element.addEventListener('mouseout', handleMouseOutOrBlur)
+
+		link?.addEventListener('focus', handleMouseOverOrFocus)
+		link?.addEventListener('blur', handleMouseOutOrBlur)
+	}
+
+	initEvents()
 
 	return {
 		destroy() {
 			element.removeEventListener('mouseover', handleMouseOver)
-			element.removeEventListener('mouseout', handleMouseOut)
+			element.removeEventListener('mouseout', handleMouseOutOrBlur)
+
+			link?.removeEventListener('focus', handleMouseOverOrFocus)
+			link?.removeEventListener('blur', handleMouseOutOrBlur)
 		}
 	}
 }

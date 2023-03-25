@@ -441,7 +441,7 @@ export class BuffIngester {
                             stdout = action.stdout.shift()
 
                         // Stuff it into our LogLog entry
-                        if (!ret.plain){
+                        if (!ret.plain || restructured.length == 0 ){
                             restructured.push({
                                 command: ret.command,
                                 resolved: moreMagic,
@@ -454,7 +454,7 @@ export class BuffIngester {
                             try {
                                 restructured[restructured.length - 1 ].stderr = ret.plain
                             }catch(e){
-                                console.warn("WTF", ret)
+                                console.warn("WTF", ret, restructured.length)
                             }
                         }
                     }

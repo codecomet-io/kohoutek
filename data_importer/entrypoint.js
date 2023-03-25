@@ -273,8 +273,11 @@ async function run(protoPath, tracePath, meta, destination) {
     let trace = readFileSync(tracePath);
     // Get the pipeline and the tasks from Pantry
     let pipeline = await Pantry(buff, trace, meta);
+    if (pipeline == null) {
+        console.error(`\nERROR: pipeline "${destination.replace(/^.+\//, '')}" could not be retrieved and/or generated\n`);
+        return;
+    }
     writeFileSync(destination, JSON.stringify(pipeline, null, 2));
-    // console.warn(JSON.stringify(pipeline, null, 2))
 }
 run(process.argv[2], process.argv[3], process.argv[4], process.argv[5]);
 //# sourceMappingURL=entrypoint.js.map

@@ -413,8 +413,13 @@ async function run(protoPath: string, tracePath: string, meta: string, destinati
     // Get the pipeline and the tasks from Pantry
     let pipeline = await Pantry(buff, trace, meta)
 
+    if (pipeline == null) {
+        console.error(`\nERROR: pipeline "${ destination.replace(/^.+\//, '') }" could not be retrieved and/or generated\n`)
+
+        return
+    }
+
     writeFileSync(destination, JSON.stringify(pipeline, null, 2))
-    // console.warn(JSON.stringify(pipeline, null, 2))
 }
 
 run(

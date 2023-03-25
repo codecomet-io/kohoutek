@@ -381,7 +381,7 @@ export class BuffIngester {
                         if (magicWithAKick === "")
                             stdout = action.stdout.shift();
                         // Stuff it into our LogLog entry
-                        if (!ret.plain) {
+                        if (!ret.plain || restructured.length == 0) {
                             restructured.push({
                                 command: ret.command,
                                 resolved: moreMagic,
@@ -396,7 +396,7 @@ export class BuffIngester {
                                 restructured[restructured.length - 1].stderr = ret.plain;
                             }
                             catch (e) {
-                                console.warn("WTF", ret);
+                                console.warn("WTF", ret, restructured.length);
                             }
                         }
                     }
@@ -407,15 +407,11 @@ export class BuffIngester {
             if (action.stack)
                 action.logAssembly[action.logAssembly.length - 1].exitCode = action.stack.exitCode;
         });
-        // XXX action.stack ? action.stack.exitCode :
-        // Fix action stack
-        Object.values(this.build.actionsObject).forEach(function (action) {
-            console.warn(JSON.stringify(action.logAssembly, null, 2));
-        });
-        // stderr
-        // ls -lA / 1678987668793
-        // stdout
-        // 1679120179902
+        /*
+        Object.values(this.build.actionsObject).forEach(function(action){
+            console.warn(JSON.stringify(action.logAssembly, null, 2))
+        })
+         */
         // post-processing and sending to callback
         this.build.wrap();
         // Sentry transaction done

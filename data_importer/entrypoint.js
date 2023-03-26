@@ -164,10 +164,9 @@ export default async function Pantry(buffer, trace, meta) {
             }
             if (!typedObject) {
                 console.warn("Unable to find proto object for vertex", digest);
-                return;
+                continue;
             }
         }
-        // console.warn("still ok")
         typedObject.id = traceObject.id;
         typedObject.name = traceObject.name;
         typedObject.cached = traceObject.cached;

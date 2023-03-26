@@ -8,13 +8,16 @@
   "dependencies": {
     "@sentry/integrations": "^7.40.0",
     "@sentry/node": "^7.40.0",
-    "codecomet-js": "git+ssh://git@github.com:codecomet-io/codecomet-js.git"
+    "codecomet-js": "file:vendor/codecomet-js-v1.0.0.tgz"
   },
   "devDependencies": {
     "@types/node": "^18.14.4",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5"
   },
+  "bundledDependencies": [
+    "codecomet-js"
+  ],
   "type": "module",
   "scripts": {
     "build": "npm run build:typescript && ./build.sh",

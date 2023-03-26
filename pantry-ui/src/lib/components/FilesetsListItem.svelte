@@ -60,6 +60,7 @@
 
 <ion-accordion
 	value={ fileset.digest }
+	data-digest={ fileset.digest }
 	toggle-icon-slot="start"
 >
 	<ion-item

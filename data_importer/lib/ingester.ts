@@ -173,38 +173,8 @@ class Build implements BuildPipeline {
 
     wrap() {
         const actionKeys = Object.keys(this.actionsObject)
-        // Total is easy
-        this.actionsInfo.total = actionKeys.length
-        // Cached is easy
-        this.actionsInfo.cached = actionKeys
-            .filter((key) => this.actionsObject[key].cached)
-            .length
-        // Errored is easy
-        this.actionsInfo.errored = actionKeys
-            .filter((key) => this.actionsObject[key].error)
-            .length
-        // Not ran have not started
-        this.actionsInfo.notRan = actionKeys
-            .filter((key) => !this.actionsObject[key].started)
-            .length
-        // Ran have started, not cached, not errored, finished
-        this.actionsInfo.ran = actionKeys
-            .filter((key) =>
-                this.actionsObject[key].started
-                && !this.actionsObject[key].cached
-                && !this.actionsObject[key].error
-                && this.actionsObject[key].completed
-            )
-            .length
-        // Interrupted has started, not cached, not errored, never finished
-        this.actionsInfo.interrupted = actionKeys
-            .filter((key) =>
-                this.actionsObject[key].started
-                && !this.actionsObject[key].cached
-                && !this.actionsObject[key].error
-                && !this.actionsObject[key].completed
-            )
-            .length
+
+        this.actionsInfo = this.parseActionsInfo(actionKeys, this.actionsObject)
 
         // if any action errored, the pipeline errored
         if (actionKeys.some((key) => this.actionsObject[key].error)) {
@@ -234,6 +204,55 @@ class Build implements BuildPipeline {
             .update(Math.random().toString())
             .digest('hex')
 
+    }
+
+    parseActionsInfo(actionKeys : string[], actionsObject : model.BuildActionsObject) : model.ActionsInfo {
+        // Total is easy
+        const total = actionKeys.length
+
+        // Cached is easy
+        const cached = actionKeys
+            .filter((key) => actionsObject[key].cached)
+            .length
+
+        // Errored is easy
+        const errored = actionKeys
+            .filter((key) => actionsObject[key].error)
+            .length
+
+        // Not ran have not started
+        const notRan = actionKeys
+            .filter((key) => !actionsObject[key].started)
+            .length
+
+        // Ran have started, not cached, not errored, finished
+        const ran = actionKeys
+            .filter((key) =>
+                actionsObject[key].started
+                && !actionsObject[key].cached
+                && !actionsObject[key].error
+                && actionsObject[key].completed
+            )
+            .length
+
+        // Interrupted has started, not cached, not errored, never finished
+        const interrupted = actionKeys
+            .filter((key) =>
+                actionsObject[key].started
+                && !actionsObject[key].cached
+                && !actionsObject[key].error
+                && !actionsObject[key].completed
+            )
+            .length
+
+        return {
+            total,
+            cached,
+            errored,
+            notRan,
+            ran,
+            interrupted,
+        }
     }
 }
 

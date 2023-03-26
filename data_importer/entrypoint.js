@@ -1,6 +1,6 @@
 import { Tracer } from "./dependencies/ts-core/sentry.js";
 import { BuffIngester } from "./lib/ingester.js";
-import { FilesetType } from "./lib/model.js";
+import { FilesetType, } from "./lib/model.js";
 import { nil } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
 import CodeComet from "codecomet-js/index.js";
 import { ReadFromIMPL } from "codecomet-js/source/buildkit-port/client/llb/marshal.js";
@@ -33,7 +33,7 @@ function ingest(buffer) {
     return [operations, nil];
 }
 export default async function Pantry(buffer, trace, meta) {
-    var _a;
+    var _a, _b, _c;
     await CodeComet.Bootstrap();
     // Spoof in metadata
     const metadata = JSON.parse(meta);
@@ -135,7 +135,7 @@ export default async function Pantry(buffer, trace, meta) {
     // new StdinIngester(stdin, function(pl: BuildPipeline, tsks: BuildActionsObject){
     const buffIngester = new BuffIngester();
     const buildPipeline = buffIngester.ingest(trace);
-    //        , function(pl: BuildPipeline, tsks: BuildActionsObject){
+    //    , function(pl: BuildPipeline, tsks: BuildActionsObject){
     // XXX piggyback on metadata
     buildPipeline.id = metadata.id;
     buildPipeline.description = metadata.description;
@@ -148,9 +148,7 @@ export default async function Pantry(buffer, trace, meta) {
     // buildPipeline.repository.location = metadata.location
     // Geez this is shit. @spacedub burn all of this with fire and rewrite the stitching probably (later...)
     // briznad: @spacedub you're too hard on yourself
-    Object.keys(buildPipeline.actionsObject).forEach(function (digest) {
-        var _a, _b;
-        const traceObject = buildPipeline.actionsObject[digest];
+    for (const [digest, traceObject] of Object.entries(buildPipeline.actionsObject)) {
         let typedObject;
         if (buildActionsObject[digest]) {
             typedObject = buildActionsObject[digest];
@@ -183,9 +181,7 @@ export default async function Pantry(buffer, trace, meta) {
         typedObject.stderr = traceObject.stderr;
         typedObject.buildParents = traceObject.buildParents;
         buildPipeline.actionsObject[digest] = typedObject;
-    });
-    const filesets = [];
-    const actions = [];
+    }
     const actionsOrder = Object.keys(buildPipeline.actionsObject)
         .sort((a, b) => // sort values chronologically, based on start time
      { var _a, _b; // sort values chronologically, based on start time
@@ -193,7 +189,7 @@ export default async function Pantry(buffer, trace, meta) {
     // after initial chronological sort, run an additional check to insure no parent action comes after a child
     outermostLoop: while (true) {
         for (const key of actionsOrder) {
-            const parents = (_a = buildPipeline.actionsObject[key]) === null || _a === void 0 ? void 0 : _a.buildParents;
+            const parents = (_c = buildPipeline.actionsObject[key]) === null || _c === void 0 ? void 0 : _c.buildParents;
             if (!(parents && parents.length)) {
                 continue;
             }
@@ -209,8 +205,14 @@ export default async function Pantry(buffer, trace, meta) {
         }
         break;
     }
+    const timingInfo = [];
+    const filesets = [];
+    const actions = [];
     for (const key of actionsOrder) {
         const item = buildPipeline.actionsObject[key];
+        if (item.runtime != null) {
+            timingInfo.push(parseActionTiming(item));
+        }
         if (item.type === 'fileset') {
             filesets.push(item);
         }
@@ -239,8 +241,30 @@ export default async function Pantry(buffer, trace, meta) {
         }
     }
     delete buildPipeline.actionsObject;
-    return Object.assign(Object.assign({}, buildPipeline), { filesets,
+    const summedTimingRuntime = timingInfo.reduce((sum, item) => sum + item.runtime, 0);
+    for (const item of timingInfo) {
+        // calculate percent of total runtime, rounded to 3 decimal places
+        item.percent = Math.round(item.runtime / summedTimingRuntime * 100 * 1000) / 1000;
+    }
+    return Object.assign(Object.assign({}, buildPipeline), { timingInfo,
+        filesets,
         actions });
+}
+function parseActionTiming(item) {
+    const { digest, runtime } = item;
+    const name = item.type === 'fileset'
+        ? `${item.filesetType} fileset: ${item.name}`
+        : `action: ${item.name}`;
+    const timingInfo = {
+        name,
+        digest,
+        runtime,
+        percent: 0,
+    };
+    if (item.status === 'cached') {
+        timingInfo.cached = true;
+    }
+    return timingInfo;
 }
 async function run(protoPath, tracePath, meta, destination) {
     // Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)
@@ -249,8 +273,11 @@ async function run(protoPath, tracePath, meta, destination) {
     let trace = readFileSync(tracePath);
     // Get the pipeline and the tasks from Pantry
     let pipeline = await Pantry(buff, trace, meta);
+    if (pipeline == null) {
+        console.error(`\nERROR: pipeline "${destination.replace(/^.+\//, '')}" could not be retrieved and/or generated\n`);
+        return;
+    }
     writeFileSync(destination, JSON.stringify(pipeline, null, 2));
-    // console.warn(JSON.stringify(pipeline, null, 2))
 }
 run(process.argv[2], process.argv[3], process.argv[4], process.argv[5]);
 //# sourceMappingURL=entrypoint.js.map

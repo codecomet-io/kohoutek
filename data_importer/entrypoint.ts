@@ -16,7 +16,8 @@ import {
     BuildPipeline,
     Pipeline,
     CreateSymbolicLinkAction,
-    UserAction
+    UserAction,
+    TimingInfo,
 } from "./lib/model.js";
 import {stdin} from "node:process";
 import {bool, error, nil} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -27,6 +28,7 @@ import { digest as CryptoDigest } from "codecomet-js/source/buildkit-port/depend
 import {Types} from "codecomet-js/source/protobuf/types.js";
 import {readFileSync, writeFileSync} from "fs";
 import {description} from "codecomet-js/experimental/protoc/github.com/gogo/protobuf/gogoproto/gogo_pb.js";
+import { LocalVariables } from "@sentry/node/types/integrations/localvariables.js";
 
 // Init Sentry
 new Tracer("https://c02314800c4d4be2a32f1d28c4220f3f@o1370052.ingest.sentry.io/6673370")
@@ -222,7 +224,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     // new StdinIngester(stdin, function(pl: BuildPipeline, tsks: BuildActionsObject){
     const buffIngester = new BuffIngester()
     const buildPipeline : BuildPipeline = buffIngester.ingest(trace)
-//        , function(pl: BuildPipeline, tsks: BuildActionsObject){
+    //    , function(pl: BuildPipeline, tsks: BuildActionsObject){
     // XXX piggyback on metadata
     buildPipeline.id = metadata.id
     buildPipeline.description = metadata.description
@@ -237,9 +239,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
     // Geez this is shit. @spacedub burn all of this with fire and rewrite the stitching probably (later...)
     // briznad: @spacedub you're too hard on yourself
-    Object.keys(buildPipeline.actionsObject).forEach(function(digest){
-        const traceObject = buildPipeline.actionsObject[digest]
-
+    for (const [ digest, traceObject ] of Object.entries(buildPipeline.actionsObject)) {
         let typedObject: BuildAction
 
         if (buildActionsObject[digest]) {
@@ -277,10 +277,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         typedObject.buildParents = traceObject.buildParents
 
         buildPipeline.actionsObject[digest] = typedObject
-    })
-
-    const filesets : FilesetAction[] = []
-    const actions : Action[] = []
+    }
 
     const actionsOrder : string[] = Object.keys(buildPipeline.actionsObject)
         .sort((a, b) => // sort values chronologically, based on start time
@@ -318,8 +315,16 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         break
     }
 
+    const timingInfo : TimingInfo[] = []
+    const filesets : FilesetAction[] = []
+    const actions : Action[] = []
+
     for (const key of actionsOrder) {
         const item = buildPipeline.actionsObject[key]
+
+        if (item.runtime != null) {
+            timingInfo.push(parseActionTiming(item))
+        }
 
         if (item.type === 'fileset') {
             filesets.push(item as FilesetAction)
@@ -359,11 +364,43 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
     delete buildPipeline.actionsObject
 
+    const summedTimingRuntime : number = timingInfo.reduce(
+        (sum, item) => sum + item.runtime,
+        0,
+    )
+
+    for (const item of timingInfo) {
+        // calculate percent of total runtime, rounded to 3 decimal places
+        item.percent = Math.round(item.runtime / summedTimingRuntime * 100 * 1000) / 1000
+    }
+
     return {
         ...buildPipeline,
+        timingInfo,
         filesets,
         actions,
     }
+}
+
+function parseActionTiming(item : BuildAction) : TimingInfo {
+    const { digest, runtime } = item
+
+    const name : string = item.type === 'fileset'
+        ? `${ (item as FilesetAction).filesetType } fileset: ${ item.name }`
+        : `action: ${ item.name }`
+
+    const timingInfo : TimingInfo = {
+        name,
+        digest,
+        runtime,
+        percent: 0,
+    }
+
+    if (item.status === 'cached') {
+        timingInfo.cached = true
+    }
+
+    return timingInfo
 }
 
 
@@ -376,8 +413,13 @@ async function run(protoPath: string, tracePath: string, meta: string, destinati
     // Get the pipeline and the tasks from Pantry
     let pipeline = await Pantry(buff, trace, meta)
 
+    if (pipeline == null) {
+        console.error(`\nERROR: pipeline "${ destination.replace(/^.+\//, '') }" could not be retrieved and/or generated\n`)
+
+        return
+    }
+
     writeFileSync(destination, JSON.stringify(pipeline, null, 2))
-    // console.warn(JSON.stringify(pipeline, null, 2))
 }
 
 run(

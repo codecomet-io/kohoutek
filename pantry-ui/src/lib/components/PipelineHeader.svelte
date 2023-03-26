@@ -3,6 +3,7 @@
 
 	import PipelineTitleInfo from '$lib/components/PipelineTitleInfo.svelte'
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte'
+	import TimingChart from '$lib/components/TimingChart.svelte'
 
 
 	export let pipeline : Pipeline
@@ -10,34 +11,43 @@
 
 
 <style lang="scss">
-	ion-header {
-		ion-toolbar {
-			padding: var(--ion-padding, 16px);
+	.max-width-wrapper {
+		padding: 16px;
+		background-color: #f7f7f7;
+		border-bottom: 0.55px solid rgba(0, 0, 0, 0.2);
 
-			@media (min-width: 1280px) {
-				--max-width-gutter-padding: calc((100vw - 1280px) / 2 + 16px);
+		@media (min-width: 1280px) {
+			--max-width-gutter-padding: calc((100vw - 1280px) / 2 + 16px);
 
-				padding-left: var(--max-width-gutter-padding);
-				padding-right: var(--max-width-gutter-padding);
-			}
+			padding-left: var(--max-width-gutter-padding);
+			padding-right: var(--max-width-gutter-padding);
 		}
 	}
 
-	.header-wrapper {
+	.top-header-wrapper {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		gap: 0.5em;
 	}
+
+	:global(.toolbar-container) {
+		overflow-x: visible;
+	}
 </style>
 
 
-<ion-header translucent={ true }>
-  <ion-toolbar>
-		<div class="header-wrapper">
+<ion-header>
+  <div class="max-width-wrapper">
+		<div class="top-header-wrapper">
 			<PipelineTitleInfo pipeline={ pipeline } />
 
 			<CodeCometLogo />
 		</div>
-  </ion-toolbar>
+
+		<TimingChart
+			timingInfo={ pipeline.timingInfo }
+			on:highlightParent
+		/>
+  </div>
 </ion-header>

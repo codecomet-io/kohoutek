@@ -217,6 +217,7 @@ export type BuildActionsObject = {
 }
 
 export interface Pipeline extends GeneralPipeline {
+    timingInfo: TimingInfo[]
     filesets: FilesetAction[]
     actions: Action[]
 }
@@ -367,4 +368,12 @@ export enum FilesetType {
     Image = 'docker',
     Local = 'local',
     Scratch = 'scratch',
+}
+
+export type TimingInfo = {
+    name: string
+    digest: digest.Digest
+    runtime: number
+    percent: number
+    cached?: true
 }

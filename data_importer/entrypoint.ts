@@ -270,10 +270,10 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         typedObject.started = traceObject.started
         typedObject.runtime = traceObject.runtime
         typedObject.status = traceObject.status
-        typedObject.stdout = traceObject.stdout
-        typedObject.stderr = traceObject.stderr
         typedObject.buildParents = traceObject.buildParents
-
+        // typedObject.stdout = traceObject.stdout
+        // typedObject.stderr = traceObject.stderr
+        typedObject.logAssembly = traceObject.logAssembly
         buildPipeline.actionsObject[digest] = typedObject
     }
 

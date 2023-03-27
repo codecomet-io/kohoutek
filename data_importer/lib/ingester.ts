@@ -315,7 +315,7 @@ class Build implements BuildPipeline {
 
 // Purpose of this is to suck out the info out of console colored output
 // Hang-on to your butt
-function parseLogEntry(line){
+function parseLogEntry(line) {
     let prior = 0
     let original = line.line
     let hasCommand = false
@@ -448,49 +448,46 @@ export class BuffIngester {
                     // If we have a stack trace, just get anything BEFORE
                     if (!action.stack || action.stack.timestamp > line.timestamp){
                         // Get the processed form of stderr
-                        let ret = parseLogEntry(line)
-                        // Geeeeeeez timestamps are not reliable - stdout may be off by a millisec...
-                        let stdout = null
+                        let parsedLog = parseLogEntry(line)
+                        // timestamps are not reliable - stdout may be off by a millisecond
 
-                        // GEEEEEEZZZ
-                        let magic = ret.output.split("\n")
-                        let moreMagic = magic.shift()
-                        let magicWithAKick = magic.join("\n")
-                        if (magicWithAKick === "")
+                        let enrichedStderrSplitByNewline = parsedLog.output.split("\n")
+                        let resolved = enrichedStderrSplitByNewline.shift()
+                        let remainingStderrLines = enrichedStderrSplitByNewline.join("\n")
+
+                        let stdout
+
+                        if (remainingStderrLines === ""){
                             stdout = action.stdout.shift()
+                        }
 
                         // Stuff it into our LogLog entry
-                        if (!ret.plain || restructured.length == 0 ){
+                        if (!parsedLog.plain || restructured.length === 0 ) {
                             restructured.push({
-                                command: ret.command,
-                                resolved: moreMagic,
-                                timestamp: ret.timestamp,
-                                stdout: stdout ? stdout.line : "",
-                                stderr: magicWithAKick,
+                                resolved,
+                                command: parsedLog.command,
+                                timestamp: parsedLog.timestamp,
+                                stdout: stdout?.line,
+                                stderr: remainingStderrLines,
                                 exitCode: 0,
                             })
-                        }else if (ret.plain != "."){
+                        } else if (parsedLog.plain != ".") {
                             try {
-                                restructured[restructured.length - 1 ].stderr = ret.plain
-                            }catch(e){
-                                console.warn("WTF", ret, restructured.length)
+                                restructured[restructured.length - 1 ].stderr = parsedLog.plain
+                            } catch(e) {
+                                console.warn("WTF", parsedLog, restructured.length)
                             }
                         }
                     }
                 })
+
                 action.logAssembly = restructured
             }
-            // Fix action stack...
-            if (action.stack)
+
+            if (action.stack) {
                 action.logAssembly[action.logAssembly.length - 1].exitCode = action.stack.exitCode
-
+            }
         })
-
-        /*
-        Object.values(this.build.actionsObject).forEach(function(action){
-            console.warn(JSON.stringify(action.logAssembly, null, 2))
-        })
-         */
 
         // post-processing and sending to callback
         this.build.wrap()

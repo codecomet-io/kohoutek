@@ -3,16 +3,17 @@
 
 	import { createEventDispatcher } from 'svelte';
 
-	import { parseLapsed, getDateString, getTimeString } from '$lib/helper';
+	import { getDateString, getTimeString } from '$lib/helper';
 
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
 	import DetailField from '$lib/components/DetailField.svelte';
+	import ViewLogs from '$lib/components/ViewLogs.svelte';
 
 
 	export let action : Action | UtilityAction
 	export let highlight : boolean
+
+	$: nameOrType = (action as UtilityAction).utilityName ?? action.type
 
 	const dispatch = createEventDispatcher()
 
@@ -23,16 +24,6 @@
 
 
 <style lang="scss">
-	[slot="header"] {
-		:global(.fileset-or-action-type-icon) {
-			margin-right: 0.25em;
-		}
-
-		:global(.status-icon) {
-			margin-left: 0.25em;
-		}
-	}
-
 	article {
 		display: flex;
 		flex-wrap: wrap;
@@ -84,22 +75,7 @@
 		color="light"
 		class:ion-focused={ highlight }
 	>
-		<FilesetOrActionTypeIcon type={ action.type } />
-
-		<ion-label>{ action.name }</ion-label>
-
-		{#if action.status === 'cached' }
-			<ChunkyLabel>cached</ChunkyLabel>
-		{:else if action.runtime }
-			<ChunkyLabel
-				title={ parseLapsed(action.runtime, false, true) || undefined }
-				allcaps={ false }
-			>
-				{ parseLapsed(action.runtime, true) || '0ms' }
-			</ChunkyLabel>
-		{/if}
-
-		<StatusIcon status={ action.status } />
+		<FilesetOrActionAccordionHeader item={ action } />
 	</ion-item>
 
 	<article
@@ -108,7 +84,7 @@
 	>
 		<DetailField
 			key="type"
-			value={ action.utilityName ?? action.type }
+			value={ nameOrType }
 		/>
 
 		<DetailField
@@ -147,11 +123,13 @@
 					{/each}
 				</ol>
 			</DetailField>
-			{:else}
-				<DetailField
-					key=""
-					customClass="parents-container"
-				/>
-			{/if}
+		{:else}
+			<DetailField
+				key=""
+				customClass="parents-container"
+			/>
+		{/if}
+
+		<ViewLogs item={ action } />
 	</article>
 </ion-accordion>

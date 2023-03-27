@@ -79,20 +79,20 @@
 	bind:this={ ionContent }
 >
 	<div class="max-width-wrapper">
-		<FilesetsOrActionsHeader  filesets={ pipeline.filesets }>
+		<FilesetsOrActionsHeader items={ pipeline?.filesets }>
 			<IconKey />
 		</FilesetsOrActionsHeader>
 
 		<FilesetsOrActionsList
-			filesets={ pipeline.filesets }
+			filesets={ pipeline?.filesets }
 			highlight={ highlight }
 			expand={ expand }
 		/>
 
-		<FilesetsOrActionsHeader actions={ pipeline.actions } />
+		<FilesetsOrActionsHeader items={ pipeline?.actions } />
 
 		<FilesetsOrActionsList
-			actions={ pipeline.actions }
+			actions={ pipeline?.actions }
 			highlight={ highlight }
 			expand={ expand }
 			on:highlightParent={ highlightParent }

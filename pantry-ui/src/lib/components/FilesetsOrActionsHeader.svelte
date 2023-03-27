@@ -2,13 +2,10 @@
 	import type { FilesetAction } from '../../../../data_importer/lib/model';
 	import type { Action } from '../../../../data_importer/lib/model';
 
+	import { isPopulated } from '$lib/helper';
 
-	export let filesets : FilesetAction[] | undefined = undefined
-	export let actions : Action[] | undefined = undefined
 
-	function isPopulated(list : typeof filesets | typeof actions) : boolean {
-		return Array.isArray(list) && list.length > 0
-	}
+	export let items : FilesetAction[] | Action[]
 </script>
 
 
@@ -30,14 +27,10 @@
 </style>
 
 
-{#if isPopulated(filesets) || isPopulated(actions) }
+{#if isPopulated(items) }
 	<header>
 		<h2>
-			{#if filesets && isPopulated(filesets) }
-				Fileset{ filesets.length === 1 ? '' : 's' }
-			{:else if actions && isPopulated(actions) }
-				Action{ actions.length === 1 ? '' : 's' }
-			{/if}
+			{ items?.[0]?.type === 'fileset' ? 'Fileset' : 'Action' }{ items.length === 1 ? '' : 's' }
 		</h2>
 
 		<slot></slot>

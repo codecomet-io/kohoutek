@@ -46,7 +46,7 @@
 		</div>
 
 		<TimingChart
-			timingInfo={ pipeline.timingInfo }
+			timingInfo={ pipeline?.timingInfo }
 			on:highlightParent
 		/>
   </div>

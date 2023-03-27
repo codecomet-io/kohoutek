@@ -8,7 +8,7 @@
 	import TimingInfoTooltip from '$lib/components/TimingInfoTooltip.svelte'
 
 
-	export let timingInfo : TimingInfo[]
+	export let timingInfo : TimingInfo[] = []
 
 	const colors : string[] = [
 		'#ffc312',

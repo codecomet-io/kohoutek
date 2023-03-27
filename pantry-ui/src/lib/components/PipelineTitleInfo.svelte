@@ -65,22 +65,22 @@
 
 <button
 	class="header"
-	id="openModal"
+	id="openPipelineInfoModal"
 >
 	<div class="title">
 		<StatusIcon
-			status={ pipeline.status }
+			status={ pipeline?.status }
 			size="large"
 		/>
 
-		<h1>{ pipeline.name }</h1>
+		<h1>{ pipeline?.name }</h1>
 	</div>
 
-	<ChunkyLabel>{ pipeline.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline.completed } /> <span title="{ pipeline.runtime } milliseconds">in { parseLapsed(pipeline.runtime, false, true) }</span></ChunkyLabel>
+	<ChunkyLabel>{ pipeline?.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline?.completed } /> <span title="{ pipeline?.runtime } milliseconds">in { parseLapsed(pipeline?.runtime, false, true) }</span></ChunkyLabel>
 </button>
 
 <ion-modal
-	trigger="openModal"
+	trigger="openPipelineInfoModal"
 	bind:this={ modalElement }
 >
 	<ion-header>

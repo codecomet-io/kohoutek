@@ -3,6 +3,8 @@
 	import type { Action } from '../../../../data_importer/lib/model';
 	import type { HighlightInfo } from '$lib/types/highlight';
 
+	import { isPopulated } from '$lib/helper';
+
 	import FilesetsListItem from '$lib/components/FilesetsListItem.svelte';
 	import ActionsListItem from '$lib/components/ActionsListItem.svelte';
 
@@ -11,10 +13,6 @@
 	export let actions : Action[] | undefined = undefined
 	export let highlight : HighlightInfo
 	export let expand : string
-
-	function isPopulated(list : typeof filesets | typeof actions) : boolean {
-		return Array.isArray(list) && list.length > 0
-	}
 
 	function handleValueChange(event : any) : void {
 		const digest : string = event.detail.value

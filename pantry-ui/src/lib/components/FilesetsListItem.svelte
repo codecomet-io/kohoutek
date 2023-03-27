@@ -1,38 +1,18 @@
 <script lang="ts">
 	import type { FilesetAction } from '../../../../data_importer/lib/model';
 
-	import { parseLapsed } from '$lib/helper';
-
-	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
 	import FilesetSpecialFields from '$lib/components/FilesetSpecialFields.svelte';
 	import DetailField from '$lib/components/DetailField.svelte';
+	import ViewLogs from '$lib/components/ViewLogs.svelte';
 
 
 	export let fileset : FilesetAction
 	export let highlight : boolean
-
-	// support GitLab icon for GitLab-hosted filesets
-	let icon : 'gitlab'
-
-	$: if (fileset?.filesetType === 'git' && /\/\/(?:www\.)?gitlab\.com\//.test(fileset?.source)) {
-		icon = 'gitlab'
-	}
 </script>
 
 
 <style lang="scss">
-	[slot="header"] {
-		:global(.fileset-or-action-type-icon) {
-			margin-right: 0.25em;
-		}
-
-		:global(.status-icon) {
-			margin-left: 0.25em;
-		}
-	}
-
 	article {
 		display: flex;
 		flex-wrap: wrap;
@@ -68,25 +48,7 @@
 		color="light"
 		class:ion-focused={ highlight }
 	>
-		<FilesetOrActionTypeIcon
-			type={ fileset.filesetType }
-			icon={ icon }
-		/>
-
-		<ion-label>{ fileset.name }</ion-label>
-
-		{#if fileset.status === 'cached' }
-			<ChunkyLabel>cached</ChunkyLabel>
-		{:else if fileset.runtime }
-			<ChunkyLabel
-				title={ parseLapsed(fileset.runtime, false, true) || undefined }
-				allcaps={ false }
-			>
-				{ parseLapsed(fileset.runtime, true) || '0ms' }
-			</ChunkyLabel>
-		{/if}
-
-		<StatusIcon status={ fileset.status } />
+		<FilesetOrActionAccordionHeader item={ fileset } />
 	</ion-item>
 
 	<article
@@ -123,5 +85,7 @@
 				{ fileset.source }
 			{/if}
 		</DetailField>
+
+		<ViewLogs item={ fileset } />
 	</article>
 </ion-accordion>

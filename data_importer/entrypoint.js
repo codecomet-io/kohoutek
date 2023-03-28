@@ -177,9 +177,7 @@ export default async function Pantry(buffer, trace, meta) {
         typedObject.runtime = traceObject.runtime;
         typedObject.status = traceObject.status;
         typedObject.buildParents = traceObject.buildParents;
-        // typedObject.stdout = traceObject.stdout
-        // typedObject.stderr = traceObject.stderr
-        typedObject.logAssembly = traceObject.logAssembly;
+        typedObject.assembledLogs = traceObject.assembledLogs;
         buildPipeline.actionsObject[digest] = typedObject;
     }
     const actionsOrder = Object.keys(buildPipeline.actionsObject)
@@ -213,6 +211,10 @@ export default async function Pantry(buffer, trace, meta) {
         if (item.runtime != null) {
             timingInfo.push(parseActionTiming(item));
         }
+        if (item.assembledLogs && item.assembledLogs.length > 0) {
+            item.groupedLogs = parseGroupedLogs(item.assembledLogs);
+        }
+        delete item.assembledLogs;
         if (item.type === 'fileset') {
             filesets.push(item);
         }
@@ -265,6 +267,43 @@ function parseActionTiming(item) {
         timingInfo.cached = true;
     }
     return timingInfo;
+}
+function parseGroupedLogs(assembledLogs) {
+    const splitLines = (multiLineStr) => multiLineStr.split(/\r|\n/);
+    const groupedLogs = [];
+    let lastCommand;
+    for (const assembledLog of assembledLogs) {
+        const { command, resolved, exitCode } = assembledLog;
+        const logs = [];
+        if (assembledLog.stdout) {
+            logs.push({
+                timestamp: assembledLog.timestamp,
+                lines: splitLines(assembledLog.stdout),
+            });
+        }
+        if (assembledLog.stderr) {
+            logs.push({
+                timestamp: assembledLog.timestamp,
+                lines: splitLines(assembledLog.stderr),
+                isStderr: true,
+            });
+        }
+        if (command === lastCommand) {
+            const item = groupedLogs[groupedLogs.length - 1];
+            item.exitCode = exitCode;
+            item.logs.push(...logs);
+        }
+        else {
+            groupedLogs.push({
+                command,
+                resolved,
+                exitCode,
+                logs,
+            });
+        }
+        lastCommand = command;
+    }
+    return groupedLogs;
 }
 async function run(protoPath, tracePath, meta, destination) {
     // Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)

@@ -92,14 +92,6 @@ class Build implements BuildPipeline {
                 })
             }
         }
-
-        /*
-        add.push(<LogEntry>{
-            Timestamp: Date.parse(log.Timestampslack
-            ),
-            Content: atob(log.Data.toString())
-        })
-        */
     }
 
     addVertex(vertice: Vertex){
@@ -433,16 +425,18 @@ export class BuffIngester {
                     return line1.timestamp < line2.timestamp ? -1 : 1;
                 })
             }
+
             // Sort stderr
             if (action.stderr) {
                 action.stderr.sort(function (line1, line2) {
                     return line1.timestamp < line2.timestamp ? -1 : 1;
                 })
             }
+
             // If we have anything in there
             if (action.stdout) {
                 // Final form
-                let restructured: model.LogLog[] = []
+                let assembledLogs: model.AssembledLog[] = []
                 // Look into stderr
                 action.stderr.forEach(function (line) {
                     // If we have a stack trace, just get anything BEFORE
@@ -461,9 +455,9 @@ export class BuffIngester {
                             stdout = action.stdout.shift()
                         }
 
-                        // Stuff it into our LogLog entry
-                        if (!parsedLog.plain || restructured.length === 0 ) {
-                            restructured.push({
+                        // Stuff it into our AssembledLog entry
+                        if (!parsedLog.plain || assembledLogs.length === 0 ) {
+                            assembledLogs.push({
                                 resolved,
                                 command: parsedLog.command,
                                 timestamp: parsedLog.timestamp,
@@ -473,19 +467,19 @@ export class BuffIngester {
                             })
                         } else if (parsedLog.plain != ".") {
                             try {
-                                restructured[restructured.length - 1 ].stderr = parsedLog.plain
+                                assembledLogs[assembledLogs.length - 1 ].stderr = parsedLog.plain
                             } catch(e) {
-                                console.warn("WTF", parsedLog, restructured.length)
+                                console.warn("WTF", parsedLog, assembledLogs.length)
                             }
                         }
                     }
                 })
 
-                action.logAssembly = restructured
+                action.assembledLogs = assembledLogs
             }
 
             if (action.stack) {
-                action.logAssembly[action.logAssembly.length - 1].exitCode = action.stack.exitCode
+                action.assembledLogs[action.assembledLogs.length - 1].exitCode = action.stack.exitCode
             }
         })
 

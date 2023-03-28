@@ -2,7 +2,9 @@ import {Tracer} from "./dependencies/ts-core/sentry.js"
 import { BuffIngester } from "./lib/ingester.js";
 import {
     AddFileAction,
+    UtilityBuildAction,
     UtilityAction,
+    FilesetBuildAction,
     FilesetAction,
     FilesetType,
     Action,
@@ -17,7 +19,17 @@ import {
     Pipeline,
     CreateSymbolicLinkAction,
     UserAction,
+    UserBuildAction,
     TimingInfo,
+    AssembledLog,
+    GroupedLogs,
+    ParsedLog,
+    MakeDirectoryBuildAction,
+    MoveBuildAction,
+    AddFileBuildAction,
+    PatchBuildAction,
+    CreateSymbolicLinkBuildAction,
+    MergeBuildAction,
 } from "./lib/model.js";
 import {stdin} from "node:process";
 import {bool, error, nil} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -105,7 +117,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
             || llbOperation.metadata.caps['source.local']
             || llbOperation.metadata.caps['source.http']
         ) {
-            let fileset = <FilesetAction>{
+            let fileset = <FilesetBuildAction>{
                 name,
                 type: 'fileset',
                 filesetType : FilesetType.Scratch,
@@ -161,41 +173,41 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
             buildActionsObject[llbOperation.digest] = fileset
         } else if (actionTypeKey) {
-            let descriptor: UtilityAction
+            let descriptor: UtilityBuildAction
 
             switch (actionTypeKey) {
                 case 'atomic.mkdir':
-                    descriptor = <MakeDirectoryAction>{
+                    descriptor = <MakeDirectoryBuildAction>{
                         utilityName: 'make directory',
                     }
 
                     break
                 case 'atomic.mv':
-                    descriptor = <MoveAction>{
+                    descriptor = <MoveBuildAction>{
                         utilityName: 'move',
                     }
 
                     break
                 case 'atomic.addfile':
-                    descriptor = <AddFileAction>{
+                    descriptor = <AddFileBuildAction>{
                         utilityName: 'add file',
                     }
 
                     break
                 case 'atomic.patch':
-                    descriptor = <PatchAction>{
+                    descriptor = <PatchBuildAction>{
                         utilityName: 'patch',
                     }
 
                     break
                 case 'atomic.symlink':
-                    descriptor = <CreateSymbolicLinkAction>{
+                    descriptor = <CreateSymbolicLinkBuildAction>{
                         utilityName: 'create symbolic link',
                     }
 
                     break
                 case 'atomic.merge':
-                    descriptor = <MergeAction>{
+                    descriptor = <MergeBuildAction>{
                         utilityName: 'merge',
                     }
 
@@ -203,7 +215,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
                 default:
                     console.warn(`Unrecognized atomic action type|${actionTypeKey }|`)
 
-                    descriptor = <UtilityAction>{}
+                    descriptor = <UtilityBuildAction>{}
                     break
             }
 
@@ -212,7 +224,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
             buildActionsObject[llbOperation.digest] = descriptor
         } else {
-            buildActionsObject[llbOperation.digest] = <UserAction>{
+            buildActionsObject[llbOperation.digest] = <UserBuildAction>{
                 type: 'custom',
                 name: name ?? '',
             }
@@ -271,9 +283,8 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
         typedObject.runtime = traceObject.runtime
         typedObject.status = traceObject.status
         typedObject.buildParents = traceObject.buildParents
-        // typedObject.stdout = traceObject.stdout
-        // typedObject.stderr = traceObject.stderr
-        typedObject.logAssembly = traceObject.logAssembly
+        typedObject.assembledLogs = traceObject.assembledLogs
+
         buildPipeline.actionsObject[digest] = typedObject
     }
 
@@ -324,8 +335,14 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
             timingInfo.push(parseActionTiming(item))
         }
 
+        if (item.assembledLogs && item.assembledLogs.length > 0) {
+            (item as Action).groupedLogs = parseGroupedLogs(item.assembledLogs)
+        }
+
+        delete item.assembledLogs
+
         if (item.type === 'fileset') {
-            filesets.push(item as FilesetAction)
+            filesets.push(item as unknown as FilesetAction)
         } else {
             let parents : ParentAction[] = []
 
@@ -384,7 +401,7 @@ function parseActionTiming(item : BuildAction) : TimingInfo {
     const { digest, runtime } = item
 
     const name : string = item.type === 'fileset'
-        ? `${ (item as FilesetAction).filesetType } fileset: ${ item.name }`
+        ? `${ (item as unknown as FilesetAction).filesetType } fileset: ${ item.name }`
         : `action: ${ item.name }`
 
     const timingInfo : TimingInfo = {
@@ -399,6 +416,54 @@ function parseActionTiming(item : BuildAction) : TimingInfo {
     }
 
     return timingInfo
+}
+
+function parseGroupedLogs(assembledLogs : AssembledLog[]) : GroupedLogs[] {
+    const splitLines = (multiLineStr : string) : string[] => multiLineStr.split(/\r|\n/)
+
+    const groupedLogs : GroupedLogs[] = []
+
+    let lastCommand : string
+
+    for (const assembledLog of assembledLogs) {
+        const { command, resolved, exitCode } = assembledLog
+
+        const logs : ParsedLog[] = []
+
+        if (assembledLog.stdout) {
+            logs.push({
+                timestamp : assembledLog.timestamp,
+                lines : splitLines(assembledLog.stdout),
+            })
+        }
+
+        if (assembledLog.stderr) {
+            logs.push({
+                timestamp : assembledLog.timestamp,
+                lines : splitLines(assembledLog.stderr),
+                isStderr : true,
+            })
+        }
+
+        if (command === lastCommand) {
+            const item = groupedLogs[groupedLogs.length - 1]
+
+            item.exitCode = exitCode
+
+            item.logs.push(...logs)
+        } else {
+            groupedLogs.push({
+                command,
+                resolved,
+                exitCode,
+                logs,
+            })
+        }
+
+        lastCommand = command
+    }
+
+    return groupedLogs
 }
 
 

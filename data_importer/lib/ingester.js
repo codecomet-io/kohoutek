@@ -82,13 +82,6 @@ class Build {
                 });
             }
         }
-        /*
-        add.push(<LogEntry>{
-            Timestamp: Date.parse(log.Timestampslack
-            ),
-            Content: atob(log.Data.toString())
-        })
-        */
     }
     addVertex(vertice) {
         if (!vertice.Digest) {
@@ -376,53 +369,48 @@ export class BuffIngester {
             // If we have anything in there
             if (action.stdout) {
                 // Final form
-                let restructured = [];
+                let assembledLogs = [];
                 // Look into stderr
                 action.stderr.forEach(function (line) {
                     // If we have a stack trace, just get anything BEFORE
                     if (!action.stack || action.stack.timestamp > line.timestamp) {
                         // Get the processed form of stderr
-                        let ret = parseLogEntry(line);
-                        // Geeeeeeez timestamps are not reliable - stdout may be off by a millisec...
-                        let stdout = null;
-                        // GEEEEEEZZZ
-                        let magic = ret.output.split("\n");
-                        let moreMagic = magic.shift();
-                        let magicWithAKick = magic.join("\n");
-                        if (magicWithAKick === "")
+                        let parsedLog = parseLogEntry(line);
+                        // timestamps are not reliable - stdout may be off by a millisecond
+                        let enrichedStderrSplitByNewline = parsedLog.output.split("\n");
+                        let resolved = enrichedStderrSplitByNewline.shift();
+                        let remainingStderrLines = enrichedStderrSplitByNewline.join("\n");
+                        let stdout;
+                        if (remainingStderrLines === "") {
                             stdout = action.stdout.shift();
-                        // Stuff it into our LogLog entry
-                        if (!ret.plain || restructured.length == 0) {
-                            restructured.push({
-                                command: ret.command,
-                                resolved: moreMagic,
-                                timestamp: ret.timestamp,
-                                stdout: stdout ? stdout.line : "",
-                                stderr: magicWithAKick,
+                        }
+                        // Stuff it into our AssembledLog entry
+                        if (!parsedLog.plain || assembledLogs.length === 0) {
+                            assembledLogs.push({
+                                resolved,
+                                command: parsedLog.command,
+                                timestamp: parsedLog.timestamp,
+                                stdout: stdout === null || stdout === void 0 ? void 0 : stdout.line,
+                                stderr: remainingStderrLines,
                                 exitCode: 0,
                             });
                         }
-                        else if (ret.plain != ".") {
+                        else if (parsedLog.plain != ".") {
                             try {
-                                restructured[restructured.length - 1].stderr = ret.plain;
+                                assembledLogs[assembledLogs.length - 1].stderr = parsedLog.plain;
                             }
                             catch (e) {
-                                console.warn("WTF", ret, restructured.length);
+                                console.warn("WTF", parsedLog, assembledLogs.length);
                             }
                         }
                     }
                 });
-                action.logAssembly = restructured;
+                action.assembledLogs = assembledLogs;
             }
-            // Fix action stack...
-            if (action.stack)
-                action.logAssembly[action.logAssembly.length - 1].exitCode = action.stack.exitCode;
+            if (action.stack) {
+                action.assembledLogs[action.assembledLogs.length - 1].exitCode = action.stack.exitCode;
+            }
         });
-        /*
-        Object.values(this.build.actionsObject).forEach(function(action){
-            console.warn(JSON.stringify(action.logAssembly, null, 2))
-        })
-         */
         // post-processing and sending to callback
         this.build.wrap();
         // Sentry transaction done

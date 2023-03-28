@@ -222,24 +222,31 @@ export interface Pipeline extends GeneralPipeline {
     actions: Action[]
 }
 
-// A log entry is a timestamp and some content
-export type LogEntry = {
-    timestamp: int
-    content: string
-}
-
 type LogLine  = {
     timestamp: int
     line: string
 }
 
-export type LogLog = {
+export type AssembledLog = {
     timestamp: uint64
     command: string
     resolved: string
     stdout: string
     stderr: string
     exitCode: uint64
+}
+
+export type GroupedLogs = {
+    command: string
+    resolved: string
+    exitCode: uint64
+    logs: ParsedLog[]
+}
+
+export type ParsedLog = {
+    timestamp: uint64
+    isStderr?: boolean
+    lines: string[]
 }
 
 export type Stack = {
@@ -260,21 +267,21 @@ type GeneralAction = {
     cached: bool
     error: string
     status: ActionStatus
-    stdout: LogLine[]
-    stderr: LogLine[]
-    logAssembly: LogLog[]
     stack: Stack
     progressGroup: Types.ProgressGroup
+    type: ActionType
 }
 
 export interface BuildAction extends GeneralAction {
-    type: BuildActionType
     buildParents?: digest.Digest[]
+    stdout: LogLine[]
+    stderr: LogLine[]
+    assembledLogs: AssembledLog[]
 }
 
 export interface Action extends GeneralAction {
-    type: ActionType
     parents?: ParentAction[]
+    groupedLogs?: GroupedLogs[]
 }
 
 export type ParentAction = {
@@ -283,10 +290,6 @@ export type ParentAction = {
 }
 
 export type ActionType =
-    | UtilityActionType
-    | 'custom'
-
-type BuildActionType =
     | UtilityActionType
     | 'custom'
     | 'fileset'
@@ -300,13 +303,29 @@ type UtilityActionType =
     | 'createSymbolicLink'
     | 'patch'
 
+export interface UserBuildAction extends BuildAction {
+    type: 'custom'
+}
+
 export interface UserAction extends Action {
     type: 'custom'
 }
 
-export interface UtilityAction extends Action {
-    type: UtilityActionType
+type UtilityBaseAction = {
     utilityName : string
+}
+
+export interface UtilityBuildAction extends BuildAction, UtilityBaseAction {
+    type: UtilityActionType
+}
+
+export interface UtilityAction extends Action, UtilityBaseAction {
+    type: UtilityActionType
+}
+
+export interface MakeDirectoryBuildAction extends UtilityBuildAction {
+    type: 'makeDirectory'
+    utilityName: 'make directory'
 }
 
 export interface MakeDirectoryAction extends UtilityAction {
@@ -314,9 +333,19 @@ export interface MakeDirectoryAction extends UtilityAction {
     utilityName: 'make directory'
 }
 
+export interface MoveBuildAction extends UtilityBuildAction {
+    type: 'move'
+    utilityName: 'move'
+}
+
 export interface MoveAction extends UtilityAction {
     type: 'move'
     utilityName: 'move'
+}
+
+export interface AddFileBuildAction extends UtilityBuildAction {
+    type: 'addFile'
+    utilityName: 'add file'
 }
 
 export interface AddFileAction extends UtilityAction {
@@ -324,9 +353,19 @@ export interface AddFileAction extends UtilityAction {
     utilityName: 'add file'
 }
 
+export interface PatchBuildAction extends UtilityBuildAction {
+    type: 'patch'
+    utilityName: 'patch'
+}
+
 export interface PatchAction extends UtilityAction {
     type: 'patch'
     utilityName: 'patch'
+}
+
+export interface CreateSymbolicLinkBuildAction extends UtilityBuildAction {
+    type: 'createSymbolicLink'
+    utilityName: 'create symbolic link'
 }
 
 export interface CreateSymbolicLinkAction extends UtilityAction {
@@ -334,17 +373,17 @@ export interface CreateSymbolicLinkAction extends UtilityAction {
     utilityName: 'create symbolic link'
 }
 
+export interface MergeBuildAction extends UtilityBuildAction {
+    type: 'merge'
+    utilityName: 'merge'
+}
+
 export interface MergeAction extends UtilityAction {
     type: 'merge'
     utilityName: 'merge'
 }
 
-export interface BuildUtilityAction extends BuildAction {
-    type: BuildActionType
-}
-
-export interface FilesetAction extends BuildUtilityAction {
-    type: 'fileset'
+type FilesetBaseAction = {
     filesetType: FilesetType
     source: string
     link?: string
@@ -360,6 +399,14 @@ export interface FilesetAction extends BuildUtilityAction {
     // LocalFileset
     includePattern?: string[]
     excludePattern?: string[]
+}
+
+export interface FilesetBuildAction extends BuildAction, FilesetBaseAction {
+    type: 'fileset'
+}
+
+export interface FilesetAction extends Action, FilesetBaseAction {
+    type: 'fileset'
 }
 
 export enum FilesetType {

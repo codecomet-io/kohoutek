@@ -13,6 +13,7 @@
 	export let action : Action | UtilityAction
 	export let highlight : boolean
 	export let activeModal : string
+	export let highlightLine : number
 
 	$: nameOrType = (action as UtilityAction).utilityName ?? action.type
 
@@ -139,6 +140,7 @@
 		<ViewLogs
 			item={ action }
 			activeModal={ activeModal }
+			highlightLine={ highlightLine }
 		/>
 	</article>
 </ion-accordion>

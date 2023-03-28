@@ -14,6 +14,7 @@
 	export let highlight : HighlightInfo
 	export let activeAccordion : string
 	export let activeModal : string
+	export let highlightLine : number
 
 	function handleValueChange(event : any) : void {
 		const id : string = event.detail.value
@@ -42,6 +43,7 @@
 					fileset={ fileset }
 					highlight={ highlight.active && highlight.id === fileset.id }
 					activeModal={ activeModal }
+					highlightLine={ highlightLine }
 				/>
 			{/each}
 		{:else if actions && isPopulated(actions) }
@@ -50,6 +52,7 @@
 					action={ action }
 					highlight={ highlight.active && highlight.id === action.id }
 					activeModal={ activeModal }
+					highlightLine={ highlightLine }
 					on:highlightParent
 				/>
 			{/each}

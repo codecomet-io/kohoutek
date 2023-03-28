@@ -17,6 +17,7 @@
 
 	let activeAccordion : string
 	let activeModal : string
+	let highlightLine : number
 
 	$: updateFromParams(data.searchParams)
 
@@ -26,6 +27,8 @@
 		scrollTo(activeAccordion)
 
 		activeModal = searchParams.get('active_modal') ?? ''
+
+		highlightLine = parseInt(searchParams.get('highlight_line') ?? '', 10)
 	}
 
 	function scrollTo(id : string) : void {
@@ -85,6 +88,7 @@
 			highlight={ highlight }
 			activeAccordion={ activeAccordion }
 			activeModal={ activeModal }
+			highlightLine={ highlightLine }
 		/>
 
 		<FilesetsOrActionsHeader items={ pipeline?.actions } />
@@ -94,6 +98,7 @@
 			highlight={ highlight }
 			activeAccordion={ activeAccordion }
 			activeModal={ activeModal }
+			highlightLine={ highlightLine }
 			on:highlightParent={ highlightParent }
 		/>
 	</div>

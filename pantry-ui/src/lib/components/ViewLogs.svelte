@@ -13,21 +13,41 @@
 
 	export let item : FilesetAction | Action
 	export let activeModal : string
+	export let highlightLine : number
 
 	let modalElement : HTMLIonModalElement
 
 	function updateActiveModal(id : string, active : boolean) : void {
-		gotoSearchString('active_modal', active ? id : undefined)
+
+
+		if (active) {
+			gotoSearchString('active_modal', id)
+		} else {
+			gotoSearchString({
+				'active_modal' : undefined,
+				'highlight_line' : undefined,
+			})
+		}
 	}
 
 	function handleCloseModal() : void {
 		modalElement.dismiss(null, 'cancel')
 	}
 
-	let lineCount : number = 0
+	let _lineCount : number = 0
 
-	function getLineCount() : number {
-		return ++lineCount
+	const _lineMap : { [ key : string ] : number } = {}
+
+	function getLineCount(lineId : string) : number {
+		if (_lineMap[lineId] == null) {
+			_lineMap[lineId] = ++_lineCount
+		}
+
+		return _lineMap[lineId]
+	}
+
+	function handleHighlightLineClick(line : number) : void {
+		gotoSearchString('highlight_line', (line ?? '').toString())
 	}
 </script>
 
@@ -75,6 +95,12 @@
 	li {
 		display: flex;
 		align-items: center;
+
+		&.highlight {
+			:global(pre) {
+				background-color: #4d709e;
+			}
+		}
 	}
 
 	.line-link {
@@ -85,6 +111,23 @@
 		margin-right: 0.5em;
 		padding-right: 0.5em;
 		text-align: right;
+
+		&.stderr {
+			position: relative;
+
+			:global(ion-card-subtitle) {
+				--color: #eb445a;
+			}
+
+			&::after {
+				content:'\25B6';
+				position: absolute;
+				left: calc(100% - 7px);
+				top: 50%;
+				transform: translateY(-50%);
+				color: #eb445a;
+			}
+		}
 	}
 </style>
 
@@ -135,17 +178,21 @@
 
 		<ion-content>
 			<div class="log-container">
-				{#each item.groupedLogs ?? [] as groupedLog }
+				{#each item.groupedLogs ?? [] as groupedLog, groupedIndex }
 					<ol>
-						{#each groupedLog.logs as log }
+						{#each groupedLog.logs as log, logIndex }
 							{#each log.lines as line, lineIndex }
-								<li>
+								{@const lineCount = getLineCount(`${ groupedIndex }${ logIndex }${ lineIndex }`) }
+
+								<li class:highlight={ highlightLine === lineCount }>
 									<a
 										class="line-link"
-										href="#"
+										class:stderr={ log.isStderr }
+										href="#{ lineCount }"
 										data-timestamp={ lineIndex === 0 ? log.timestamp : null }
+										on:click|preventDefault={ () => handleHighlightLineClick(lineCount) }
 									>
-										<ChunkyLabel>{ getLineCount() }</ChunkyLabel>
+										<ChunkyLabel>{ lineCount }</ChunkyLabel>
 									</a>
 
 									<Prism

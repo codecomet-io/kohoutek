@@ -1,4 +1,5 @@
 import { Tracer } from "./dependencies/ts-core/sentry.js";
+import { createId } from './lib/helper.js';
 import { BuffIngester } from "./lib/ingester.js";
 import { FilesetType, } from "./lib/model.js";
 import { nil } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -228,7 +229,7 @@ export default async function Pantry(buffer, trace, meta) {
                     // insert the entry into the parents list at the same index as the parent in the overall list
                     // this insures the correct order
                     parents[actionsOrder.indexOf(digest)] = {
-                        digest,
+                        id: buildPipeline.actionsObject[digest].id,
                         name: buildPipeline.actionsObject[digest].name,
                     };
                 }
@@ -253,13 +254,13 @@ export default async function Pantry(buffer, trace, meta) {
         actions });
 }
 function parseActionTiming(item) {
-    const { digest, runtime } = item;
+    const { id, runtime } = item;
     const name = item.type === 'fileset'
         ? `${item.filesetType} fileset: ${item.name}`
         : `action: ${item.name}`;
     const timingInfo = {
+        id,
         name,
-        digest,
         runtime,
         percent: 0,
     };
@@ -299,6 +300,7 @@ function parseGroupedLogs(assembledLogs) {
                 resolved,
                 exitCode,
                 logs,
+                id: createId('html'),
             });
         }
         lastCommand = command;

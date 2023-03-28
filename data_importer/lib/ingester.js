@@ -1,3 +1,4 @@
+import { createId } from './helper.js';
 import * as model from "./model.js";
 import { ActionStatus } from "./model.js";
 import * as Sentry from "@sentry/node";
@@ -45,8 +46,9 @@ class Build {
     //     label2: "bar",
     // })
     addLog(log) {
-        if (this.actionsObject[log.Vertex] == null)
+        if (this.actionsObject[log.Vertex] == null) {
             throw new Error("Logs without a registered vertex - panic");
+        }
         if (this.actionsObject[log.Vertex].stdout == undefined) {
             this.actionsObject[log.Vertex].stdout = [];
         }
@@ -93,14 +95,6 @@ class Build {
         // Some actions are hidden away - either CodeComet internal shenanigans, or actions authors who want to hide their own internal dance
         if (vertice.ProgressGroup && vertice.ProgressGroup.weak == true) {
             return;
-            // this.actionsObject[vertice.Digest].progressGroup = vertice.ProgressGroup
-            /*
-            {
-                id: vertice.ProgressGroup.id,
-                name: vertice.ProgressGroup.name,
-                weak: vertice.ProgressGroup.weak
-            }
-            */
         }
         // Currently, BK leaks internal operations. The right solution is to finish replacing the default client with our own. Short term, very dirty hack by ignoring anything that starts with "[auth] "
         if (vertice.Name.startsWith("[auth] ")) {
@@ -108,7 +102,7 @@ class Build {
         }
         if (!this.actionsObject[vertice.Digest]) {
             let action = {
-                id: vertice.Digest,
+                id: createId('html'),
                 name: vertice.Name,
                 digest: vertice.Digest,
                 cached: false,
@@ -210,48 +204,6 @@ class Build {
         };
     }
 }
-/**
- * Consume a ReadStream and marshal a stream of JSON buildkit graph objects into our data model
- */
-// export class StdinIngester {
-//     private reader: readline.Interface
-//     private build: Build
-//     constructor(file: ReadStream, onfinish: (plan: model.BuildPipeline, tasksc: model.BuildActionsObject)=>void){
-//         let transaction = Sentry.startTransaction({
-//             op: "Ingester",
-//             name: "Data ingesting transaction",
-//         })
-//         this.reader = readline.createInterface(file)
-//         this.build = new Build()
-//         this.reader.on('line', (data : string) => {
-//             if (data.trim() === '')
-//                 return
-//             let solveStatus: SolveStatus
-//             try {
-//                 solveStatus = <SolveStatus>JSON.parse(data)
-//                 if (solveStatus.Logs) {
-//                     solveStatus.Logs.forEach(this.build.addLog.bind(this.build))
-//                 }
-//                 if (solveStatus.Vertexes) {
-//                     solveStatus.Vertexes.forEach(this.build.addVertex.bind(this.build))
-//                 }
-//             } catch(e) {
-//                 console.error("Failed to marshal JSON data into object. Exception was", e, "and data was:", data)
-//                 Sentry.captureException(e, {
-//                     extra: { data }
-//                 })
-//             }
-//         })
-//         this.reader.on('close', () => {
-//             // Post-processing and sending to callback
-//             this.build.wrap()
-//             // Sentry transaction done
-//             transaction.finish()
-//             this.build.actionsObject = {}
-//             onfinish(<BuildPipeline>this.build, this.build.actionsObject)
-//         })
-//     }
-// }
 // Purpose of this is to suck out the info out of console colored output
 // Hang-on to your butt
 function parseLogEntry(line) {
@@ -262,7 +214,7 @@ function parseLogEntry(line) {
     let command = "";
     let output = "";
     // Match colored console break points
-    line.line.replace(/\x1B\x5B[a-z0-9]{3}/g, function (match, index, subject) {
+    line.line.replace(/\x1B\x5B[a-z0-9]{3}/g, (match, index, subject) => {
         // If first match, or empty slice, move on
         if (prior != 0 && (index - prior) != 0) {
             // Get the string then, after a bit of cleanup
@@ -300,8 +252,9 @@ function parseLogEntry(line) {
     // Get the tail part and consolidate the output
     let tail = original.substring(prior).trim();
     let plain = "";
-    if (hasOutput)
+    if (hasOutput) {
         output += original.substring(prior).trim();
+    }
     if (!original.match(/^\x1B\x5B[a-z0-9]{3}$/)) {
         if (!command)
             plain = original;
@@ -312,13 +265,6 @@ function parseLogEntry(line) {
         output: output,
         plain: plain
     };
-    // throw "tantrum"
-    /*
-    line.line = line.line.replace(/\x5B[a-z0-9]+[\x1B]+/g, "")
-    for (let x = 0; x < 20; x++)
-        console.warn("ERR", line.timestamp, line.line.charCodeAt(x), line.line.charAt(x))
-
-     */
 }
 export class BuffIngester {
     constructor() {
@@ -330,9 +276,10 @@ export class BuffIngester {
             name: "Data ingesting transaction",
         });
         buff.toString().split('\n').forEach((data) => {
-            // resist badly formated lines
-            if (data.trim() == '')
+            // resist badly formatted lines
+            if (data.trim() == '') {
                 return;
+            }
             let solveStatus;
             try {
                 solveStatus = JSON.parse(data);
@@ -351,20 +298,17 @@ export class BuffIngester {
                 });
             }
         });
+        const sortByTimestamp = (a, b) => a.timestamp - b.timestamp;
         // Sort the logs and process them into something manageable
         // let logs = {}
         Object.values(this.build.actionsObject).forEach(function (action) {
             // Sort stdout
             if (action.stdout) {
-                action.stdout.sort(function (line1, line2) {
-                    return line1.timestamp < line2.timestamp ? -1 : 1;
-                });
+                action.stdout.sort(sortByTimestamp);
             }
             // Sort stderr
             if (action.stderr) {
-                action.stderr.sort(function (line1, line2) {
-                    return line1.timestamp < line2.timestamp ? -1 : 1;
-                });
+                action.stderr.sort(sortByTimestamp);
             }
             // If we have anything in there
             if (action.stdout) {

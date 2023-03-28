@@ -9,6 +9,7 @@
 
 	export let fileset : FilesetAction
 	export let highlight : boolean
+	export let activeModal : string
 </script>
 
 
@@ -39,8 +40,8 @@
 
 
 <ion-accordion
-	value={ fileset.digest }
-	data-digest={ fileset.digest }
+	value={ fileset.id }
+	data-id={ fileset.id }
 	toggle-icon-slot="start"
 >
 	<ion-item
@@ -86,6 +87,9 @@
 			{/if}
 		</DetailField>
 
-		<ViewLogs item={ fileset } />
+		<ViewLogs
+			item={ fileset }
+			activeModal={ activeModal }
+		/>
 	</article>
 </ion-accordion>

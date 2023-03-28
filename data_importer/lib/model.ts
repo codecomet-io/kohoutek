@@ -237,6 +237,7 @@ export type AssembledLog = {
 }
 
 export type GroupedLogs = {
+    id: string
     command: string
     resolved: string
     exitCode: uint64
@@ -285,7 +286,7 @@ export interface Action extends GeneralAction {
 }
 
 export type ParentAction = {
-    digest: digest.Digest
+    id: string
     name: string
 }
 
@@ -418,8 +419,8 @@ export enum FilesetType {
 }
 
 export type TimingInfo = {
+    id: string
     name: string
-    digest: digest.Digest
     runtime: number
     percent: number
     cached?: true

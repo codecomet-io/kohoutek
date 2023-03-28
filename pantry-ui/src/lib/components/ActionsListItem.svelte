@@ -3,7 +3,7 @@
 
 	import { createEventDispatcher } from 'svelte';
 
-	import { getDateString, getTimeString } from '$lib/helper';
+	import { getDateString, getTimeString, gotoSearchString } from '$lib/helper';
 
 	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
 	import DetailField from '$lib/components/DetailField.svelte';
@@ -12,13 +12,18 @@
 
 	export let action : Action | UtilityAction
 	export let highlight : boolean
+	export let activeModal : string
 
 	$: nameOrType = (action as UtilityAction).utilityName ?? action.type
 
 	const dispatch = createEventDispatcher()
 
-	function handleParentHoverFocus(digest : string, active : boolean) : void {
-		dispatch('highlightParent', { digest, active })
+	function handleParentHoverFocus(id : string, active : boolean) : void {
+		dispatch('highlightParent', { id, active })
+	}
+
+	function handleParentClick(id : string) : void {
+		gotoSearchString('active_accordion', id)
 	}
 </script>
 
@@ -66,8 +71,8 @@
 
 
 <ion-accordion
-	value={ action.digest }
-	data-digest={ action.digest }
+	value={ action.id }
+	data-id={ action.id }
 	toggle-icon-slot="start"
 >
 	<ion-item
@@ -113,11 +118,12 @@
 					{#each action.parents as parentAction }
 						<li title={ parentAction.name }>
 							<a
-								href="#{ parentAction.digest }"
-								on:mouseover={ () => handleParentHoverFocus(parentAction.digest, true) }
-								on:mouseout={ () => handleParentHoverFocus(parentAction.digest, false) }
-								on:focus={ () => handleParentHoverFocus(parentAction.digest, true) }
-								on:blur={ () => handleParentHoverFocus(parentAction.digest, false) }
+								href="#{ parentAction.id }"
+								on:mouseover={ () => handleParentHoverFocus(parentAction.id, true) }
+								on:mouseout={ () => handleParentHoverFocus(parentAction.id, false) }
+								on:focus={ () => handleParentHoverFocus(parentAction.id, true) }
+								on:blur={ () => handleParentHoverFocus(parentAction.id, false) }
+								on:click|preventDefault={ () => handleParentClick(parentAction.id) }
 							>{ parentAction.name }</a>
 						</li>
 					{/each}
@@ -130,6 +136,9 @@
 			/>
 		{/if}
 
-		<ViewLogs item={ action } />
+		<ViewLogs
+			item={ action }
+			activeModal={ activeModal }
+		/>
 	</article>
 </ion-accordion>

@@ -1,4 +1,5 @@
 import {Tracer} from "./dependencies/ts-core/sentry.js"
+import { createId } from './lib/helper.js';
 import { BuffIngester } from "./lib/ingester.js";
 import {
     AddFileAction,
@@ -329,20 +330,20 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     const actions : Action[] = []
 
     for (const key of actionsOrder) {
-        const item = buildPipeline.actionsObject[key]
+        const item : any = buildPipeline.actionsObject[key]
 
         if (item.runtime != null) {
             timingInfo.push(parseActionTiming(item))
         }
 
         if (item.assembledLogs && item.assembledLogs.length > 0) {
-            (item as Action).groupedLogs = parseGroupedLogs(item.assembledLogs)
+            item.groupedLogs = parseGroupedLogs(item.assembledLogs)
         }
 
         delete item.assembledLogs
 
         if (item.type === 'fileset') {
-            filesets.push(item as unknown as FilesetAction)
+            filesets.push(<FilesetAction>item)
         } else {
             let parents : ParentAction[] = []
 
@@ -355,8 +356,8 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
                     // insert the entry into the parents list at the same index as the parent in the overall list
                     // this insures the correct order
                     parents[actionsOrder.indexOf(digest)] = {
-                        digest,
-                        name: buildPipeline.actionsObject[digest].name,
+                        id : buildPipeline.actionsObject[digest].id,
+                        name : buildPipeline.actionsObject[digest].name,
                     }
                 }
             }
@@ -397,16 +398,16 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     }
 }
 
-function parseActionTiming(item : BuildAction) : TimingInfo {
-    const { digest, runtime } = item
+function parseActionTiming(item : any) : TimingInfo {
+    const { id, runtime } = item
 
     const name : string = item.type === 'fileset'
         ? `${ (item as unknown as FilesetAction).filesetType } fileset: ${ item.name }`
         : `action: ${ item.name }`
 
     const timingInfo : TimingInfo = {
+        id,
         name,
-        digest,
         runtime,
         percent: 0,
     }
@@ -457,6 +458,7 @@ function parseGroupedLogs(assembledLogs : AssembledLog[]) : GroupedLogs[] {
                 resolved,
                 exitCode,
                 logs,
+                id : createId('html'),
             })
         }
 

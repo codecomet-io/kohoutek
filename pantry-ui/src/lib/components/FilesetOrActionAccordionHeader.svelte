@@ -20,8 +20,6 @@
 	$: if ((item as FilesetAction).filesetType === 'git' && /\/\/(?:www\.)?gitlab\.com\//.test((item as FilesetAction).source)) {
 		customIcon = 'gitlab'
 	}
-
-
 </script>
 
 
@@ -47,7 +45,7 @@
 
 <ion-label>{ item.name }</ion-label>
 
-{#if isPopulated(item.stdout) || isPopulated(item.stderr) }
+{#if isPopulated(item.groupedLogs) }
 	<ion-icon
 		class="log-icon"
 		icon={ receiptOutline }

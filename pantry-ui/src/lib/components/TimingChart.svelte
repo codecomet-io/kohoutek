@@ -3,6 +3,8 @@
 
 	import { createEventDispatcher } from 'svelte'
 
+	import { gotoSearchString } from '$lib/helper';
+
 	import { tooltipHelper } from '$lib/actions/tooltip-helper'
 
 	import TimingInfoTooltip from '$lib/components/TimingInfoTooltip.svelte'
@@ -39,8 +41,12 @@
 
 	const dispatch = createEventDispatcher()
 
-	function handleHoverFocus(digest : string, active : boolean) : void {
-		dispatch('highlightParent', { digest, active })
+	function handleHoverFocus(id : string, active : boolean, event : any) : void {
+		dispatch('highlightParent', { id, active })
+	}
+
+	function handleClick(id : string) : void {
+		gotoSearchString('active_accordion', id)
 	}
 </script>
 
@@ -152,12 +158,13 @@
 			use:tooltipHelper
 		>
 			<a
-				href="#{ item.digest }"
+				href="#{ item.id }"
 				style="background-color: { getColor(index) };"
-				on:mouseover={ () => handleHoverFocus(item.digest, true) }
-				on:mouseout={ () => handleHoverFocus(item.digest, false) }
-				on:focus={ () => handleHoverFocus(item.digest, true) }
-				on:blur={ () => handleHoverFocus(item.digest, false) }
+				on:mouseover={ (event) => handleHoverFocus(item.id, true, event) }
+				on:mouseout={ (event) => handleHoverFocus(item.id, false, event) }
+				on:focus={ (event) => handleHoverFocus(item.id, true, event) }
+				on:blur={ (event) => handleHoverFocus(item.id, false, event) }
+				on:click|preventDefault={ () => handleClick(item.id) }
 			><span class="visually-hidden">{ item.name }</span></a>
 
 			<TimingInfoTooltip timingInfo={ item } />

@@ -1,5 +1,7 @@
 import { customAlphabet } from 'nanoid'
 
+import { goto } from '$app/navigation';
+
 
 export function parseDate(date: Date | string | number) : Date {
 	return date instanceof Date
@@ -153,4 +155,24 @@ export function createId(useCase? : 'html', length : number = 6) : string {
 	return useCase === 'html' && /^[^A-Za-z]/.test(id)
 		? createId(useCase, length)
 		: id
+}
+
+export function getUrlSearchParams(searchString? : string) : URLSearchParams {
+	return new URLSearchParams(searchString ?? window.location.search)
+}
+
+export function updateSearchString(key : string, value? : string) : string {
+	const urlSearchParams = getUrlSearchParams()
+
+	if (value) {
+		urlSearchParams.set(key, value)
+	} else {
+		urlSearchParams.delete(key)
+	}
+
+	return urlSearchParams.toString()
+}
+
+export function gotoSearchString(key : string, value? : string) : Promise<void> {
+	return goto(`${ window.location.pathname }?${ updateSearchString(key, value) }`)
 }

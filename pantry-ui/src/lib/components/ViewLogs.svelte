@@ -6,40 +6,28 @@
 
 	import { receiptOutline } from 'ionicons/icons'
 
-	import { isPopulated, createId } from '$lib/helper'
+	import { isPopulated, gotoSearchString } from '$lib/helper'
 
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
 
 
-	type UnifiedLog = {
-		timestamp: number
-		line: string
-		isError?: boolean
-	}
-
-
 	export let item : FilesetAction | Action
-
-	const id = createId('html')
+	export let activeModal : string
 
 	let modalElement : HTMLIonModalElement
+
+	function updateActiveModal(id : string, active : boolean) : void {
+		gotoSearchString('active_modal', active ? id : undefined)
+	}
 
 	function handleCloseModal() : void {
 		modalElement.dismiss(null, 'cancel')
 	}
 
-	function parseUnifiedLogs(stdout : any[] = [], stderr : any[] = []) : UnifiedLog[] {
-		const unifiedErrors = stderr.map((item) => ({
-			...item,
-			isError : true
-		}))
+	let lineCount : number = 0
 
-		return stdout.concat(unifiedErrors)
-			.sort((a, b) => a.timestamp - b.timestamp)
-			.map((item) => ({
-				...item,
-				line : (item.line ?? '').trim()
-			}))
+	function getLineCount() : number {
+		return ++lineCount
 	}
 </script>
 
@@ -59,26 +47,34 @@
 		}
 	}
 
+	.log-container {
+		overflow-x: auto;
+		padding: 16px 16px 16px 0;
+		background-color: #272822;
+		color: #fff;
+	}
+
+	ol,
+	li {
+		width: fit-content;
+	}
+
 	ol {
 		list-style: none;
 		margin-top: 0;
 		margin-bottom: 0;
-		padding: 1em 1em 1em 0;
-		background-color: #000;
-		color: #fff;
-		overflow-x: auto;
+		padding-left: 0;
 
 		:global(pre) {
-			overflow: visible;
 			margin-top: 0;
 			margin-bottom: 0;
+			padding: 0;
 		}
 	}
 
 	li {
 		display: flex;
 		align-items: center;
-		width: fit-content;
 	}
 
 	.line-link {
@@ -87,15 +83,21 @@
 		text-decoration: none;
 		min-width: 44px;
 		margin-right: 0.5em;
+		padding-right: 0.5em;
 		text-align: right;
 	}
 </style>
 
 
-{#if isPopulated(item.stdout) || isPopulated(item.stderr) }
+<svelte:head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.min.css" />
+</svelte:head>
+
+
+{#if isPopulated(item.groupedLogs) }
 	<div class="view-logs-button-wrapper">
 		<ion-button
-			id="{ id }_openLogsModal"
+			id="{ item.id }_openLogsModal"
 			fill="outline"
 			size="small"
 		>
@@ -109,8 +111,11 @@
 	</div>
 
 	<ion-modal
-		trigger="{ id }_openLogsModal"
+		trigger="{ item.id }_openLogsModal"
 		bind:this={ modalElement }
+		is-open={ item.id === activeModal }
+		on:willPresent={ () => updateActiveModal(item.id, true) }
+		on:willDismiss={ () => updateActiveModal(item.id, false) }
 	>
 		<ion-header>
 			<ion-toolbar>
@@ -129,23 +134,30 @@
 		</ion-header>
 
 		<ion-content>
-			<ol>
-				{#each parseUnifiedLogs(item.stdout, item.stderr) as log, index }
-					<li>
-						<a
-							class="line-link"
-							href="#"
-						>
-							<ChunkyLabel>{ index + 1 }</ChunkyLabel>
-						</a>
+			<div class="log-container">
+				{#each item.groupedLogs ?? [] as groupedLog }
+					<ol>
+						{#each groupedLog.logs as log }
+							{#each log.lines as line, lineIndex }
+								<li>
+									<a
+										class="line-link"
+										href="#"
+										data-timestamp={ lineIndex === 0 ? log.timestamp : null }
+									>
+										<ChunkyLabel>{ getLineCount() }</ChunkyLabel>
+									</a>
 
-						<Prism
-							language="shell-session"
-							source={ log.line }
-						/>
-					</li>
+									<Prism
+										language="shell-session"
+										source={ line }
+									/>
+								</li>
+							{/each}
+						{/each}
+					</ol>
 				{/each}
-			</ol>
+			</div>
 		</ion-content>
 	</ion-modal>
 {/if}

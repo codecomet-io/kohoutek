@@ -47,7 +47,7 @@
 	}
 
 	function handleHighlightLineClick(line : number) : void {
-		gotoSearchString('highlight_line', (line ?? '').toString())
+		gotoSearchString('highlight_line', highlightLine !== line ? line.toString() : undefined)
 	}
 </script>
 
@@ -122,10 +122,11 @@
 			&::after {
 				content:'\25B6';
 				position: absolute;
-				left: calc(100% - 7px);
 				top: 50%;
+				right: -5px;
 				transform: translateY(-50%);
 				color: #eb445a;
+				font-size: 13px;
 			}
 		}
 	}

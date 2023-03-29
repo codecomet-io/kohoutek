@@ -142,24 +142,29 @@
 	.log-info-container,
 	.console-container {
 		display: grid;
-		grid-template-columns: min-content auto;
 	}
 
 	.log-container {
+		grid-template-columns: minmax(200px, 40%) auto;
 		overflow-x: auto;
-		// background-color: #272822;
 		color: #fff;
+
+		@media (min-width: 1280px) {
+			grid-template-columns: min-content auto;
+		}
 
 		:global(pre) {
 			margin-top: 0;
 			margin-bottom: 0;
 			padding: 0;
 			background-color: unset;
+			overflow: visible;
 		}
 	}
 
 	.log-info-container,
 	.console-container {
+		grid-template-columns: min-content auto;
 		align-items: baseline;
 
 		&:nth-child(-n + 2) {
@@ -181,12 +186,17 @@
 	}
 
 	.log-info-container {
+		overflow-x: auto;
 		margin-top: 0;
 		margin-bottom: 0;
 		padding-left: 16px;
 		padding-right: 10px;
 		column-gap: 0.5em;
 		background-color: #353b48;
+
+		&::-webkit-scrollbar{
+			display: none;
+		}
 	}
 
 	dt {

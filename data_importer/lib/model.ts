@@ -236,6 +236,11 @@ export type AssembledLog = {
     exitCode: uint64
 }
 
+export type GroupedLogsPayload = {
+    commands: GroupedLogs[]
+    totalLines: uint64
+}
+
 export type GroupedLogs = {
     id: string
     command: string
@@ -252,10 +257,10 @@ export type ParsedLog = {
 
 export type Stack = {
     timestamp: int
-    lineNumber: uint64,
-    exitCode: uint64,
-    command: string,
-    source: string[],
+    lineNumber: uint64
+    exitCode: uint64
+    command: string
+    source: string[]
 }
 
 type GeneralAction = {
@@ -282,7 +287,7 @@ export interface BuildAction extends GeneralAction {
 
 export interface Action extends GeneralAction {
     parents?: ParentAction[]
-    groupedLogs?: GroupedLogs[]
+    groupedLogs?: GroupedLogsPayload
 }
 
 export type ParentAction = {

@@ -271,7 +271,7 @@ function parseActionTiming(item) {
 }
 function parseGroupedLogs(assembledLogs) {
     const splitLines = (multiLineStr) => multiLineStr.split(/\r|\n/);
-    const groupedLogs = [];
+    const commands = [];
     let lastCommand;
     for (const assembledLog of assembledLogs) {
         const { command, resolved, exitCode } = assembledLog;
@@ -290,12 +290,12 @@ function parseGroupedLogs(assembledLogs) {
             });
         }
         if (command === lastCommand) {
-            const item = groupedLogs[groupedLogs.length - 1];
+            const item = commands[commands.length - 1];
             item.exitCode = exitCode;
             item.logs.push(...logs);
         }
         else {
-            groupedLogs.push({
+            commands.push({
                 command,
                 resolved,
                 exitCode,
@@ -305,7 +305,16 @@ function parseGroupedLogs(assembledLogs) {
         }
         lastCommand = command;
     }
-    return groupedLogs;
+    let totalLines = 0;
+    // calculate total lines
+    for (const groupedLog of commands) {
+        totalLines += groupedLog.logs
+            .reduce((sum, log) => sum + log.lines.length, 0);
+    }
+    return {
+        commands,
+        totalLines,
+    };
 }
 async function run(protoPath, tracePath, meta, destination) {
     // Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)

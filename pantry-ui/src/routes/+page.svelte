@@ -17,7 +17,7 @@
 
 	let activeAccordion : string
 	let activeModal : string
-	let highlightLine : number
+	let highlightLine : string
 
 	$: updateFromParams(data.searchParams)
 
@@ -28,7 +28,7 @@
 
 		activeModal = searchParams.get('active_modal') ?? ''
 
-		highlightLine = parseInt(searchParams.get('highlight_line') ?? '', 10)
+		highlightLine = searchParams.get('highlight_line') ?? ''
 	}
 
 	function scrollTo(id : string) : void {

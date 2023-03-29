@@ -10,7 +10,7 @@
 	export let fileset : FilesetAction
 	export let highlight : boolean
 	export let activeModal : string
-	export let highlightLine : number
+	export let highlightLine : string
 </script>
 
 

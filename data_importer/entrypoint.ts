@@ -23,6 +23,7 @@ import {
     UserBuildAction,
     TimingInfo,
     AssembledLog,
+    GroupedLogsPayload,
     GroupedLogs,
     ParsedLog,
     MakeDirectoryBuildAction,
@@ -419,10 +420,10 @@ function parseActionTiming(item : any) : TimingInfo {
     return timingInfo
 }
 
-function parseGroupedLogs(assembledLogs : AssembledLog[]) : GroupedLogs[] {
+function parseGroupedLogs(assembledLogs : AssembledLog[]) : GroupedLogsPayload {
     const splitLines = (multiLineStr : string) : string[] => multiLineStr.split(/\r|\n/)
 
-    const groupedLogs : GroupedLogs[] = []
+    const commands : GroupedLogs[] = []
 
     let lastCommand : string
 
@@ -447,13 +448,13 @@ function parseGroupedLogs(assembledLogs : AssembledLog[]) : GroupedLogs[] {
         }
 
         if (command === lastCommand) {
-            const item = groupedLogs[groupedLogs.length - 1]
+            const item = commands[commands.length - 1]
 
             item.exitCode = exitCode
 
             item.logs.push(...logs)
         } else {
-            groupedLogs.push({
+            commands.push({
                 command,
                 resolved,
                 exitCode,
@@ -465,7 +466,18 @@ function parseGroupedLogs(assembledLogs : AssembledLog[]) : GroupedLogs[] {
         lastCommand = command
     }
 
-    return groupedLogs
+    let totalLines : number = 0
+
+    // calculate total lines
+    for (const groupedLog of commands) {
+        totalLines += groupedLog.logs
+            .reduce((sum, log) => sum + log.lines.length, 0)
+    }
+
+    return {
+        commands,
+        totalLines,
+    }
 }
 
 

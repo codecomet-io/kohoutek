@@ -3,7 +3,7 @@
 
 	import { receiptOutline } from 'ionicons/icons';
 
-	import { parseLapsed, isPopulated } from '$lib/helper';
+	import { parseLapsed } from '$lib/helper';
 
 	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
@@ -45,7 +45,7 @@
 
 <ion-label>{ item.name }</ion-label>
 
-{#if isPopulated(item.groupedLogs) }
+{#if item.groupedLogs }
 	<ion-icon
 		class="log-icon"
 		icon={ receiptOutline }

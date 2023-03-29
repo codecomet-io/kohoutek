@@ -14,7 +14,7 @@
 	export let highlight : HighlightInfo
 	export let activeAccordion : string
 	export let activeModal : string
-	export let highlightLine : number
+	export let highlightLine : string
 
 	function handleValueChange(event : any) : void {
 		const id : string = event.detail.value

@@ -13,7 +13,7 @@
 	export let action : Action | UtilityAction
 	export let highlight : boolean
 	export let activeModal : string
-	export let highlightLine : number
+	export let highlightLine : string
 
 	$: nameOrType = (action as UtilityAction).utilityName ?? action.type
 

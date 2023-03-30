@@ -206,15 +206,14 @@
 		overflow-x: auto;
 	}
 
-	.log-container,
-	.log-info-container,
-	.log-console-container {
-		display: grid;
-	}
-
 	.log-container {
-		grid-template-columns: minmax(200px, 40%) auto;
 		position: relative;
+		min-width: fit-content;
+
+		@media (min-width: 768px) {
+			display: grid;
+			grid-template-columns: minmax(200px, 40%) auto;
+		}
 
 		@media (min-width: 1280px) {
 			grid-template-columns: min-content auto;
@@ -224,57 +223,90 @@
 			width: min-content;
 			margin-top: 0;
 			margin-bottom: 0;
-			padding: 0;
+			padding: 0 0.25em;
 			overflow: visible;
 		}
 	}
 
 	.log-info-container,
 	.log-console-container {
-		grid-template-columns: min-content auto;
+		align-items: center;
+		padding-top: 5px;
+		padding-bottom: 5px;
 
-		&:nth-child(-n + 2) {
+		&:first-child {
 			padding-top: 16px;
 		}
 
-		&:not(:nth-child(-n + 2)) {
-			padding-top: 5px;
-			border-top: 1px dashed #666666;
-		}
-
-		&:nth-last-child(-n + 2) {
+		&:last-child {
 			padding-bottom: 16px;
 		}
 
-		&:not(:nth-last-child(-n + 2)) {
-			padding-bottom: 5px;
+		@media (min-width: 768px) {
+			border-top: 1px dashed #666666;
+
+			&:nth-child(-n + 2) {
+				border-top: none;
+				padding-top: 16px;
+			}
+
+			&:nth-last-child(-n + 2) {
+				padding-bottom: 16px;
+			}
 		}
 	}
 
 	.log-info-container {
-		align-items: baseline;
+		display: flex;
+		justify-content: space-between;
+		max-width: 100vw;
 		margin-top: 0;
 		margin-bottom: 0;
 		padding-left: 16px;
-		padding-right: 10px;
-		column-gap: 0.5em;
+		padding-right: 16px;
+		column-gap: 10px;
 		background-color: #353b48;
+
+		@media (min-width: 768px) {
+			max-width: none;
+			align-items: baseline;
+			padding-right: 10px;
+		}
 
 		&::-webkit-scrollbar {
 			display: none;
 		}
+
+		:global(.tooltip-wrapper) {
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
 	}
 
-	dt {
-		display: flex;
-		align-items: center;
+	.key {
+		flex-grow: 0;
+		flex-shrink: 0;
+		// display: flex;
+		// align-items: center;
 		font-size: 12px;
 		color: #ffeaa7;
-		text-align: right;
+		// text-align: right;
+		white-space: nowrap;
 	}
 
-	dd {
+	.value {
 		margin-left: 0;
+		overflow: hidden;
+		flex-grow: 1;
+		flex-shrink: 1;
+
+		@media (min-width: 768px) {
+			display: none;
+		}
+
+		@media (min-width: 1024px) {
+			display: block;
+		}
 
 		:global(pre) {
 			background-color: unset;
@@ -282,7 +314,8 @@
 	}
 
 	.log-console-container {
-		align-items: center;
+		display: grid;
+		grid-template-columns: min-content auto;
 		grid-auto-columns: min-content;
 		width: 100%;
 		list-style: none;
@@ -291,10 +324,19 @@
 		padding-right: 16px;
 		background-color: #272822;
 		color: #fff;
-		border-left: 1px solid #666666;
+		border-top: 1px dashed #666666;
+		border-bottom: 1px dashed #666666;
 
-		&:nth-last-child(-n + 1) {
+		&:last-child {
 			border-bottom: 1px solid #666666;
+		}
+
+		@media (min-width: 768px) {
+			border-left: 1px solid #666666;
+
+			&:not(:last-child) {
+				border-bottom: none;
+			}
 		}
 	}
 
@@ -309,7 +351,7 @@
 				content: '';
 				position: absolute;
 				top: 0;
-				right: 6px;
+				right: 5px;
 				width: 2px;
 				height: 100%;
 				background-color: #f1c40f;
@@ -402,20 +444,20 @@
 			<div class="scroll-wrapper">
 				<div class="log-container">
 					{#each item.groupedLogs.commands ?? [] as groupedLogs, groupedIndex }
-						<dl class="log-info-container">
-							<dt>
-								command
+						<div class="log-info-container">
+							<div class="key">
+								command { groupedIndex + 1 }
+							</div>
 
-								<LogTooltip groupedLogs={ groupedLogs } />
-							</dt>
-
-							<dd>
+							<div class="value">
 								<Prism
 									language="bash"
 									source={ groupedLogs.command }
 								/>
-							</dd>
-						</dl>
+							</div>
+
+							<LogTooltip groupedLogs={ groupedLogs } />
+						</div>
 
 						<div class="log-console-container">
 							{#each groupedLogs.logs as log, logIndex }

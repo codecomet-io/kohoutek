@@ -4,8 +4,6 @@
 	import Prism from 'svelte-prism'
 	import 'prismjs/components/prism-bash.min.js'
 
-	import { informationCircle } from 'ionicons/icons';
-
 	import { logsTooltipHelper } from '$lib/actions/logs-tooltip-helper'
 
 
@@ -102,7 +100,7 @@
 
 	.tooltip {
 		bottom: calc(100% + 20px);
-		left: -62px;
+		right: 5px;
 		z-index: 1;
 		width: min-content;
 		max-width: 90vw;
@@ -132,7 +130,7 @@
 
 		&::before {
 			bottom: -10px;
-			left: 69px;
+			right: 17px;
 			border-top: 9px solid #ddd;
 			border-left: 9px solid transparent;
 			border-right: 9px solid transparent;
@@ -140,10 +138,37 @@
 
 		&::after {
 			bottom: -8px;
-			left: 70px;
+			right: 18px;
 			border-top: 8px solid #fff;
 			border-left: 8px solid transparent;
 			border-right: 8px solid transparent;
+		}
+
+		@media (min-width: 768px) {
+			max-width: 80vw;
+			right: auto;
+			left: -64px;
+
+			&::before {
+				right: auto;
+				left: 87px;
+			}
+
+			&::after {
+				right: auto;
+				left: 88px;
+			}
+		}
+
+		@media (min-width: 1024px) {
+			max-width: 60vw;
+
+			&,
+			&::before,
+			&::after {
+				left: 50%;
+				transform: translateX(-50%);
+			}
 		}
 	}
 
@@ -157,7 +182,7 @@
 		row-gap: 5px;
 		overflow-x: auto;
 
-		dd {
+		.value {
 			:global(pre) {
 				width: unset;
 				padding: 0.25em 0.5em;
@@ -166,14 +191,14 @@
 		}
 	}
 
-	dt {
+	.key {
 		font-size: 12px;
 		color: #57606a;
 		text-align: right;
 		white-space: nowrap;
 	}
 
-	dd {
+	.value {
 		margin-left: 0;
 
 		&.exit-code-value {
@@ -194,54 +219,49 @@
 <div class="tooltip-wrapper default-position">
 	<ion-button
 		href="#{ groupedLogs.id }"
-		aria-label="view more information about this command"
-		fill="clear"
+		fill="outline"
 		color="light"
 		size="small"
 		on:click|preventDefault
 		on:keypress|preventDefault
 		use:logsTooltipHelper
 	>
-		<ion-icon
-			slot="icon-only"
-			icon={ informationCircle }
-			aria-hidden="true"
-		></ion-icon>
+		View Info
 	</ion-button>
 
 	<aside class="tooltip">
 		<dl class="log-info-container">
-			<dt>command</dt>
+			<dt class="key">command</dt>
 
-			<dd>
+			<dd class="value">
 				<Prism
 					language="bash"
 					source={ groupedLogs.command }
 				/>
 			</dd>
 
-			<dt>resolved</dt>
+			<dt class="key">resolved</dt>
 
-			<dd>
+			<dd class="value">
 				<Prism
 					language="bash"
 					source={ groupedLogs.resolved }
 				/>
 			</dd>
 
-			<dt>I/O stream{ ioStreams.length === 1 ? '' : 's' }</dt>
+			<dt class="key">I/O stream{ ioStreams.length === 1 ? '' : 's' }</dt>
 
-			<dd>
+			<dd class="value">
 				<Prism
 					language="bash"
 					source={ ioStreams.join(', ') }
 				/>
 			</dd>
 
-			<dt>exit code</dt>
+			<dt class="key">exit code</dt>
 
 			<dd
-				class="exit-code-value"
+				class="value exit-code-value"
 				class:non-zero-exit-code={ groupedLogs.exitCode !== 0 }
 			>
 				<Prism

@@ -5,7 +5,7 @@
 
 	import { gotoSearchString } from '$lib/helper';
 
-	import { tooltipHelper } from '$lib/actions/tooltip-helper'
+	import { timingChartTooltipHelper } from '$lib/actions/timing-chart-tooltip-helper'
 
 	import TimingInfoTooltip from '$lib/components/TimingInfoTooltip.svelte'
 
@@ -155,7 +155,7 @@
 		<li
 			style="flex-basis: { item.percent }%;"
 			title={ item.name }
-			use:tooltipHelper
+			use:timingChartTooltipHelper
 		>
 			<a
 				href="#{ item.id }"

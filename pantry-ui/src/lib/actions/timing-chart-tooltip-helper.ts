@@ -1,4 +1,4 @@
-export function tooltipHelper(element : HTMLElement) {
+export function timingChartTooltipHelper(element : HTMLElement) {
 	const link = element.querySelector('a')
 
 	let title : string | null

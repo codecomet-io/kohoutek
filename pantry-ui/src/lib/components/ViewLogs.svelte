@@ -2,6 +2,7 @@
 	import type { FilesetAction, Action } from '../../../../data_importer/lib/model'
 
 	import Prism from 'svelte-prism'
+	import 'prismjs/components/prism-bash.min.js'
 	import 'prismjs/components/prism-shell-session.min.js'
 
 	import { receiptOutline } from 'ionicons/icons'
@@ -9,6 +10,7 @@
 	import { gotoSearchString } from '$lib/helper'
 
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
+	import LogTooltip from '$lib/components/LogTooltip.svelte'
 
 
 	export let item : FilesetAction | Action
@@ -46,17 +48,14 @@
 		return _lineMap[lineId].toString()
 	}
 
-	let highlightIsRange : boolean
 	let highlightBounds : [ number, number ]
 	let highlightMap : { [ key : string ] : true } = {}
 
 	function parseHighlight(updatedHighlight : string) : void {
 		if (updatedHighlight) {
 			// does highlight contain a dash, indicating a range
-			highlightIsRange = /-/.test(updatedHighlight)
-
 			// if so, parse the upper and lower bounds
-			if (highlightIsRange) {
+			if (/-/.test(updatedHighlight)) {
 				highlightBounds = updatedHighlight
 					.split('-')
 					.map((item : string) => parseInt(item, 10)) as [ number, number ]
@@ -98,6 +97,41 @@
 		}
 
 		gotoSearchString('highlight_line', value)
+
+		// wait a beat for updated search params to flow down
+		// and for the reactive parseHighlight func to update highlightBounds
+		setTimeout(() => selectText(event), 100)
+	}
+
+	function selectText(event : MouseEvent) : void {
+		const container = (event.target as HTMLElement)?.closest('.log-container')
+
+		if (!container) {
+			return
+		}
+
+		const startBeforeNode = container.querySelector(`a[data-line="${ highlightBounds[0] }"] + code + pre`)
+		const endAfterNode = container.querySelector(`a[data-line="${ highlightBounds[1] }"] + code + pre`)
+
+		if (!(startBeforeNode && endAfterNode)) {
+			return
+		}
+
+		const range = new Range()
+
+		range.setStartBefore(startBeforeNode)
+
+		range.setEndAfter(endAfterNode)
+
+		const selection = window.getSelection()
+
+		if (!selection) {
+			return
+		}
+
+		selection.removeAllRanges()
+
+		selection.addRange(range)
 	}
 
 	$: totalLinesLength = item.groupedLogs?.totalLines.toString().length
@@ -135,37 +169,37 @@
 		@media (min-width: 768px) {
 			--width: calc(100vw - (16px * 2));
 			--max-width: calc(1280px - (16px * 2));
+			--height: calc(100vh - (16px * 2));
 		}
 	}
 
 	.log-container,
 	.log-info-container,
-	.console-container {
+	.log-console-container {
 		display: grid;
 	}
 
 	.log-container {
 		grid-template-columns: minmax(200px, 40%) auto;
 		overflow-x: auto;
-		color: #fff;
+		position: relative;
 
 		@media (min-width: 1280px) {
 			grid-template-columns: min-content auto;
 		}
 
 		:global(pre) {
+			width: min-content;
 			margin-top: 0;
 			margin-bottom: 0;
 			padding: 0;
-			background-color: unset;
 			overflow: visible;
 		}
 	}
 
 	.log-info-container,
-	.console-container {
+	.log-console-container {
 		grid-template-columns: min-content auto;
-		align-items: baseline;
 
 		&:nth-child(-n + 2) {
 			padding-top: 16px;
@@ -186,7 +220,7 @@
 	}
 
 	.log-info-container {
-		overflow-x: auto;
+		align-items: baseline;
 		margin-top: 0;
 		margin-bottom: 0;
 		padding-left: 16px;
@@ -194,12 +228,14 @@
 		column-gap: 0.5em;
 		background-color: #353b48;
 
-		&::-webkit-scrollbar{
+		&::-webkit-scrollbar {
 			display: none;
 		}
 	}
 
 	dt {
+		display: flex;
+		align-items: center;
 		font-size: 12px;
 		color: #ffeaa7;
 		text-align: right;
@@ -207,17 +243,16 @@
 
 	dd {
 		margin-left: 0;
-	}
 
-	.non-zero-exit-code {
-		:global(code) {
-			color: #eb445a;
+		:global(pre) {
+			background-color: unset;
 		}
 	}
 
-	.console-container {
+	.log-console-container {
+		align-items: center;
+		grid-auto-columns: min-content;
 		width: 100%;
-		// width: fit-content;
 		list-style: none;
 		margin-top: 0;
 		margin-bottom: 0;
@@ -228,37 +263,57 @@
 	}
 
 	.line-link {
-		padding: 5px 11px 5px 10px;
+		padding: 5px 10px;
 		text-decoration: none;
 		text-align: right;
+		position: relative;
 
 		&.highlight {
+			&::after {
+				content: '';
+				position: absolute;
+				top: 0;
+				right: 6px;
+				width: 2px;
+				height: 100%;
+				background-color: #f1c40f;
+			}
+
 			+ :global(code + pre) {
-				background-color: #4d709e;
+				background-color: rgba(115, 255, 0, 40%);
 			}
 		}
 
 		&.stderr {
-			position: relative;
-
 			:global(ion-card-subtitle) {
 				--color: #eb445a;
 			}
+		}
 
-			&::after {
-				content:'\25B6';
-				position: absolute;
-				top: 50%;
-				right: 1px;
-				transform: translateY(-50%);
-				color: #eb445a;
-				font-size: 12px;
-			}
+		:global(ion-card-subtitle) {
+			display: flex;
+			pointer-events: none;
+		}
+
+		.spacing-digits,
+		.visible-digits {
+			pointer-events: none;
 		}
 
 		.spacing-digits {
 			visibility: hidden;
 		}
+
+		.visible-digits {
+			&::before {
+				content: attr(data-line-count);
+			}
+		}
+	}
+
+	.stderr-badge {
+		grid-column: 3;
+		margin-left: 0.5em;
 	}
 </style>
 
@@ -309,64 +364,62 @@
 
 		<ion-content>
 			<div class="log-container">
-				{#each item.groupedLogs.commands ?? [] as groupedLog, groupedIndex }
+				{#each item.groupedLogs.commands ?? [] as groupedLogs, groupedIndex }
 					<dl class="log-info-container">
-						<dt>command</dt>
+						<dt>
+							command
+
+							<LogTooltip groupedLogs={ groupedLogs } />
+						</dt>
 
 						<dd>
 							<Prism
-								language="shell-session"
-								source={ groupedLog.command }
+								language="bash"
+								source={ groupedLogs.command }
 							/>
 						</dd>
-
-						{#if groupedLog.resolved !== groupedLog.command }
-							<dt>resolved</dt>
-
-							<dd>
-								<Prism
-									language="shell-session"
-									source={ groupedLog.resolved }
-								/>
-							</dd>
-						{/if}
-
-						{#if groupedLog.exitCode !== 0 }
-							<dt>exit code</dt>
-
-							<dd class="non-zero-exit-code">
-								<Prism
-									language="shell-session"
-									source={ groupedLog.exitCode + '' }
-								/>
-							</dd>
-						{/if}
 					</dl>
 
-					<div class="console-container">
-						{#each groupedLog.logs as log, logIndex }
+					<div class="log-console-container">
+						{#each groupedLogs.logs as log, logIndex }
 							{#each log.lines as line, lineIndex }
 								{@const lineCount = getLineCount(`${ groupedIndex }${ logIndex }${ lineIndex }`) }
 
 								<a
 									class="line-link"
+									aria-label="highlight line { lineCount }"
 									class:highlight={ highlightMap[lineCount] }
 									class:stderr={ log.isStderr }
 									href="#{ lineCount }"
+									data-line={ lineCount }
 									data-timestamp={ lineIndex === 0 ? log.timestamp : null }
 									on:click|preventDefault={ (event) => handleHighlightLineClick(event, lineCount) }
 								>
-									<!--
-										the following line must all be together on 1 line
-										otherwise we'll need additional CSS properties to remove white space
-									-->
-									<ChunkyLabel><span class="spacing-digits">{ insertSpacingDigits(lineCount) }</span>{ lineCount }</ChunkyLabel>
+									<ChunkyLabel>
+										<span
+											class="spacing-digits"
+											aria-hidden="true"
+										>{ insertSpacingDigits(lineCount) }</span>
+
+										<span
+											class="visible-digits"
+											data-line-count={ lineCount }
+											aria-hidden="true"
+										></span>
+									</ChunkyLabel>
 								</a>
 
 								<Prism
 									language="shell-session"
 									source={ line }
 								/>
+
+								{#if log.isStderr }
+									<ion-badge
+										class="stderr-badge"
+										color="danger"
+									>StdErr</ion-badge>
+								{/if}
 							{/each}
 						{/each}
 					</div>

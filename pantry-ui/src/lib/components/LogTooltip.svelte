@@ -172,6 +172,14 @@
 		}
 	}
 
+	.hover-bridge {
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		width: 100%;
+		height: 12px;
+	}
+
 	.log-info-container {
 		display: grid;
 		grid-template-columns: min-content auto;
@@ -230,6 +238,11 @@
 	</ion-button>
 
 	<aside class="tooltip">
+		<div
+			class="hover-bridge"
+			aria-hidden="true"
+		></div>
+
 		<dl class="log-info-container">
 			<dt class="key">command</dt>
 

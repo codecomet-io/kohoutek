@@ -21,6 +21,26 @@
 
 	let modalElement : HTMLIonModalElement
 
+	function setModalHeight(modalElement : HTMLElement) : void {
+		if (modalElement.style.getPropertyValue('--height')) {
+			return
+		}
+
+		const header = modalElement.querySelector('ion-header') as HTMLElement
+		const headerHeight = header?.offsetHeight ?? 0
+
+		const scrollWrapper = modalElement.querySelector('ion-content .scroll-wrapper') as HTMLElement
+		const scrollWrapperHeight = (scrollWrapper.offsetHeight - scrollWrapper.clientHeight + scrollWrapper.scrollHeight) || 0
+
+		modalElement.style.setProperty('--height', `${ headerHeight + scrollWrapperHeight }px`)
+	}
+
+	function handleWillPresent(event : any, id : string, active : boolean) : void {
+		updateActiveModal(id, true)
+
+		setTimeout(() => setModalHeight(event.target), 1)
+	}
+
 	function updateActiveModal(id : string, active : boolean) : void {
 		if (active) {
 			gotoSearchString('active_modal', id)
@@ -166,11 +186,24 @@
 	}
 
 	ion-modal {
+		--min-height: 100vh;
+		--max-height: 100vh;
+
 		@media (min-width: 768px) {
 			--width: calc(100vw - (16px * 2));
 			--max-width: calc(1280px - (16px * 2));
-			--height: calc(100vh - (16px * 2));
+			--min-height: calc(50vh - (16px * 2));
+			--max-height: calc(100vh - (16px * 2));
 		}
+	}
+
+	ion-content {
+		--background: #353b48;
+	}
+
+	.scroll-wrapper {
+		height: 100%;
+		overflow-x: auto;
 	}
 
 	.log-container,
@@ -181,7 +214,6 @@
 
 	.log-container {
 		grid-template-columns: minmax(200px, 40%) auto;
-		overflow-x: auto;
 		position: relative;
 
 		@media (min-width: 1280px) {
@@ -260,6 +292,10 @@
 		background-color: #272822;
 		color: #fff;
 		border-left: 1px solid #666666;
+
+		&:nth-last-child(-n + 1) {
+			border-bottom: 1px solid #666666;
+		}
 	}
 
 	.line-link {
@@ -343,7 +379,7 @@
 		trigger="{ item.id }_openLogsModal"
 		bind:this={ modalElement }
 		is-open={ item.id === activeModal }
-		on:willPresent={ () => updateActiveModal(item.id, true) }
+		on:willPresent={ (event) => handleWillPresent(event, item.id, true) }
 		on:willDismiss={ () => updateActiveModal(item.id, false) }
 	>
 		<ion-header>
@@ -363,67 +399,69 @@
 		</ion-header>
 
 		<ion-content>
-			<div class="log-container">
-				{#each item.groupedLogs.commands ?? [] as groupedLogs, groupedIndex }
-					<dl class="log-info-container">
-						<dt>
-							command
+			<div class="scroll-wrapper">
+				<div class="log-container">
+					{#each item.groupedLogs.commands ?? [] as groupedLogs, groupedIndex }
+						<dl class="log-info-container">
+							<dt>
+								command
 
-							<LogTooltip groupedLogs={ groupedLogs } />
-						</dt>
+								<LogTooltip groupedLogs={ groupedLogs } />
+							</dt>
 
-						<dd>
-							<Prism
-								language="bash"
-								source={ groupedLogs.command }
-							/>
-						</dd>
-					</dl>
-
-					<div class="log-console-container">
-						{#each groupedLogs.logs as log, logIndex }
-							{#each log.lines as line, lineIndex }
-								{@const lineCount = getLineCount(`${ groupedIndex }${ logIndex }${ lineIndex }`) }
-
-								<a
-									class="line-link"
-									aria-label="highlight line { lineCount }"
-									class:highlight={ highlightMap[lineCount] }
-									class:stderr={ log.isStderr }
-									href="#{ lineCount }"
-									data-line={ lineCount }
-									data-timestamp={ lineIndex === 0 ? log.timestamp : null }
-									on:click|preventDefault={ (event) => handleHighlightLineClick(event, lineCount) }
-								>
-									<ChunkyLabel>
-										<span
-											class="spacing-digits"
-											aria-hidden="true"
-										>{ insertSpacingDigits(lineCount) }</span>
-
-										<span
-											class="visible-digits"
-											data-line-count={ lineCount }
-											aria-hidden="true"
-										></span>
-									</ChunkyLabel>
-								</a>
-
+							<dd>
 								<Prism
-									language="shell-session"
-									source={ line }
+									language="bash"
+									source={ groupedLogs.command }
 								/>
+							</dd>
+						</dl>
 
-								{#if log.isStderr }
-									<ion-badge
-										class="stderr-badge"
-										color="danger"
-									>StdErr</ion-badge>
-								{/if}
+						<div class="log-console-container">
+							{#each groupedLogs.logs as log, logIndex }
+								{#each log.lines as line, lineIndex }
+									{@const lineCount = getLineCount(`${ groupedIndex }${ logIndex }${ lineIndex }`) }
+
+									<a
+										class="line-link"
+										aria-label="highlight line { lineCount }"
+										class:highlight={ highlightMap[lineCount] }
+										class:stderr={ log.isStderr }
+										href="#{ lineCount }"
+										data-line={ lineCount }
+										data-timestamp={ lineIndex === 0 ? log.timestamp : null }
+										on:click|preventDefault={ (event) => handleHighlightLineClick(event, lineCount) }
+									>
+										<ChunkyLabel>
+											<span
+												class="spacing-digits"
+												aria-hidden="true"
+											>{ insertSpacingDigits(lineCount) }</span>
+
+											<span
+												class="visible-digits"
+												data-line-count={ lineCount }
+												aria-hidden="true"
+											></span>
+										</ChunkyLabel>
+									</a>
+
+									<Prism
+										language="shell-session"
+										source={ line }
+									/>
+
+									{#if log.isStderr }
+										<ion-badge
+											class="stderr-badge"
+											color="danger"
+										>StdErr</ion-badge>
+									{/if}
+								{/each}
 							{/each}
-						{/each}
-					</div>
-				{/each}
+						</div>
+					{/each}
+				</div>
 			</div>
 		</ion-content>
 	</ion-modal>

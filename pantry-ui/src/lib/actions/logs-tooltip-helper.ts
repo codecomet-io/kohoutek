@@ -14,21 +14,21 @@ export function logsTooltipHelper(element : HTMLElement) {
 
 		const tooltipHeight = tooltip.offsetHeight
 
-		const logContainer = tooltipWrapper.offsetParent as HTMLElement
+		const scrollWrapper = tooltipWrapper.closest('.scroll-wrapper') as HTMLElement
 
-		if (!logContainer) {
+		if (!scrollWrapper) {
 			return
 		}
 
-		const logContainerHeight = logContainer.offsetHeight
+		const scrollWrapperHeight = scrollWrapper.offsetHeight
 
 		const bottomOfTooltip =
 			tooltipWrapper.offsetTop
 			+ tooltipWrapper.offsetHeight
 			+ tooltipHeight
-			+ 10 // we should clear the bottom of the modal by at least 10 pixels
+			+ 50 // we should clear the bottom of the modal by at least 50 pixels
 
-		if (bottomOfTooltip <= logContainerHeight) {
+		if (bottomOfTooltip <= scrollWrapperHeight) {
 			setChecked()
 
 			return

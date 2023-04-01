@@ -66,6 +66,10 @@
 			white-space: nowrap;
 			text-overflow: ellipsis;
 			color: #24292f;
+
+			@media (prefers-color-scheme: dark) {
+				color: #dbd6d0;
+			}
 		}
 	}
 </style>

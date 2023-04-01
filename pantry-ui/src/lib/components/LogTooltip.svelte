@@ -4,8 +4,6 @@
 	import Prism from 'svelte-prism'
 	import 'prismjs/components/prism-bash.min.js'
 
-	import { logsTooltipHelper } from '$lib/actions/logs-tooltip-helper'
-
 
 	export let groupedLogs : GroupedLogs
 
@@ -94,6 +92,15 @@
 		&:focus {
 			+ .tooltip {
 				@extend %hover-focus;
+			}
+		}
+
+		@media (prefers-color-scheme: dark) {
+			&[fill="outline"] {
+				&::part(native) {
+					border-color: #f4f5f8;
+					color: #f4f5f8;
+				}
 			}
 		}
 	}
@@ -227,12 +234,11 @@
 <div class="tooltip-wrapper default-position">
 	<ion-button
 		href="#{ groupedLogs.id }"
-		fill="outline"
-		color="light"
+		fill={ groupedLogs.exitCode === 0 ? 'outline' : 'solid' }
+		color={ groupedLogs.exitCode === 0 ? 'light' : 'danger' }
 		size="small"
 		on:click|preventDefault
 		on:keypress|preventDefault
-		use:logsTooltipHelper
 	>
 		View Info
 	</ion-button>

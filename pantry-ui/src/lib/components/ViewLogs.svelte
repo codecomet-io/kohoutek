@@ -21,24 +21,69 @@
 
 	let modalElement : HTMLIonModalElement
 
-	function setModalHeight(modalElement : HTMLElement) : void {
+	function updateModalAndTooltip(modalElement : HTMLElement) : void {
+		const scrollWrapper = modalElement.querySelector('ion-content .scroll-wrapper') as HTMLElement
+
+		setModalHeight(modalElement, scrollWrapper)
+
+		checkTooltipPosition(scrollWrapper)
+	}
+
+	function setModalHeight(modalElement : HTMLElement, scrollWrapper : HTMLElement) : void {
 		if (modalElement.style.getPropertyValue('--height')) {
 			return
 		}
 
+		const scrollWrapperHeight = (scrollWrapper.offsetHeight - scrollWrapper.clientHeight + scrollWrapper.scrollHeight) || 0
+
 		const header = modalElement.querySelector('ion-header') as HTMLElement
 		const headerHeight = header?.offsetHeight ?? 0
 
-		const scrollWrapper = modalElement.querySelector('ion-content .scroll-wrapper') as HTMLElement
-		const scrollWrapperHeight = (scrollWrapper.offsetHeight - scrollWrapper.clientHeight + scrollWrapper.scrollHeight) || 0
-
 		modalElement.style.setProperty('--height', `${ headerHeight + scrollWrapperHeight }px`)
+	}
+
+	function checkTooltipPosition(scrollWrapper : HTMLElement) : void {
+		const tooltipWrappers : NodeListOf<Element> = scrollWrapper.querySelectorAll('.tooltip-wrapper')
+
+		if (!(tooltipWrappers && tooltipWrappers.length)) {
+			return
+		}
+
+		tooltipWrappers.forEach((item : Element) => {
+			const tooltipWrapper = item as HTMLElement
+
+			const tooltip : HTMLElement | null = tooltipWrapper.querySelector('.tooltip')
+
+			if (!tooltip) {
+				return
+			}
+
+			const bottomOfTooltip =
+				tooltipWrapper.offsetTop
+				+ tooltipWrapper.offsetHeight
+				+ tooltip.offsetHeight
+				+ 50 // we should clear the bottom of the modal by at least 50 pixels
+
+				if (bottomOfTooltip <= scrollWrapper.offsetHeight) {
+					setTooltipChecked(tooltipWrapper)
+
+					return
+				}
+
+				tooltipWrapper.classList.remove('default-position')
+
+				setTooltipChecked(tooltipWrapper)
+		})
+	}
+
+	function setTooltipChecked(tooltipWrapper : HTMLElement) : void {
+		tooltipWrapper.style.overflow = 'visible'
 	}
 
 	function handleWillPresent(event : any, id : string, active : boolean) : void {
 		updateActiveModal(id, true)
 
-		setTimeout(() => setModalHeight(event.target), 1)
+		setTimeout(() => updateModalAndTooltip(event.target), 1)
 	}
 
 	function updateActiveModal(id : string, active : boolean) : void {
@@ -286,12 +331,10 @@
 	.key {
 		flex-grow: 0;
 		flex-shrink: 0;
-		// display: flex;
-		// align-items: center;
-		font-size: 12px;
-		color: #ffeaa7;
-		// text-align: right;
-		white-space: nowrap;
+
+		:global(ion-card-subtitle) {
+			--color: #ffeaa7;
+		}
 	}
 
 	.value {
@@ -405,7 +448,8 @@
 	<div class="view-logs-button-wrapper">
 		<ion-button
 			id="{ item.id }_openLogsModal"
-			fill="outline"
+			fill={ item.status === 'errored' ? 'solid' :'outline' }
+			color={ item.status === 'errored' ? 'danger' :'default' }
 			size="small"
 		>
 			View Logs
@@ -446,7 +490,7 @@
 					{#each item.groupedLogs.commands ?? [] as groupedLogs, groupedIndex }
 						<div class="log-info-container">
 							<div class="key">
-								command { groupedIndex + 1 }
+								<ChunkyLabel>command { groupedIndex + 1 }</ChunkyLabel>
 							</div>
 
 							<div class="value">

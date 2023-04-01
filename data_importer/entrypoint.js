@@ -179,6 +179,7 @@ export default async function Pantry(buffer, trace, meta) {
         typedObject.status = traceObject.status;
         typedObject.buildParents = traceObject.buildParents;
         typedObject.assembledLogs = traceObject.assembledLogs;
+
         buildPipeline.actionsObject[digest] = typedObject;
     }
     const actionsOrder = Object.keys(buildPipeline.actionsObject)

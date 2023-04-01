@@ -26,4 +26,4 @@ node ./entrypoint.js "mocks/exhaustive/success/llb.proto" "mocks/exhaustive/succ
 node ./entrypoint.js "mocks/exhaustive/cached/llb.proto" "mocks/exhaustive/cached/trace.json" "$meta" "$destination/exhaustive-cached.json"
 
 # Short term
-cp "$destination/exhaustive-failure.json" "$destination/exhaustive.json"
+cp "$destination/exhaustive-cached.json" "$destination/exhaustive.json"

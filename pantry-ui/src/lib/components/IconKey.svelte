@@ -31,5 +31,5 @@
 	fill="clear"
 	size="small"
 	on:click={ showPopover }
-	on:keypress={ showPopover }
+	on:keydown={ showPopover }
 >view icon key</ion-button>

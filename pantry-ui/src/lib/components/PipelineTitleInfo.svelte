@@ -96,7 +96,7 @@
 				<ion-button
 					fill="clear"
 					on:click={ handleCloseModal }
-					on:keypress={ handleCloseModal }
+					on:keydown={ handleCloseModal }
 				>
 					Close
 				</ion-button>

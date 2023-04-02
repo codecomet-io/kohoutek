@@ -3,7 +3,7 @@
 
 	import { receiptOutline } from 'ionicons/icons';
 
-	import { parseLapsed } from '$lib/helper';
+	import { parseLapsed, gotoSearchString } from '$lib/helper';
 
 	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
@@ -20,6 +20,10 @@
 	$: if ((item as FilesetAction).filesetType === 'git' && /\/\/(?:www\.)?gitlab\.com\//.test((item as FilesetAction).source)) {
 		customIcon = 'gitlab'
 	}
+
+	function handleLogsClick() : void {
+		gotoSearchString('active_modal', item.id)
+	}
 </script>
 
 
@@ -32,9 +36,9 @@
 		margin-left: 0.25em;
 	}
 
-	.log-icon {
-		margin-right: 0.75em;
-	}
+	// .log-icon {
+	// 	margin-right: 0.75em;
+	// }
 </style>
 
 
@@ -46,12 +50,21 @@
 <ion-label>{ item.name }</ion-label>
 
 {#if item.groupedLogs }
-	<ion-icon
-		class="log-icon"
-		icon={ receiptOutline }
-		size="small"
-		title="view logs"
-	></ion-icon>
+	<ion-button
+		fill="clear"
+		color={ item.status === 'errored' ? 'danger' :'medium' }
+		aria-label="open logs modal"
+		on:click|stopPropagation={ handleLogsClick }
+		on:keydown|stopPropagation={ handleLogsClick }
+	>
+		<ion-icon
+			slot="icon-only"
+			class="log-icon"
+			icon={ receiptOutline }
+			size="small"
+			title="view logs"
+		></ion-icon>
+	</ion-button>
 {/if}
 
 {#if item.status === 'cached' }

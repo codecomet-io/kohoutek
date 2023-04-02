@@ -238,7 +238,7 @@
 		color={ groupedLogs.exitCode === 0 ? 'light' : 'danger' }
 		size="small"
 		on:click|preventDefault
-		on:keypress|preventDefault
+		on:keydown|preventDefault
 	>
 		View Info
 	</ion-button>

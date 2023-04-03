@@ -27,9 +27,9 @@
 </style>
 
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <ion-button
 	fill="clear"
 	size="small"
 	on:click={ showPopover }
-	on:keydown={ showPopover }
 >view icon key</ion-button>

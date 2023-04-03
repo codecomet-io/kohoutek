@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { Action, UtilityAction } from '../../../../data_importer/lib/model';
 
-	import { createEventDispatcher } from 'svelte';
-
 	import { getDateString, getTimeString, gotoSearchString } from '$lib/helper';
+
+	import { highlightAccordion } from '$lib/stores';
 
 	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
 	import DetailField from '$lib/components/DetailField.svelte';
@@ -11,16 +11,11 @@
 
 
 	export let action : Action | UtilityAction
-	export let highlight : boolean
-	export let activeModal : string
-	export let highlightLine : string
 
 	$: nameOrType = (action as UtilityAction).utilityName ?? action.type
 
-	const dispatch = createEventDispatcher()
-
-	function handleParentHoverFocus(id : string, active : boolean) : void {
-		dispatch('highlightParent', { id, active })
+	function handleParentHoverFocus(id? : string) : void {
+		highlightAccordion.set(id ?? '')
 	}
 
 	function handleParentClick(id : string) : void {
@@ -83,7 +78,7 @@
 	<ion-item
 		slot="header"
 		color="light"
-		class:ion-focused={ highlight }
+		class:ion-focused={ action.id === $highlightAccordion }
 	>
 		<FilesetOrActionAccordionHeader item={ action } />
 	</ion-item>
@@ -124,10 +119,10 @@
 						<li title={ parentAction.name }>
 							<a
 								href="#{ parentAction.id }"
-								on:mouseover={ () => handleParentHoverFocus(parentAction.id, true) }
-								on:mouseout={ () => handleParentHoverFocus(parentAction.id, false) }
-								on:focus={ () => handleParentHoverFocus(parentAction.id, true) }
-								on:blur={ () => handleParentHoverFocus(parentAction.id, false) }
+								on:mouseover={ () => handleParentHoverFocus(parentAction.id) }
+								on:mouseout={ () => handleParentHoverFocus() }
+								on:focus={ () => handleParentHoverFocus(parentAction.id) }
+								on:blur={ () => handleParentHoverFocus() }
 								on:click|preventDefault={ () => handleParentClick(parentAction.id) }
 							>{ parentAction.name }</a>
 						</li>
@@ -141,10 +136,6 @@
 			/>
 		{/if}
 
-		<ViewLogs
-			item={ action }
-			activeModal={ activeModal }
-			highlightLine={ highlightLine }
-		/>
+		<ViewLogs item={ action } />
 	</article>
 </ion-accordion>

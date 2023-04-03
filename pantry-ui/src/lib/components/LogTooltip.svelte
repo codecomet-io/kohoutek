@@ -232,13 +232,13 @@
 
 
 <div class="tooltip-wrapper default-position">
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<ion-button
 		href="#{ groupedLogs.id }"
 		fill={ groupedLogs.exitCode === 0 ? 'outline' : 'solid' }
 		color={ groupedLogs.exitCode === 0 ? 'light' : 'danger' }
 		size="small"
 		on:click|preventDefault
-		on:keydown|preventDefault
 	>
 		View Info
 	</ion-button>

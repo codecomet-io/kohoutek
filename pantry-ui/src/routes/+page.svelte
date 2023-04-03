@@ -1,9 +1,8 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import type { Pipeline } from '../../../data_importer/lib/model';
-	import type { HighlightInfo } from '$lib/types/highlight';
 
-	import { page } from '$app/stores';
+	import { activeAccordion, activeModal, highlightLine } from '$lib/stores'
 
 	import PipelineHeader from '$lib/components/PipelineHeader.svelte';
 	import IconKey from '$lib/components/IconKey.svelte';
@@ -15,20 +14,18 @@
 
 	const pipeline : Pipeline = data.pipeline
 
-	let activeAccordion : string
-	let activeModal : string
-	let highlightLine : string
-
 	$: updateFromParams(data.searchParams)
 
 	function updateFromParams(searchParams : URLSearchParams) : void {
-		activeAccordion = searchParams.get('active_accordion') ?? ''
+		const active_accordion = searchParams.get('active_accordion') ?? ''
+		const active_modal = searchParams.get('active_modal') ?? ''
+		const highlight_line = searchParams.get('highlight_line') ?? ''
 
-		scrollTo(activeAccordion)
+		activeAccordion.set(active_accordion)
+		activeModal.set(active_modal)
+		highlightLine.active.set(highlight_line)
 
-		activeModal = searchParams.get('active_modal') ?? ''
-
-		highlightLine = searchParams.get('highlight_line') ?? ''
+		scrollTo(active_accordion)
 	}
 
 	function scrollTo(id : string) : void {
@@ -46,15 +43,6 @@
 	}
 
 	let ionContent : HTMLIonContentElement
-
-	let highlight : HighlightInfo = {
-		id : '',
-		active : false,
-	}
-
-	function highlightParent(event : any) : void {
-		highlight = event.detail
-	}
 </script>
 
 
@@ -69,10 +57,7 @@
 </style>
 
 
-<PipelineHeader
-	pipeline={ pipeline }
-	on:highlightParent={ highlightParent }
-/>
+<PipelineHeader pipeline={ pipeline } />
 
 <ion-content
 	fullscreen={ true }
@@ -83,23 +68,10 @@
 			<IconKey />
 		</FilesetsOrActionsHeader>
 
-		<FilesetsOrActionsList
-			filesets={ pipeline?.filesets }
-			highlight={ highlight }
-			activeAccordion={ activeAccordion }
-			activeModal={ activeModal }
-			highlightLine={ highlightLine }
-		/>
+		<FilesetsOrActionsList filesets={ pipeline?.filesets } />
 
 		<FilesetsOrActionsHeader items={ pipeline?.actions } />
 
-		<FilesetsOrActionsList
-			actions={ pipeline?.actions }
-			highlight={ highlight }
-			activeAccordion={ activeAccordion }
-			activeModal={ activeModal }
-			highlightLine={ highlightLine }
-			on:highlightParent={ highlightParent }
-		/>
+		<FilesetsOrActionsList actions={ pipeline?.actions } />
 	</div>
 </ion-content>

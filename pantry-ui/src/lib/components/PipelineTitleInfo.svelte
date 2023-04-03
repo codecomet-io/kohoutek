@@ -12,10 +12,6 @@
 	export let pipeline : Pipeline
 
 	let modalElement : HTMLIonModalElement
-
-	function handleCloseModal() : void {
-		modalElement.dismiss(null, 'cancel')
-	}
 </script>
 
 
@@ -93,10 +89,10 @@
 			<ion-title>Pipeline Info</ion-title>
 
 			<ion-buttons slot="end">
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<ion-button
 					fill="clear"
-					on:click={ handleCloseModal }
-					on:keydown={ handleCloseModal }
+					on:click={ () => modalElement.dismiss(null, 'cancel') }
 				>
 					Close
 				</ion-button>

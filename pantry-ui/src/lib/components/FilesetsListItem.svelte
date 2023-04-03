@@ -1,16 +1,15 @@
 <script lang="ts">
-	import type { FilesetAction } from '../../../../data_importer/lib/model';
+	import type { FilesetAction } from '../../../../data_importer/lib/model'
 
-	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
-	import FilesetSpecialFields from '$lib/components/FilesetSpecialFields.svelte';
-	import DetailField from '$lib/components/DetailField.svelte';
-	import ViewLogs from '$lib/components/ViewLogs.svelte';
+	import { highlightAccordion } from '$lib/stores'
+
+	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte'
+	import FilesetSpecialFields from '$lib/components/FilesetSpecialFields.svelte'
+	import DetailField from '$lib/components/DetailField.svelte'
+	import ViewLogs from '$lib/components/ViewLogs.svelte'
 
 
 	export let fileset : FilesetAction
-	export let highlight : boolean
-	export let activeModal : string
-	export let highlightLine : string
 </script>
 
 
@@ -45,10 +44,11 @@
 	data-id={ fileset.id }
 	toggle-icon-slot="start"
 >
+
 	<ion-item
 		slot="header"
 		color="light"
-		class:ion-focused={ highlight }
+		class:ion-focused={ fileset.id === $highlightAccordion }
 	>
 		<FilesetOrActionAccordionHeader item={ fileset } />
 	</ion-item>
@@ -88,10 +88,6 @@
 			{/if}
 		</DetailField>
 
-		<ViewLogs
-			item={ fileset }
-			activeModal={ activeModal }
-			highlightLine={ highlightLine }
-		/>
+		<ViewLogs item={ fileset } />
 	</article>
 </ion-accordion>

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { TimingInfo } from '../../../../data_importer/lib/model'
 
-	import { createEventDispatcher } from 'svelte'
-
 	import { gotoSearchString } from '$lib/helper';
+
+	import { highlightAccordion } from '$lib/stores'
 
 	import { timingChartTooltipHelper } from '$lib/actions/timing-chart-tooltip-helper'
 
@@ -39,10 +39,8 @@
 		return colors[ index % colors.length ]
 	}
 
-	const dispatch = createEventDispatcher()
-
-	function handleHoverFocus(id : string, active : boolean, event : any) : void {
-		dispatch('highlightParent', { id, active })
+	function handleHoverFocus(id? : string) : void {
+		highlightAccordion.set(id ?? '')
 	}
 
 	function handleClick(id : string) : void {
@@ -176,10 +174,10 @@
 				href="#{ item.id }"
 				class:cached={ item.cached }
 				style="background-color: { getColor(index) };"
-				on:mouseover={ (event) => handleHoverFocus(item.id, true, event) }
-				on:mouseout={ (event) => handleHoverFocus(item.id, false, event) }
-				on:focus={ (event) => handleHoverFocus(item.id, true, event) }
-				on:blur={ (event) => handleHoverFocus(item.id, false, event) }
+				on:mouseover={ (event) => handleHoverFocus(item.id) }
+				on:mouseout={ (event) => handleHoverFocus() }
+				on:focus={ (event) => handleHoverFocus(item.id) }
+				on:blur={ (event) => handleHoverFocus() }
 				on:click|preventDefault={ () => handleClick(item.id) }
 			><span class="visually-hidden">{ item.name }</span></a>
 

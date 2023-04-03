@@ -20,10 +20,6 @@
 	$: if ((item as FilesetAction).filesetType === 'git' && /\/\/(?:www\.)?gitlab\.com\//.test((item as FilesetAction).source)) {
 		customIcon = 'gitlab'
 	}
-
-	function handleLogsClick() : void {
-		gotoSearchString('active_modal', item.id)
-	}
 </script>
 
 
@@ -35,10 +31,6 @@
 	:global(ion-item[slot="header"] .status-icon) {
 		margin-left: 0.25em;
 	}
-
-	// .log-icon {
-	// 	margin-right: 0.75em;
-	// }
 </style>
 
 
@@ -50,12 +42,12 @@
 <ion-label>{ item.name }</ion-label>
 
 {#if item.groupedLogs }
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<ion-button
 		fill="clear"
 		color={ item.status === 'errored' ? 'danger' :'medium' }
 		aria-label="open logs modal"
-		on:click|stopPropagation={ handleLogsClick }
-		on:keydown|stopPropagation={ handleLogsClick }
+		on:click|stopPropagation={ () => gotoSearchString('active_modal', item.id) }
 	>
 		<ion-icon
 			slot="icon-only"

@@ -1,23 +1,25 @@
 <script lang="ts">
 	import type { FilesetAction, Action } from '../../../../data_importer/lib/model'
+	import type { HighlightLineBounds } from '$lib/stores'
+
+	import { get } from 'svelte/store'
 
 	import Prism from 'svelte-prism'
 	import 'prismjs/components/prism-bash.min.js'
 	import 'prismjs/components/prism-shell-session.min.js'
 
-	import { receiptOutline } from 'ionicons/icons'
-
 	import { gotoSearchString } from '$lib/helper'
 
+	import { activeModal, highlightLine } from '$lib/stores'
+
+	import ViewLogsButton from '$lib/components/ViewLogsButton.svelte'
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
 	import LogTooltip from '$lib/components/LogTooltip.svelte'
 
 
 	export let item : FilesetAction | Action
-	export let activeModal : string
-	export let highlightLine : string
 
-	$: parseHighlight(highlightLine)
+	const { active, bounds } = highlightLine
 
 	let modalElement : HTMLIonModalElement
 
@@ -97,10 +99,6 @@
 		}
 	}
 
-	function handleCloseModal() : void {
-		modalElement.dismiss(null, 'cancel')
-	}
-
 	let _lineCount : number = 0
 
 	const _lineMap : { [ key : string ] : number } = {}
@@ -113,48 +111,34 @@
 		return _lineMap[lineId].toString()
 	}
 
-	let highlightBounds : [ number, number ]
-	let highlightMap : { [ key : string ] : true } = {}
-
-	function parseHighlight(updatedHighlight : string) : void {
-		if (updatedHighlight) {
-			// does highlight contain a dash, indicating a range
-			// if so, parse the upper and lower bounds
-			if (/-/.test(updatedHighlight)) {
-				highlightBounds = updatedHighlight
-					.split('-')
-					.map((item : string) => parseInt(item, 10)) as [ number, number ]
-			} else {
-				const lineNumber = parseInt(updatedHighlight, 10)
-
-				highlightBounds = [lineNumber, lineNumber]
-			}
-
-			const highlightCount = highlightBounds[1] - highlightBounds[0] + 1
-
-			const highlightEntries = Array
-				.from(Array(highlightCount), (_, i) => i + highlightBounds[0])
-				.map((item : number) => [ item, true ])
-
-			highlightMap = Object.fromEntries(highlightEntries)
-		} else {
-			highlightMap = {}
+	function isHighlighted(line : string, bounds : HighlightLineBounds) : boolean {
+		if (!bounds) {
+			return false
 		}
+
+		const lineNumber = parseInt(line, 10)
+
+		return lineNumber >= bounds[0] && lineNumber <= bounds[1]
 	}
 
-	function handleHighlightLineClick(event : MouseEvent, line : string) : void {
+	function handleHighlightLineClick(
+		event : MouseEvent,
+		line : string,
+		activeLine : string,
+		bounds : HighlightLineBounds,
+	) : void {
 		let value : string | undefined = undefined
 
-		if (highlightLine !== line) {
-			if (highlightLine && event.shiftKey) {
+		if (activeLine !== line) {
+			if (activeLine && event.shiftKey) {
 				const lineNumber = parseInt(line, 10)
 
-				if (lineNumber === highlightBounds[0] || lineNumber === highlightBounds[1]) {
+				if (lineNumber === bounds[0] || lineNumber === bounds[1]) {
 					return
-				} else if (lineNumber < highlightBounds[0]) {
-					value = `${ line }-${ highlightBounds[1] }`
+				} else if (lineNumber < bounds[0]) {
+					value = `${ line }-${ bounds[1] }`
 				} else {
-					value = `${ highlightBounds[0] }-${ line }`
+					value = `${ bounds[0] }-${ line }`
 				}
 			} else {
 				value = line
@@ -164,8 +148,7 @@
 		gotoSearchString('highlight_line', value)
 
 		// wait a beat for updated search params to flow down
-		// and for the reactive parseHighlight func to update highlightBounds
-		setTimeout(() => selectText(event), 100)
+		setTimeout(() => selectText(event), 10)
 	}
 
 	function selectText(event : MouseEvent) : void {
@@ -174,6 +157,8 @@
 		if (!container) {
 			return
 		}
+
+		const highlightBounds = get(bounds)
 
 		const startBeforeNode = container.querySelector(`a[data-line="${ highlightBounds[0] }"] + code + pre`)
 		const endAfterNode = container.querySelector(`a[data-line="${ highlightBounds[1] }"] + code + pre`)
@@ -223,13 +208,6 @@
 
 
 <style lang="scss">
-	.view-logs-button-wrapper {
-		display: flex;
-		justify-content: right;
-		flex-grow: 1;
-		flex-basis: 0%;
-	}
-
 	ion-modal {
 		--min-height: 100vh;
 		--max-height: 100vh;
@@ -445,26 +423,11 @@
 
 
 {#if item.groupedLogs }
-	<div class="view-logs-button-wrapper">
-		<ion-button
-			id="{ item.id }_openLogsModal"
-			fill={ item.status === 'errored' ? 'solid' :'outline' }
-			color={ item.status === 'errored' ? 'danger' :'default' }
-			size="small"
-		>
-			View Logs
-
-			<ion-icon
-				slot="start"
-				icon={ receiptOutline }
-			></ion-icon>
-		</ion-button>
-	</div>
+	<ViewLogsButton item={ item } />
 
 	<ion-modal
-		trigger="{ item.id }_openLogsModal"
 		bind:this={ modalElement }
-		is-open={ item.id === activeModal }
+		is-open={ item.id === $activeModal }
 		on:willPresent={ (event) => handleWillPresent(event, item.id, true) }
 		on:willDismiss={ () => updateActiveModal(item.id, false) }
 	>
@@ -473,10 +436,10 @@
 				<ion-title>View Logs</ion-title>
 
 				<ion-buttons slot="end">
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<ion-button
 						fill="clear"
-						on:click={ handleCloseModal }
-						on:keydown={ handleCloseModal }
+						on:click={ () => modalElement.dismiss(null, 'cancel') }
 					>
 						Close
 					</ion-button>
@@ -511,12 +474,12 @@
 									<a
 										class="line-link"
 										aria-label="highlight line { lineCount }"
-										class:highlight={ highlightMap[lineCount] }
+										class:highlight={ isHighlighted(lineCount, $bounds) }
 										class:stderr={ log.isStderr }
 										href="#{ lineCount }"
 										data-line={ lineCount }
 										data-timestamp={ lineIndex === 0 ? log.timestamp : null }
-										on:click|preventDefault={ (event) => handleHighlightLineClick(event, lineCount) }
+										on:click|preventDefault={ (event) => handleHighlightLineClick(event, lineCount, $active, $bounds) }
 									>
 										<ChunkyLabel>
 											<span

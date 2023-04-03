@@ -1,25 +1,16 @@
 <script lang="ts">
 	import type { FilesetAction, Action } from '../../../../data_importer/lib/model'
-	import type { HighlightLineBounds } from '$lib/stores'
-
-	import { get } from 'svelte/store'
-
-	import Prism from 'svelte-prism'
-	import 'prismjs/components/prism-bash.min.js'
-	import 'prismjs/components/prism-shell-session.min.js'
 
 	import { gotoSearchString } from '$lib/helper'
 
-	import { activeModal, highlightLine } from '$lib/stores'
+	import { activeModal } from '$lib/stores'
 
 	import ViewLogsButton from '$lib/components/ViewLogsButton.svelte'
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
-	import LogTooltip from '$lib/components/LogTooltip.svelte'
+	import ModalHeader from '$lib/components/ModalHeader.svelte'
+	import ViewLogsModalContent from '$lib/components/ViewLogsModalContent.svelte'
 
 
 	export let item : FilesetAction | Action
-
-	const { active, bounds } = highlightLine
 
 	let modalElement : HTMLIonModalElement
 
@@ -85,7 +76,7 @@
 	function handleWillPresent(event : any, id : string, active : boolean) : void {
 		updateActiveModal(id, true)
 
-		setTimeout(() => updateModalAndTooltip(event.target), 1)
+		setTimeout(() => updateModalAndTooltip(event.target), 10)
 	}
 
 	function updateActiveModal(id : string, active : boolean) : void {
@@ -97,112 +88,6 @@
 				'highlight_line' : undefined,
 			})
 		}
-	}
-
-	let _lineCount : number = 0
-
-	const _lineMap : { [ key : string ] : number } = {}
-
-	function getLineCount(lineId : string) : string {
-		if (_lineMap[lineId] == null) {
-			_lineMap[lineId] = ++_lineCount
-		}
-
-		return _lineMap[lineId].toString()
-	}
-
-	function isHighlighted(line : string, bounds : HighlightLineBounds) : boolean {
-		if (!bounds) {
-			return false
-		}
-
-		const lineNumber = parseInt(line, 10)
-
-		return lineNumber >= bounds[0] && lineNumber <= bounds[1]
-	}
-
-	function handleHighlightLineClick(
-		event : MouseEvent,
-		line : string,
-		activeLine : string,
-		bounds : HighlightLineBounds,
-	) : void {
-		let value : string | undefined = undefined
-
-		if (activeLine !== line) {
-			if (activeLine && event.shiftKey) {
-				const lineNumber = parseInt(line, 10)
-
-				if (lineNumber === bounds[0] || lineNumber === bounds[1]) {
-					return
-				} else if (lineNumber < bounds[0]) {
-					value = `${ line }-${ bounds[1] }`
-				} else {
-					value = `${ bounds[0] }-${ line }`
-				}
-			} else {
-				value = line
-			}
-		}
-
-		gotoSearchString('highlight_line', value)
-
-		// wait a beat for updated search params to flow down
-		setTimeout(() => selectText(event), 10)
-	}
-
-	function selectText(event : MouseEvent) : void {
-		const container = (event.target as HTMLElement)?.closest('.log-container')
-
-		if (!container) {
-			return
-		}
-
-		const highlightBounds = get(bounds)
-
-		const startBeforeNode = container.querySelector(`a[data-line="${ highlightBounds[0] }"] + code + pre`)
-		const endAfterNode = container.querySelector(`a[data-line="${ highlightBounds[1] }"] + code + pre`)
-
-		if (!(startBeforeNode && endAfterNode)) {
-			return
-		}
-
-		const range = new Range()
-
-		range.setStartBefore(startBeforeNode)
-
-		range.setEndAfter(endAfterNode)
-
-		const selection = window.getSelection()
-
-		if (!selection) {
-			return
-		}
-
-		selection.removeAllRanges()
-
-		selection.addRange(range)
-	}
-
-	$: totalLinesLength = item.groupedLogs?.totalLines.toString().length
-
-	// insure each line number is as long as the last line number for even alignment
-	// to do this we compare the length of the total lines number to the current line
-	// if necessary we insert zeros ("0"), which will be hidden, to balance the number
-	function insertSpacingDigits(line : string) : string {
-		const lineLength : number = line.length
-
-		if (!totalLinesLength || totalLinesLength === lineLength) {
-			return ''
-		}
-
-		// taking 10 to the power of the number of digits we need,
-		// aka total lines length minus current line length,
-		// will give us a 1 followed by the needed zeros
-		// remove the 1 and return
-		return (10 ** (totalLinesLength - lineLength))
-			.toString()
-			.replace(/[^0]/, '')
 	}
 </script>
 
@@ -219,207 +104,7 @@
 			--max-height: calc(100vh - (16px * 2));
 		}
 	}
-
-	ion-content {
-		--background: #353b48;
-	}
-
-	.scroll-wrapper {
-		height: 100%;
-		overflow-x: auto;
-	}
-
-	.log-container {
-		position: relative;
-		min-width: fit-content;
-
-		@media (min-width: 768px) {
-			display: grid;
-			grid-template-columns: minmax(200px, 40%) auto;
-		}
-
-		@media (min-width: 1280px) {
-			grid-template-columns: min-content auto;
-		}
-
-		:global(pre) {
-			width: min-content;
-			margin-top: 0;
-			margin-bottom: 0;
-			padding: 0 0.25em;
-			overflow: visible;
-		}
-	}
-
-	.log-info-container,
-	.log-console-container {
-		align-items: center;
-		padding-top: 5px;
-		padding-bottom: 5px;
-
-		&:first-child {
-			padding-top: 16px;
-		}
-
-		&:last-child {
-			padding-bottom: 16px;
-		}
-
-		@media (min-width: 768px) {
-			border-top: 1px dashed #666666;
-
-			&:nth-child(-n + 2) {
-				border-top: none;
-				padding-top: 16px;
-			}
-
-			&:nth-last-child(-n + 2) {
-				padding-bottom: 16px;
-			}
-		}
-	}
-
-	.log-info-container {
-		display: flex;
-		justify-content: space-between;
-		max-width: 100vw;
-		margin-top: 0;
-		margin-bottom: 0;
-		padding-left: 16px;
-		padding-right: 16px;
-		column-gap: 10px;
-		background-color: #353b48;
-
-		@media (min-width: 768px) {
-			max-width: none;
-			align-items: baseline;
-			padding-right: 10px;
-		}
-
-		&::-webkit-scrollbar {
-			display: none;
-		}
-
-		:global(.tooltip-wrapper) {
-			flex-grow: 0;
-			flex-shrink: 0;
-		}
-	}
-
-	.key {
-		flex-grow: 0;
-		flex-shrink: 0;
-
-		:global(ion-card-subtitle) {
-			--color: #ffeaa7;
-		}
-	}
-
-	.value {
-		margin-left: 0;
-		overflow: hidden;
-		flex-grow: 1;
-		flex-shrink: 1;
-
-		@media (min-width: 768px) {
-			display: none;
-		}
-
-		@media (min-width: 1024px) {
-			display: block;
-		}
-
-		:global(pre) {
-			background-color: unset;
-		}
-	}
-
-	.log-console-container {
-		display: grid;
-		grid-template-columns: min-content auto;
-		grid-auto-columns: min-content;
-		width: 100%;
-		list-style: none;
-		margin-top: 0;
-		margin-bottom: 0;
-		padding-right: 16px;
-		background-color: #272822;
-		color: #fff;
-		border-top: 1px dashed #666666;
-		border-bottom: 1px dashed #666666;
-
-		&:last-child {
-			border-bottom: 1px solid #666666;
-		}
-
-		@media (min-width: 768px) {
-			border-left: 1px solid #666666;
-
-			&:not(:last-child) {
-				border-bottom: none;
-			}
-		}
-	}
-
-	.line-link {
-		padding: 5px 10px;
-		text-decoration: none;
-		text-align: right;
-		position: relative;
-
-		&.highlight {
-			&::after {
-				content: '';
-				position: absolute;
-				top: 0;
-				right: 5px;
-				width: 2px;
-				height: 100%;
-				background-color: #f1c40f;
-			}
-
-			+ :global(code + pre) {
-				background-color: rgba(115, 255, 0, 40%);
-			}
-		}
-
-		&.stderr {
-			:global(ion-card-subtitle) {
-				--color: #eb445a;
-			}
-		}
-
-		:global(ion-card-subtitle) {
-			display: flex;
-			pointer-events: none;
-		}
-
-		.spacing-digits,
-		.visible-digits {
-			pointer-events: none;
-		}
-
-		.spacing-digits {
-			visibility: hidden;
-		}
-
-		.visible-digits {
-			&::before {
-				content: attr(data-line-count);
-			}
-		}
-	}
-
-	.stderr-badge {
-		grid-column: 3;
-		margin-left: 0.5em;
-	}
 </style>
-
-
-<svelte:head>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.min.css" />
-</svelte:head>
 
 
 {#if item.groupedLogs }
@@ -431,87 +116,11 @@
 		on:willPresent={ (event) => handleWillPresent(event, item.id, true) }
 		on:willDismiss={ () => updateActiveModal(item.id, false) }
 	>
-		<ion-header>
-			<ion-toolbar>
-				<ion-title>View Logs</ion-title>
+		<ModalHeader
+			title="View Logs"
+			dismissModal={ () => modalElement.dismiss(null, 'cancel') }
+		></ModalHeader>
 
-				<ion-buttons slot="end">
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<ion-button
-						fill="clear"
-						on:click={ () => modalElement.dismiss(null, 'cancel') }
-					>
-						Close
-					</ion-button>
-				</ion-buttons>
-			</ion-toolbar>
-		</ion-header>
-
-		<ion-content>
-			<div class="scroll-wrapper">
-				<div class="log-container">
-					{#each item.groupedLogs.commands ?? [] as groupedLogs, groupedIndex }
-						<div class="log-info-container">
-							<div class="key">
-								<ChunkyLabel>command { groupedIndex + 1 }</ChunkyLabel>
-							</div>
-
-							<div class="value">
-								<Prism
-									language="bash"
-									source={ groupedLogs.command }
-								/>
-							</div>
-
-							<LogTooltip groupedLogs={ groupedLogs } />
-						</div>
-
-						<div class="log-console-container">
-							{#each groupedLogs.logs as log, logIndex }
-								{#each log.lines as line, lineIndex }
-									{@const lineCount = getLineCount(`${ groupedIndex }${ logIndex }${ lineIndex }`) }
-
-									<a
-										class="line-link"
-										aria-label="highlight line { lineCount }"
-										class:highlight={ isHighlighted(lineCount, $bounds) }
-										class:stderr={ log.isStderr }
-										href="#{ lineCount }"
-										data-line={ lineCount }
-										data-timestamp={ lineIndex === 0 ? log.timestamp : null }
-										on:click|preventDefault={ (event) => handleHighlightLineClick(event, lineCount, $active, $bounds) }
-									>
-										<ChunkyLabel>
-											<span
-												class="spacing-digits"
-												aria-hidden="true"
-											>{ insertSpacingDigits(lineCount) }</span>
-
-											<span
-												class="visible-digits"
-												data-line-count={ lineCount }
-												aria-hidden="true"
-											></span>
-										</ChunkyLabel>
-									</a>
-
-									<Prism
-										language="shell-session"
-										source={ line }
-									/>
-
-									{#if log.isStderr }
-										<ion-badge
-											class="stderr-badge"
-											color="danger"
-										>StdErr</ion-badge>
-									{/if}
-								{/each}
-							{/each}
-						</div>
-					{/each}
-				</div>
-			</div>
-		</ion-content>
+		<ViewLogsModalContent item={ item } />
 	</ion-modal>
 {/if}

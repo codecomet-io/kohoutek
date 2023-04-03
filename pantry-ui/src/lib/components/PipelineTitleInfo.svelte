@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type { Pipeline } from '../../../../data_importer/lib/model'
 
-	import { parseLapsed } from '$lib/helper';
+	import { parseLapsed } from '$lib/helper'
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
-	import Ago from '$lib/components/Ago.svelte';
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import PipelineInfoModalContent from '$lib/components/PipelineInfoModalContent.svelte';
+	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
+	import Ago from '$lib/components/Ago.svelte'
+	import StatusIcon from '$lib/components/StatusIcon.svelte'
+	import ModalHeader from '$lib/components/ModalHeader.svelte'
+	import PipelineInfoModalContent from '$lib/components/PipelineInfoModalContent.svelte'
 
 
 	export let pipeline : Pipeline
@@ -84,21 +85,10 @@
 	trigger="openPipelineInfoModal"
 	bind:this={ modalElement }
 >
-	<ion-header>
-		<ion-toolbar>
-			<ion-title>Pipeline Info</ion-title>
-
-			<ion-buttons slot="end">
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
-				<ion-button
-					fill="clear"
-					on:click={ () => modalElement.dismiss(null, 'cancel') }
-				>
-					Close
-				</ion-button>
-			</ion-buttons>
-		</ion-toolbar>
-	</ion-header>
+	<ModalHeader
+		title="Pipeline Info"
+		dismissModal={ () => modalElement.dismiss(null, 'cancel') }
+	></ModalHeader>
 
 	<PipelineInfoModalContent pipeline={ pipeline } />
 </ion-modal>

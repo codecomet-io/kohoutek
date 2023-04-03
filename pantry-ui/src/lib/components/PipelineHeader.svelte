@@ -16,6 +16,11 @@
 		background-color: #f7f7f7;
 		border-bottom: 0.55px solid rgba(0, 0, 0, 0.2);
 
+		@media (prefers-color-scheme: dark) {
+			background-color: #0d0d0d;
+			border-bottom-color: #262626;
+		}
+
 		@media (min-width: 1280px) {
 			--max-width-gutter-padding: calc((100vw - 1280px) / 2 + 16px);
 
@@ -46,7 +51,7 @@
 		</div>
 
 		<TimingChart
-			timingInfo={ pipeline.timingInfo }
+			timingInfo={ pipeline?.timingInfo }
 			on:highlightParent
 		/>
   </div>

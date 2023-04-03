@@ -50,7 +50,12 @@
 		margin-top: 0;
 		margin-bottom: 0;
 		margin-left: 0.25em;
-		color: black;
+		font-weight: 600;
+		color: #000;
+
+		@media (prefers-color-scheme: dark) {
+			color: #fff;
+		}
 
 		&::after {
 			content: url(data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpb25pY29uIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHRpdGxlPkluZm9ybWF0aW9uIENpcmNsZTwvdGl0bGU+PHBhdGggZD0iTTI0OCA2NEMxNDYuMzkgNjQgNjQgMTQ2LjM5IDY0IDI0OHM4Mi4zOSAxODQgMTg0IDE4NCAxODQtODIuMzkgMTg0LTE4NFMzNDkuNjEgNjQgMjQ4IDY0eiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLXdpZHRoPSIzMiIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMzIiIGQ9Ik0yMjAgMjIwaDMydjExNiIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLXdpZHRoPSIzMiIgZD0iTTIwOCAzNDBoODgiLz48cGF0aCBkPSJNMjQ4IDEzMGEyNiAyNiAwIDEwMjYgMjYgMjYgMjYgMCAwMC0yNi0yNnoiLz48L3N2Zz4=);
@@ -65,22 +70,22 @@
 
 <button
 	class="header"
-	id="openModal"
+	id="openPipelineInfoModal"
 >
 	<div class="title">
 		<StatusIcon
-			status={ pipeline.status }
+			status={ pipeline?.status }
 			size="large"
 		/>
 
-		<h1>{ pipeline.name }</h1>
+		<h1>{ pipeline?.name }</h1>
 	</div>
 
-	<ChunkyLabel>{ pipeline.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline.completed } /> <span title="{ pipeline.runtime } milliseconds">in { parseLapsed(pipeline.runtime, false, true) }</span></ChunkyLabel>
+	<ChunkyLabel>{ pipeline?.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline?.completed } /> <span title="{ pipeline?.runtime } milliseconds">in { parseLapsed(pipeline?.runtime, false, true) }</span></ChunkyLabel>
 </button>
 
 <ion-modal
-	trigger="openModal"
+	trigger="openPipelineInfoModal"
 	bind:this={ modalElement }
 >
 	<ion-header>
@@ -91,7 +96,7 @@
 				<ion-button
 					fill="clear"
 					on:click={ handleCloseModal }
-					on:keypress={ handleCloseModal }
+					on:keydown={ handleCloseModal }
 				>
 					Close
 				</ion-button>

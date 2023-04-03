@@ -8,7 +8,8 @@
   "dependencies": {
     "@sentry/integrations": "^7.40.0",
     "@sentry/node": "^7.40.0",
-    "codecomet-js": "file:vendor/codecomet-js-v1.0.0.tgz"
+    "codecomet-js": "file:vendor/codecomet-js-v1.0.0.tgz",
+    "nanoid": "^4.0.2"
   },
   "devDependencies": {
     "@types/node": "^18.14.4",
@@ -22,5 +23,8 @@
   "scripts": {
     "build": "npm run build:typescript && ./build.sh",
     "build:typescript": "tsc"
-  }
+  },
+  "bundleDependencies": [
+    "codecomet-js"
+  ]
 }

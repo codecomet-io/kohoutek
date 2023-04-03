@@ -3,6 +3,8 @@
 	import type { Action } from '../../../../data_importer/lib/model';
 	import type { HighlightInfo } from '$lib/types/highlight';
 
+	import { isPopulated, gotoSearchString } from '$lib/helper';
+
 	import FilesetsListItem from '$lib/components/FilesetsListItem.svelte';
 	import ActionsListItem from '$lib/components/ActionsListItem.svelte';
 
@@ -10,18 +12,18 @@
 	export let filesets : FilesetAction[] | undefined = undefined
 	export let actions : Action[] | undefined = undefined
 	export let highlight : HighlightInfo
-	export let expand : string
-
-	function isPopulated(list : typeof filesets | typeof actions) : boolean {
-		return Array.isArray(list) && list.length > 0
-	}
+	export let activeAccordion : string
+	export let activeModal : string
+	export let highlightLine : string
 
 	function handleValueChange(event : any) : void {
-		const digest : string = event.detail.value
+		const id : string = event.detail.value
 
-		if (digest !== expand) {
-			window.location.hash = digest ?? ''
+		if (id === activeAccordion) {
+			return
 		}
+
+		gotoSearchString('active_accordion', id)
 	}
 </script>
 
@@ -32,21 +34,25 @@
 {#if isPopulated(filesets) || isPopulated(actions) }
 	<ion-accordion-group
 		expand="inset"
-		value={ expand }
+		value={ activeAccordion }
 		on:ionChange={ handleValueChange }
 	>
 		{#if filesets && isPopulated(filesets) }
 			{#each filesets as fileset }
 				<FilesetsListItem
 					fileset={ fileset }
-					highlight={ highlight.active && highlight.digest === fileset.digest }
+					highlight={ highlight.active && highlight.id === fileset.id }
+					activeModal={ activeModal }
+					highlightLine={ highlightLine }
 				/>
 			{/each}
 		{:else if actions && isPopulated(actions) }
 			{#each actions as action }
 				<ActionsListItem
 					action={ action }
-					highlight={ highlight.active && highlight.digest === action.digest }
+					highlight={ highlight.active && highlight.id === action.id }
+					activeModal={ activeModal }
+					highlightLine={ highlightLine }
 					on:highlightParent
 				/>
 			{/each}

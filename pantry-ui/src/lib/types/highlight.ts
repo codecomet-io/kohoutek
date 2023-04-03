@@ -1,4 +1,4 @@
 export type HighlightInfo = {
-	digest : string
+	id : string
 	active : boolean
 }

@@ -3,36 +3,33 @@
 
 	import { createEventDispatcher } from 'svelte';
 
-	import { parseLapsed, getDateString, getTimeString } from '$lib/helper';
+	import { getDateString, getTimeString, gotoSearchString } from '$lib/helper';
 
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
 	import DetailField from '$lib/components/DetailField.svelte';
+	import ViewLogs from '$lib/components/ViewLogs.svelte';
 
 
 	export let action : Action | UtilityAction
 	export let highlight : boolean
+	export let activeModal : string
+	export let highlightLine : string
+
+	$: nameOrType = (action as UtilityAction).utilityName ?? action.type
 
 	const dispatch = createEventDispatcher()
 
-	function handleParentHoverFocus(digest : string, active : boolean) : void {
-		dispatch('highlightParent', { digest, active })
+	function handleParentHoverFocus(id : string, active : boolean) : void {
+		dispatch('highlightParent', { id, active })
+	}
+
+	function handleParentClick(id : string) : void {
+		gotoSearchString('active_accordion', id)
 	}
 </script>
 
 
 <style lang="scss">
-	[slot="header"] {
-		:global(.fileset-or-action-type-icon) {
-			margin-right: 0.25em;
-		}
-
-		:global(.status-icon) {
-			margin-left: 0.25em;
-		}
-	}
-
 	article {
 		display: flex;
 		flex-wrap: wrap;
@@ -69,14 +66,18 @@
 			white-space: nowrap;
 			text-overflow: ellipsis;
 			color: #24292f;
+
+			@media (prefers-color-scheme: dark) {
+				color: #dbd6d0;
+			}
 		}
 	}
 </style>
 
 
 <ion-accordion
-	value={ action.digest }
-	data-digest={ action.digest }
+	value={ action.id }
+	data-id={ action.id }
 	toggle-icon-slot="start"
 >
 	<ion-item
@@ -84,22 +85,7 @@
 		color="light"
 		class:ion-focused={ highlight }
 	>
-		<FilesetOrActionTypeIcon type={ action.type } />
-
-		<ion-label>{ action.name }</ion-label>
-
-		{#if action.status === 'cached' }
-			<ChunkyLabel>cached</ChunkyLabel>
-		{:else if action.runtime }
-			<ChunkyLabel
-				title={ parseLapsed(action.runtime, false, true) || undefined }
-				allcaps={ false }
-			>
-				{ parseLapsed(action.runtime, true) || '0ms' }
-			</ChunkyLabel>
-		{/if}
-
-		<StatusIcon status={ action.status } />
+		<FilesetOrActionAccordionHeader item={ action } />
 	</ion-item>
 
 	<article
@@ -108,7 +94,7 @@
 	>
 		<DetailField
 			key="type"
-			value={ action.utilityName ?? action.type }
+			value={ nameOrType }
 		/>
 
 		<DetailField
@@ -137,21 +123,28 @@
 					{#each action.parents as parentAction }
 						<li title={ parentAction.name }>
 							<a
-								href="#{ parentAction.digest }"
-								on:mouseover={ () => handleParentHoverFocus(parentAction.digest, true) }
-								on:mouseout={ () => handleParentHoverFocus(parentAction.digest, false) }
-								on:focus={ () => handleParentHoverFocus(parentAction.digest, true) }
-								on:blur={ () => handleParentHoverFocus(parentAction.digest, false) }
+								href="#{ parentAction.id }"
+								on:mouseover={ () => handleParentHoverFocus(parentAction.id, true) }
+								on:mouseout={ () => handleParentHoverFocus(parentAction.id, false) }
+								on:focus={ () => handleParentHoverFocus(parentAction.id, true) }
+								on:blur={ () => handleParentHoverFocus(parentAction.id, false) }
+								on:click|preventDefault={ () => handleParentClick(parentAction.id) }
 							>{ parentAction.name }</a>
 						</li>
 					{/each}
 				</ol>
 			</DetailField>
-			{:else}
-				<DetailField
-					key=""
-					customClass="parents-container"
-				/>
-			{/if}
+		{:else}
+			<DetailField
+				key=""
+				customClass="parents-container"
+			/>
+		{/if}
+
+		<ViewLogs
+			item={ action }
+			activeModal={ activeModal }
+			highlightLine={ highlightLine }
+		/>
 	</article>
 </ion-accordion>

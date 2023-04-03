@@ -12,6 +12,10 @@
 		text-decoration: none;
 		font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 
+		@media (prefers-color-scheme: dark) {
+			color: #ecf0f1;
+		}
+
 		&:hover {
 			color: #5468ff;
 

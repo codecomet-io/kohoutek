@@ -3,6 +3,8 @@
 
 	import { PipelineStatus, ActionStatus, FilesetType } from '../../../../data_importer/lib/model';
 
+	import { receiptOutline } from 'ionicons/icons';
+
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
 
@@ -11,7 +13,7 @@
 
 	type IconGroup = {
 		name : string
-		icons : StatusIcon[] | TypeIcon[]
+		icons : StatusIcon[] | TypeIcon[] | MiscIcon[]
 	}
 
 	type StatusIcon = {
@@ -23,6 +25,16 @@
 		name? : string
 		type : ActionType | FilesetType
 		icon? : 'gitlab'
+	}
+
+	type MiscIcon = {
+		name? : string
+		icon : string
+	}
+
+
+	const miscIconMap : { [ key : string ] : string } = {
+		receiptOutline,
 	}
 
 	const groupedIconsList : GroupedIconsList = [
@@ -99,6 +111,15 @@
 				},
 			],
 		},
+		{
+			name : 'misc',
+			icons : [
+				{
+					icon : 'receiptOutline',
+					name : 'view logs',
+				},
+			],
+		},
 	]
 </script>
 
@@ -150,6 +171,11 @@
 								icon={ item.icon }
 								size="large"
 							/>
+						{:else if item.icon }
+							<ion-icon
+								icon={ miscIconMap[item.icon] }
+								size="large"
+							></ion-icon>
 						{/if}
 					</div>
 

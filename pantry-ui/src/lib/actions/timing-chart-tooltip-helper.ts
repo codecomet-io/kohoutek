@@ -1,18 +1,7 @@
-export function tooltipHelper(element : HTMLElement) {
+export function timingChartTooltipHelper(element : HTMLElement) {
 	const link = element.querySelector('a')
 
 	let title : string | null
-
-	function handleMouseOver() {
-		// on hover focus, then blur the current link, to insure no other links will have retained focus
-		if (link && link instanceof HTMLElement) {
-			link.focus()
-
-			link.blur()
-		}
-
-		handleMouseOverOrFocus()
-	}
 
 	function handleMouseOverOrFocus() {
 		// remove the title attribute, to prevent showing the default browser tooltip
@@ -98,7 +87,7 @@ export function tooltipHelper(element : HTMLElement) {
 	}
 
 	function initEvents() : void {
-		element.addEventListener('mouseover', handleMouseOver)
+		element.addEventListener('mouseover', handleMouseOverOrFocus)
 		element.addEventListener('mouseout', handleMouseOutOrBlur)
 
 		link?.addEventListener('focus', handleMouseOverOrFocus)
@@ -109,7 +98,7 @@ export function tooltipHelper(element : HTMLElement) {
 
 	return {
 		destroy() {
-			element.removeEventListener('mouseover', handleMouseOver)
+			element.removeEventListener('mouseover', handleMouseOverOrFocus)
 			element.removeEventListener('mouseout', handleMouseOutOrBlur)
 
 			link?.removeEventListener('focus', handleMouseOverOrFocus)

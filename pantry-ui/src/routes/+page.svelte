@@ -11,45 +11,45 @@
 	import FilesetsOrActionsHeader from '$lib/components/FilesetsOrActionsHeader.svelte';
 
 
-	export let data: PageData
+	export let data : PageData
 
-	const pipeline = <Pipeline>data.pipeline
+	const pipeline : Pipeline = data.pipeline
 
-	let ionContent : HTMLIonContentElement
+	let activeAccordion : string
+	let activeModal : string
+	let highlightLine : string
 
-	let highlight : HighlightInfo = {
-		digest : '',
-		active : false,
+	$: updateFromParams(data.searchParams)
+
+	function updateFromParams(searchParams : URLSearchParams) : void {
+		activeAccordion = searchParams.get('active_accordion') ?? ''
+
+		scrollTo(activeAccordion)
+
+		activeModal = searchParams.get('active_modal') ?? ''
+
+		highlightLine = searchParams.get('highlight_line') ?? ''
 	}
 
-	let expand : string
-
-	const hashReplaceRegex : RegExp = /^(?:.+)?#/
-
-	page.subscribe((pageData) => {
-		const { hash } = pageData?.url
-
-		if (hash) {
-			expand = hash.replace(hashReplaceRegex, '')
+	function scrollTo(id : string) : void {
+		if (!id) {
+			return
 		}
-	})
 
-	function handleHashchange(event : any) : void {
-		const digest : string = event.newURL.replace(hashReplaceRegex, '')
-
-		expand = digest
-
-		scrollTo(digest)
-	}
-
-	function scrollTo(digest : string) : void {
-		const accordion = document.querySelector(`ion-accordion[data-digest="${ digest }"]`)
+		const accordion = document.querySelector(`ion-accordion[data-id="${ id }"]`)
 
 		if (!(accordion && accordion instanceof HTMLElement)) {
 			return
 		}
 
 		ionContent.scrollToPoint(null, accordion.offsetTop - 16, 1000)
+	}
+
+	let ionContent : HTMLIonContentElement
+
+	let highlight : HighlightInfo = {
+		id : '',
+		active : false,
 	}
 
 	function highlightParent(event : any) : void {
@@ -79,25 +79,27 @@
 	bind:this={ ionContent }
 >
 	<div class="max-width-wrapper">
-		<FilesetsOrActionsHeader  filesets={ pipeline.filesets }>
+		<FilesetsOrActionsHeader items={ pipeline?.filesets }>
 			<IconKey />
 		</FilesetsOrActionsHeader>
 
 		<FilesetsOrActionsList
-			filesets={ pipeline.filesets }
+			filesets={ pipeline?.filesets }
 			highlight={ highlight }
-			expand={ expand }
+			activeAccordion={ activeAccordion }
+			activeModal={ activeModal }
+			highlightLine={ highlightLine }
 		/>
 
-		<FilesetsOrActionsHeader actions={ pipeline.actions } />
+		<FilesetsOrActionsHeader items={ pipeline?.actions } />
 
 		<FilesetsOrActionsList
-			actions={ pipeline.actions }
+			actions={ pipeline?.actions }
 			highlight={ highlight }
-			expand={ expand }
+			activeAccordion={ activeAccordion }
+			activeModal={ activeModal }
+			highlightLine={ highlightLine }
 			on:highlightParent={ highlightParent }
 		/>
 	</div>
 </ion-content>
-
-<svelte:window on:hashchange={ handleHashchange } />

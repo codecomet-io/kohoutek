@@ -41,53 +41,53 @@
 	<div class="flex-wrapper">
 		<DetailField
 			key="name"
-			value={ pipeline.name }
+			value={ pipeline?.name }
 			customClass="span-2-columns"
 			truncateOverflowText={ false }
 		/>
 
 		<DetailField
 			key="description"
-			value={ pipeline.description }
+			value={ pipeline?.description }
 			customClass="span-2-columns"
 			truncateOverflowText={ false }
 		/>
 
 		<DetailField
 			key="started at"
-			value={ pipeline.started ? getTimeString(pipeline.started) : undefined }
-			title={ pipeline.started ? getDateString(pipeline.started) : undefined }
+			value={ pipeline?.started ? getTimeString(pipeline?.started) : undefined }
+			title={ pipeline?.started ? getDateString(pipeline?.started) : undefined }
 		/>
 
 		<DetailField
 			key="ended at"
-			value={ pipeline.completed ? getTimeString(pipeline.completed) : undefined }
-			title={ pipeline.completed ? getDateString(pipeline.completed) : undefined }
+			value={ pipeline?.completed ? getTimeString(pipeline?.completed) : undefined }
+			title={ pipeline?.completed ? getDateString(pipeline?.completed) : undefined }
 		/>
 
 		<DetailField
 			key="status"
-			value={ pipeline.status }
+			value={ pipeline?.status }
 		/>
 
 		<DetailField
 			key="trigger"
-			value={ pipeline.trigger }
+			value={ pipeline?.trigger }
 		/>
 
 		<DetailField
 			key="total actions"
-			value={ `${ pipeline.actionsInfo.total }` }
+			value={ `${ pipeline?.actionsInfo.total }` }
 		/>
 
 		<DetailField
 			key="cached actions"
-			value={ `${ pipeline.actionsInfo.cached }` }
+			value={ `${ pipeline?.actionsInfo.cached }` }
 		/>
 
 		<DetailField
 			key="errored actions"
-			value={ `${ pipeline.actionsInfo.errored }` }
+			value={ `${ pipeline?.actionsInfo.errored }` }
 		/>
 	</div>
 </ion-content>

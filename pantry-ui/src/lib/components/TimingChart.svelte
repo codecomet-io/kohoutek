@@ -3,12 +3,14 @@
 
 	import { createEventDispatcher } from 'svelte'
 
-	import { tooltipHelper } from '$lib/actions/tooltip-helper'
+	import { gotoSearchString } from '$lib/helper';
+
+	import { timingChartTooltipHelper } from '$lib/actions/timing-chart-tooltip-helper'
 
 	import TimingInfoTooltip from '$lib/components/TimingInfoTooltip.svelte'
 
 
-	export let timingInfo : TimingInfo[]
+	export let timingInfo : TimingInfo[] = []
 
 	const colors : string[] = [
 		'#ffc312',
@@ -39,8 +41,12 @@
 
 	const dispatch = createEventDispatcher()
 
-	function handleHoverFocus(digest : string, active : boolean) : void {
-		dispatch('highlightParent', { digest, active })
+	function handleHoverFocus(id : string, active : boolean, event : any) : void {
+		dispatch('highlightParent', { id, active })
+	}
+
+	function handleClick(id : string) : void {
+		gotoSearchString('active_accordion', id)
 	}
 </script>
 
@@ -131,6 +137,21 @@
 				@extend %hover-focus-tooltip-styling;
 			}
 		}
+
+		&.cached {
+			&::before {
+				content: '';
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background-image: url(data:image/svg+xml;charset=utf-8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuX0tYYzJqIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBwYXR0ZXJuVHJhbnNmb3JtPSJyb3RhdGUoNDUpIj48bGluZSB4MT0iMCIgeT0iMCIgeDI9IjAiIHkyPSIzIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIvPjwvcGF0dGVybj48L2RlZnM+IDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybl9LWGMyaikiIC8+PC9zdmc+);
+				background-repeat: repeat;
+				border-radius: inherit;
+				opacity: 0.75;
+			}
+		}
 	}
 
 	@keyframes animateIn {
@@ -149,15 +170,17 @@
 		<li
 			style="flex-basis: { item.percent }%;"
 			title={ item.name }
-			use:tooltipHelper
+			use:timingChartTooltipHelper
 		>
 			<a
-				href="#{ item.digest }"
+				href="#{ item.id }"
+				class:cached={ item.cached }
 				style="background-color: { getColor(index) };"
-				on:mouseover={ () => handleHoverFocus(item.digest, true) }
-				on:mouseout={ () => handleHoverFocus(item.digest, false) }
-				on:focus={ () => handleHoverFocus(item.digest, true) }
-				on:blur={ () => handleHoverFocus(item.digest, false) }
+				on:mouseover={ (event) => handleHoverFocus(item.id, true, event) }
+				on:mouseout={ (event) => handleHoverFocus(item.id, false, event) }
+				on:focus={ (event) => handleHoverFocus(item.id, true, event) }
+				on:blur={ (event) => handleHoverFocus(item.id, false, event) }
+				on:click|preventDefault={ () => handleClick(item.id) }
 			><span class="visually-hidden">{ item.name }</span></a>
 
 			<TimingInfoTooltip timingInfo={ item } />

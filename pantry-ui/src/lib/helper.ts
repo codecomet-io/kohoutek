@@ -1,3 +1,8 @@
+import { customAlphabet } from 'nanoid'
+
+import { goto } from '$app/navigation';
+
+
 export function parseDate(date: Date | string | number) : Date {
 	return date instanceof Date
 		? date
@@ -130,4 +135,60 @@ export function parseLapsed(ms : number, abbreviate : boolean = false, precise :
 	return precise
 		? timeList.join(separator)
 		: timeList.shift() ?? ''
+}
+
+export function isPopulated(list : any) : boolean {
+	return Array.isArray(list) && list.length > 0
+}
+
+export function createId(useCase? : 'html', length : number = 6) : string {
+	//  we use a character set w/out lookalike characters
+	// e.g. 1, l, I, 0, O, o, u, v, 5, S, s, 2, Z
+	// https://github.com/CyberAP/nanoid-dictionary#nolookalikes
+	const characterSet : string = '346789ABCDEFGHJKLMNPQRTUVWXYabcdefghijkmnpqrtwxyz'
+
+	const nanoid = customAlphabet(characterSet, length)
+
+	const id : string = nanoid()
+
+	// if the use of this function is to create html ids, insure first character is a letter
+	return useCase === 'html' && /^[^A-Za-z]/.test(id)
+		? createId(useCase, length)
+		: id
+}
+
+export function getUrlSearchParams(searchString? : string) : URLSearchParams {
+	return new URLSearchParams(searchString ?? window.location.search)
+}
+
+type SearchParamsMap = {
+	[ key : string ] : string | undefined
+}
+
+export function updateSearchString(keyOrObject : string | SearchParamsMap, optionalValue? : string) : string {
+	const urlSearchParams = getUrlSearchParams()
+
+	if (typeof keyOrObject === 'string') {
+		updateUrlSearchParams(urlSearchParams, keyOrObject, optionalValue)
+	} else if (typeof keyOrObject === 'object') {
+		for (const [ key, value ] of Object.entries(keyOrObject)) {
+			updateUrlSearchParams(urlSearchParams, key, value)
+		}
+	}
+
+	return urlSearchParams.toString()
+}
+
+function updateUrlSearchParams(urlSearchParams : URLSearchParams, key : string, value? : string) : URLSearchParams {
+	if (value) {
+		urlSearchParams.set(key, value)
+	} else {
+		urlSearchParams.delete(key)
+	}
+
+	return urlSearchParams
+}
+
+export function gotoSearchString(keyOrObject : string | SearchParamsMap, optionalValue? : string) : Promise<void> {
+	return goto(`${ window.location.pathname }?${ updateSearchString(keyOrObject, optionalValue) }`)
 }

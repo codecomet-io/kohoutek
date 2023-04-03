@@ -1,4 +1,5 @@
 import { Tracer } from "./dependencies/ts-core/sentry.js";
+import { createId } from './lib/helper.js';
 import { BuffIngester } from "./lib/ingester.js";
 import { FilesetType, } from "./lib/model.js";
 import { nil } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -177,9 +178,8 @@ export default async function Pantry(buffer, trace, meta) {
         typedObject.runtime = traceObject.runtime;
         typedObject.status = traceObject.status;
         typedObject.buildParents = traceObject.buildParents;
-        // typedObject.stdout = traceObject.stdout
-        // typedObject.stderr = traceObject.stderr
-        typedObject.logAssembly = traceObject.logAssembly;
+        typedObject.assembledLogs = traceObject.assembledLogs;
+
         buildPipeline.actionsObject[digest] = typedObject;
     }
     const actionsOrder = Object.keys(buildPipeline.actionsObject)
@@ -213,6 +213,10 @@ export default async function Pantry(buffer, trace, meta) {
         if (item.runtime != null) {
             timingInfo.push(parseActionTiming(item));
         }
+        if (item.assembledLogs && item.assembledLogs.length > 0) {
+            item.groupedLogs = parseGroupedLogs(item.assembledLogs);
+        }
+        delete item.assembledLogs;
         if (item.type === 'fileset') {
             filesets.push(item);
         }
@@ -226,7 +230,7 @@ export default async function Pantry(buffer, trace, meta) {
                     // insert the entry into the parents list at the same index as the parent in the overall list
                     // this insures the correct order
                     parents[actionsOrder.indexOf(digest)] = {
-                        digest,
+                        id: buildPipeline.actionsObject[digest].id,
                         name: buildPipeline.actionsObject[digest].name,
                     };
                 }
@@ -251,13 +255,13 @@ export default async function Pantry(buffer, trace, meta) {
         actions });
 }
 function parseActionTiming(item) {
-    const { digest, runtime } = item;
+    const { id, runtime } = item;
     const name = item.type === 'fileset'
         ? `${item.filesetType} fileset: ${item.name}`
         : `action: ${item.name}`;
     const timingInfo = {
+        id,
         name,
-        digest,
         runtime,
         percent: 0,
     };
@@ -265,6 +269,53 @@ function parseActionTiming(item) {
         timingInfo.cached = true;
     }
     return timingInfo;
+}
+function parseGroupedLogs(assembledLogs) {
+    const splitLines = (multiLineStr) => multiLineStr.split(/\r|\n/);
+    const commands = [];
+    let lastCommand;
+    for (const assembledLog of assembledLogs) {
+        const { command, resolved, exitCode } = assembledLog;
+        const logs = [];
+        if (assembledLog.stdout) {
+            logs.push({
+                timestamp: assembledLog.timestamp,
+                lines: splitLines(assembledLog.stdout),
+            });
+        }
+        if (assembledLog.stderr) {
+            logs.push({
+                timestamp: assembledLog.timestamp,
+                lines: splitLines(assembledLog.stderr),
+                isStderr: true,
+            });
+        }
+        if (command === lastCommand) {
+            const item = commands[commands.length - 1];
+            item.exitCode = exitCode;
+            item.logs.push(...logs);
+        }
+        else {
+            commands.push({
+                command,
+                resolved,
+                exitCode,
+                logs,
+                id: createId('html'),
+            });
+        }
+        lastCommand = command;
+    }
+    let totalLines = 0;
+    // calculate total lines
+    for (const groupedLog of commands) {
+        totalLines += groupedLog.logs
+            .reduce((sum, log) => sum + log.lines.length, 0);
+    }
+    return {
+        commands,
+        totalLines,
+    };
 }
 async function run(protoPath, tracePath, meta, destination) {
     // Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)

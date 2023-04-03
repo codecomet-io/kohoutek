@@ -25,6 +25,10 @@
 		margin-bottom: 4px;
 		color: #57606a;
 		font-size: 12px;
+
+		@media (prefers-color-scheme: dark) {
+			color: #a89f95;
+		}
 	}
 
 	.value {
@@ -32,6 +36,10 @@
 		color: #24292f;
 		font-size: 16px;
 		font-weight: 600;
+
+		@media (prefers-color-scheme: dark) {
+			color: #dbd6d0;
+		}
 
 		&.truncate-overflow-text {
 			overflow: hidden;

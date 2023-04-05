@@ -15,6 +15,7 @@ const actionTypeMap = {
     'atomic.addfile': 'addFile',
     'atomic.mkdir': 'makeDirectory',
     'atomic.patch': 'patch',
+    'atomic.copy': 'copy',
     'atomic.symlink': 'createSymbolicLink',
     'atomic.merge': 'merge',
 };

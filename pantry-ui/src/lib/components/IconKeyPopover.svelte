@@ -23,7 +23,7 @@
 
 	type TypeIcon = {
 		name? : string
-		type : ActionType | FilesetType
+		type : ActionType | FilesetType | 'unknown'
 		icon? : 'gitlab'
 	}
 
@@ -42,19 +42,19 @@
 			name : 'status',
 			icons : [
 				{
-					status : PipelineStatus.Completed,
-				},
-				{
 					status : ActionStatus.Cached,
 				},
 				{
-					status : PipelineStatus.Errored,
+					status : PipelineStatus.Cancelled,
+				},
+				{
+					status : PipelineStatus.Completed,
 				},
 				{
 					status : PipelineStatus.Degraded,
 				},
 				{
-					status : PipelineStatus.Cancelled,
+					status : PipelineStatus.Errored,
 				},
 				{
 					status : ActionStatus.Ignored,
@@ -65,12 +65,6 @@
 			name : 'fileset type',
 			icons : [
 				{
-					type : FilesetType.HTTP,
-				},
-				{
-					type : FilesetType.Local,
-				},
-				{
 					type : FilesetType.Image,
 				},
 				{
@@ -80,34 +74,46 @@
 					type : FilesetType.Git,
 					icon : 'gitlab',
 				},
+				{
+					type : FilesetType.HTTP,
+				},
+				{
+					type : FilesetType.Local,
+				},
 			],
 		},
 		{
 			name : 'action type',
 			icons : [
 				{
-					type : 'custom',
-				},
-				{
 					type : 'addFile',
 					name : 'add file',
 				},
 				{
-					type : 'makeDirectory',
-					name : 'make directory',
-				},
-				{
-					type : 'move',
+					type : 'copy',
 				},
 				{
 					type : 'createSymbolicLink',
 					name : 'create symbolic link',
 				},
 				{
+					type : 'custom',
+				},
+				{
+					type : 'makeDirectory',
+					name : 'make directory',
+				},
+				{
 					type : 'merge',
 				},
 				{
+					type : 'move',
+				},
+				{
 					type : 'patch',
+				},
+				{
+					type : 'unknown',
 				},
 			],
 		},

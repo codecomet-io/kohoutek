@@ -12,6 +12,7 @@
 		globeOutline,
 		folderOpenOutline,
 		bandageOutline,
+		copyOutline,
 		logoDocker,
 		logoGithub,
 		logoGitlab,
@@ -34,6 +35,7 @@
 		createSymbolicLink: arrowRedoOutline,
 		merge: gitMergeOutline,
 		patch: bandageOutline,
+		copy: copyOutline,
 		// fileset types
 		http: globeOutline,
 		local: folderOpenOutline,

@@ -147,6 +147,7 @@ export enum ActionStatus {
     Completed = 'completed',
     Ignored = 'ignored',
     Started = 'started',
+    Cancelled = 'cancelled'
 }
 
 export type ActionsInfo = {

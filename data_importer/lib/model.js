@@ -72,6 +72,7 @@ export var ActionStatus;
     ActionStatus["Completed"] = "completed";
     ActionStatus["Ignored"] = "ignored";
     ActionStatus["Started"] = "started";
+    ActionStatus["Cancelled"] = "cancelled";
 })(ActionStatus || (ActionStatus = {}));
 export var FilesetType;
 (function (FilesetType) {

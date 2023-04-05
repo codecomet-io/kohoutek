@@ -152,6 +152,8 @@ class Build implements BuildPipeline {
         if (vertice.Error){
             this.actionsObject[vertice.Digest].error = vertice.Error
             this.actionsObject[vertice.Digest].status = ActionStatus.Errored
+            if (vertice.Error.match(/did not complete successfully: exit code: 137: context canceled: context canceled$/))
+                this.actionsObject[vertice.Digest].status = ActionStatus.Cancelled
         }
         if (vertice.Cached) {
             this.actionsObject[vertice.Digest].cached = true

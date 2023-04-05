@@ -1,3 +1,5 @@
+source="${1:-debian}"
+normalizedSource="$(printf "%s" "$source" | tr "/" "-")"
 isDirty="$(if ! git diff --no-ext-diff --quiet --exit-code; then printf "true"; else printf "false"; fi)"
 
 id="exhaustive-pipeline"
@@ -21,9 +23,9 @@ meta="$(echo '{}' | jq -c --arg id "$id" --arg name "$name" --arg desc "$descrip
 }')"
 
 destination=../pantry-ui/static/data
-node ./entrypoint.js "mocks/exhaustive/failure/llb.proto" "mocks/exhaustive/failure/trace.json" "$meta" "$destination/exhaustive-failure.json"
-node ./entrypoint.js "mocks/exhaustive/success/llb.proto" "mocks/exhaustive/success/trace.json" "$meta" "$destination/exhaustive-success.json"
-node ./entrypoint.js "mocks/exhaustive/cached/llb.proto" "mocks/exhaustive/cached/trace.json" "$meta" "$destination/exhaustive-cached.json"
+node ./entrypoint.js "mocks/$source/llb.proto" "mocks/$source/trace.json" "$meta" "$destination/$normalizedSource.json"
+#node ./entrypoint.js "mocks/exhaustive/success/llb.proto" "mocks/exhaustive/success/trace.json" "$meta" "$destination/exhaustive-success.json"
+#node ./entrypoint.js "mocks/exhaustive/cached/llb.proto" "mocks/exhaustive/cached/trace.json" "$meta" "$destination/exhaustive-cached.json"
 
 # Short term
-cp "$destination/exhaustive-failure.json" "$destination/exhaustive.json"
+# cp "$destination/exhaustive-$source.json" "$destination/exhaustive.json"

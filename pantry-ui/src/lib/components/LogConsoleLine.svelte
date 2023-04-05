@@ -110,10 +110,11 @@
 
 <style lang="scss">
 	.line-link {
+		grid-column: 1;
+		position: relative;
 		padding: 5px 10px;
 		text-decoration: none;
 		text-align: right;
-		position: relative;
 
 		&.highlight {
 			&::after {
@@ -155,6 +156,10 @@
 			&::before {
 				content: attr(data-line-number);
 			}
+		}
+
+		+ :global(code + pre) {
+			grid-column: 2;
 		}
 	}
 

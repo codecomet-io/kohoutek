@@ -1,4 +1,4 @@
-source="${1:-debian}"
+source="${1:-}"
 normalizedSource="$(printf "%s" "$source" | tr "/" "-")"
 isDirty="$(if ! git diff --no-ext-diff --quiet --exit-code; then printf "true"; else printf "false"; fi)"
 
@@ -23,9 +23,14 @@ meta="$(echo '{}' | jq -c --arg id "$id" --arg name "$name" --arg desc "$descrip
 }')"
 
 destination=../pantry-ui/static/data
-node ./entrypoint.js "mocks/$source/llb.proto" "mocks/$source/trace.json" "$meta" "$destination/$normalizedSource.json"
-#node ./entrypoint.js "mocks/exhaustive/success/llb.proto" "mocks/exhaustive/success/trace.json" "$meta" "$destination/exhaustive-success.json"
-#node ./entrypoint.js "mocks/exhaustive/cached/llb.proto" "mocks/exhaustive/cached/trace.json" "$meta" "$destination/exhaustive-cached.json"
-
-# Short term
-# cp "$destination/exhaustive-$source.json" "$destination/exhaustive.json"
+if [ "$source" != "" ]; then
+  node ./entrypoint.js "mocks/$source/llb.proto" "mocks/$source/trace.json" "$meta" "$destination/$normalizedSource.json"
+else
+  for mockfamily in "mocks"/*; do
+    mockfamily="$(basename "$mockfamily")"
+    for mock in "mocks/$mockfamily"/*; do
+      mock="$(basename "$mock")"
+      node ./entrypoint.js "mocks/$mockfamily/$mock/llb.proto" "mocks/$mockfamily/$mock/trace.json" "$meta" "$destination/$mockfamily-$mock.json"
+    done
+  done
+fi

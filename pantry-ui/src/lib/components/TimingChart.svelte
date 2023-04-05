@@ -59,11 +59,9 @@
 	}
 
 	%hover-focus-tooltip-styling {
-		:global(.tooltip) {
-			opacity: 1;
-			pointer-events: auto;
-			top: 100%;
-		}
+		opacity: 1;
+		pointer-events: auto;
+		top: 100%;
 	}
 
 	ol {
@@ -104,7 +102,9 @@
 				@extend %hover-focus-a-styling;
 			}
 
-			@extend %hover-focus-tooltip-styling;
+			:global(.tooltip) {
+				@extend %hover-focus-tooltip-styling;
+			}
 		}
 	}
 
@@ -131,7 +131,7 @@
 
 			outline: none;
 
-			~ {
+			~ :global(.tooltip) {
 				@extend %hover-focus-tooltip-styling;
 			}
 		}

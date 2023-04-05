@@ -1,7 +1,9 @@
 <script lang="ts">
 	import type { TimingInfo } from '../../../../data_importer/lib/model'
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import { parseLapsed } from '$lib/helper'
+
+	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
 
 
 	export let timingInfo : TimingInfo
@@ -100,7 +102,7 @@
 		{#if timingInfo.cached }
 			<ChunkyLabel>cached</ChunkyLabel>
 		{:else}
-			<ChunkyLabel allcaps={ false }>{ timingInfo.runtime }ms / { timingInfo.percent }%</ChunkyLabel>
+			<ChunkyLabel allcaps={ false }>{ parseLapsed(timingInfo.runtime, true, true) } / { timingInfo.percent }%</ChunkyLabel>
 		{/if}
 	</div>
 </aside>

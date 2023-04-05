@@ -73,15 +73,15 @@
 		tooltipWrapper.style.overflow = 'visible'
 	}
 
-	function handleWillPresent(event : any, id : string, active : boolean) : void {
-		updateActiveModal(id, true)
+	function handleWillPresent(event : any) : void {
+		updateActiveModal(true)
 
 		setTimeout(() => updateModalAndTooltip(event.target), 10)
 	}
 
-	function updateActiveModal(id : string, active : boolean) : void {
+	function updateActiveModal(active : boolean) : void {
 		if (active) {
-			gotoSearchString('active_modal', id)
+			gotoSearchString('active_modal', item.id)
 		} else {
 			gotoSearchString({
 				'active_modal' : undefined,
@@ -102,6 +102,7 @@
 			--max-width: calc(1280px - (16px * 2));
 			--min-height: calc(50vh - (16px * 2));
 			--max-height: calc(100vh - (16px * 2));
+			--height: auto;
 		}
 	}
 </style>
@@ -113,8 +114,8 @@
 	<ion-modal
 		bind:this={ modalElement }
 		is-open={ item.id === $activeModal }
-		on:willPresent={ (event) => handleWillPresent(event, item.id, true) }
-		on:willDismiss={ () => updateActiveModal(item.id, false) }
+		on:willPresent={ handleWillPresent }
+		on:willDismiss={ () => updateActiveModal(false) }
 	>
 		<ModalHeader
 			title="View Logs"

@@ -57,6 +57,7 @@ class Build implements BuildPipeline {
     // })
 
     addLog(log: VertexLog) {
+        // Retrieve log data from buildkit
         if (this.actionsObject[log.Vertex] == null) {
             throw new Error("Logs without a registered vertex - panic")
         }
@@ -70,31 +71,35 @@ class Build implements BuildPipeline {
         }
 
         let dt = Buffer.from(log.Data.toString(), "base64").toString("utf-8").trim()
-        if (dt != "") {
-            // Structured stack traces are transmitted in a data url form
-            if (dt.startsWith("data:application/json;base64,")) {
-                // Decode it, parse it
-                let structured = JSON.parse(Buffer.from(dt.substring(dt.indexOf(",") + 1), "base64").toString("utf-8"))
-                // Copy that over into a Structured type
-                this.actionsObject[log.Vertex].stack = {
-                    timestamp: Date.parse(log.Timestamp),
-                    lineNumber: parseInt(structured.linenumber, 10) - 1,
-                    exitCode: parseInt(structured.exitcode, 10),
-                    command: structured.command,
-                    // Source is double encoded, so, decode it, and split by line to facilitate accessing source[linenumber]
-                    source: Buffer.from(structured.source, "base64").toString("utf-8").split("\n"),
-                }
-            } else if (log.Stream == 2){
-                this.actionsObject[log.Vertex].stderr.push({
-                    timestamp: Date.parse(log.Timestamp),
-                    line: dt
-                })
-            } else {
-                this.actionsObject[log.Vertex].stdout.push({
-                    timestamp: Date.parse(log.Timestamp),
-                    line: dt
-                })
+
+        // Ignore our ... display
+        if (dt == "."){
+            dt = ""
+        }
+
+        // Structured stack traces are transmitted in a data url form
+        if (dt.startsWith("data:application/json;base64,")) {
+            // Decode it, parse it
+            let structured = JSON.parse(Buffer.from(dt.substring(dt.indexOf(",") + 1), "base64").toString("utf-8"))
+            // Copy that over into a Structured type
+            this.actionsObject[log.Vertex].stack = {
+                timestamp: Date.parse(log.Timestamp),
+                lineNumber: parseInt(structured.linenumber, 10) - 1,
+                exitCode: parseInt(structured.exitcode, 10),
+                command: structured.command,
+                // Source is double encoded, so, decode it, and split by line to facilitate accessing source[linenumber]
+                source: Buffer.from(structured.source, "base64").toString("utf-8").split("\n"),
             }
+        } else if (log.Stream == 2){
+            this.actionsObject[log.Vertex].stderr.push({
+                timestamp: Date.parse(log.Timestamp),
+                line: dt
+            })
+        } else {
+            this.actionsObject[log.Vertex].stdout.push({
+                timestamp: Date.parse(log.Timestamp),
+                line: dt
+            })
         }
     }
 
@@ -351,6 +356,8 @@ export class BuffIngester {
                 }
 
             } catch(e) {
+                console.error("Failed parsing status", data)
+
                 Sentry.captureException(e, {
                     extra: {
                         data: data
@@ -358,6 +365,14 @@ export class BuffIngester {
                 })
             }
         })
+
+        /*
+        Object.values(this.build.actionsObject).forEach(function(action){
+            console.warn(action.stdout)
+            console.warn(action.stderr)
+        })
+        
+         */
 
         const sortByTimestamp = (a, b) => a.timestamp - b.timestamp
 

@@ -39,6 +39,7 @@
 	import 'ionic-svelte/components/ion-list-header'
 	import 'ionic-svelte/components/ion-list'
 	import 'ionic-svelte/components/ion-modal'
+	import 'ionic-svelte/components/ion-popover'
 	import 'ionic-svelte/components/ion-title'
 	import 'ionic-svelte/components/ion-toolbar'
 

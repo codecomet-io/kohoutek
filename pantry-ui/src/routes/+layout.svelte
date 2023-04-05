@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { setupIonicBase } from 'ionic-svelte';
+	import { setupIonicBase } from 'ionic-svelte'
 
 	/* Call Ionic's setup routine */
 	setupIonicBase({
 		mode: 'ios',
-	});
+	})
 
 	/* Import all components - or do partial loading - see below */
-	import 'ionic-svelte/components/all';
+	// import 'ionic-svelte/components/all'
 
 	/* Theme variables */
-	import '../theme/variables.css';
+	import '../theme/variables.css'
 
 	/*
 		This part - import 'ionic-svelte/components/all'; -  loads all components at once.
@@ -23,16 +23,26 @@
 		to do this elsewhere if you like to code-split differently.
 
 		Example: if you replace the line import 'ionic-svelte/components/all'; with the imports below, you will see the resulting bundle being much smaller
+	*/
 
-		import 'ionic-svelte/components/ion-app';
-		import 'ionic-svelte/components/ion-card';
-		import 'ionic-svelte/components/ion-card-title';
-		import 'ionic-svelte/components/ion-card-subtitle';
-		import 'ionic-svelte/components/ion-card-header';
-		import 'ionic-svelte/components/ion-card-content';
-		import 'ionic-svelte/components/ion-chip';
-		import 'ionic-svelte/components/ion-button';
+	import 'ionic-svelte/components/ion-accordion-group'
+	import 'ionic-svelte/components/ion-accordion'
+	import 'ionic-svelte/components/ion-app'
+	import 'ionic-svelte/components/ion-badge'
+	import 'ionic-svelte/components/ion-button'
+	import 'ionic-svelte/components/ion-buttons'
+	import 'ionic-svelte/components/ion-card-subtitle'
+	import 'ionic-svelte/components/ion-content'
+	import 'ionic-svelte/components/ion-header'
+	import 'ionic-svelte/components/ion-item'
+	import 'ionic-svelte/components/ion-label'
+	import 'ionic-svelte/components/ion-list-header'
+	import 'ionic-svelte/components/ion-list'
+	import 'ionic-svelte/components/ion-modal'
+	import 'ionic-svelte/components/ion-title'
+	import 'ionic-svelte/components/ion-toolbar'
 
+	/*
 		Click the ionic-svelte-components-all-import above to go to the full list of possible imports.
 
 		Please don't forget to import ion-app in this file when you decide to code-split:

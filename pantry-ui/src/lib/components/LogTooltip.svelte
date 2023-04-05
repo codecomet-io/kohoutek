@@ -7,20 +7,20 @@
 
 	export let groupedLogs : GroupedLogs
 
-	$: parseIoStreams(groupedLogs)
+	$: ioStreams = parseIoStreams(groupedLogs)
 
-	let ioStreams : Array<'StdOut' | 'StdErr'> = []
-
-	function parseIoStreams(groupedLogs : GroupedLogs) : void {
-		ioStreams = []
+	function parseIoStreams(groupedLogs : GroupedLogs) : string {
+		const ioStreamsArr : Array<'StdOut' | 'StdErr'> = []
 
 		if (groupedLogs.logs.some((item) => !item.isStderr)) {
-			ioStreams.push('StdOut')
+			ioStreamsArr.push('StdOut')
 		}
 
 		if (groupedLogs.logs.some((item) => item.isStderr)) {
-			ioStreams.push('StdErr')
+			ioStreamsArr.push('StdErr')
 		}
+
+		return ioStreamsArr.join(', ')
 	}
 </script>
 
@@ -235,63 +235,73 @@
 </style>
 
 
-<div class="tooltip-wrapper default-position">
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<ion-button
-		href="#{ groupedLogs.id }"
-		fill={ groupedLogs.exitCode === 0 ? 'outline' : 'solid' }
-		color={ groupedLogs.exitCode === 0 ? 'light' : 'danger' }
-		size="small"
-		on:click|preventDefault
-	>
-		View Info
-	</ion-button>
+{#if groupedLogs.command || groupedLogs.resolved || ioStreams || groupedLogs.exitCode != null }
+	<div class="tooltip-wrapper default-position">
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<ion-button
+			href="#{ groupedLogs.id }"
+			fill={ groupedLogs.exitCode === 0 ? 'outline' : 'solid' }
+			color={ groupedLogs.exitCode === 0 ? 'light' : 'danger' }
+			size="small"
+			on:click|preventDefault
+		>
+			View Info
+		</ion-button>
 
-	<aside class="tooltip">
-		<div
-			class="hover-bridge"
-			aria-hidden="true"
-		></div>
+		<aside class="tooltip">
+			<div
+				class="hover-bridge"
+				aria-hidden="true"
+			></div>
 
-		<dl class="log-info-container">
-			<dt class="key">command</dt>
+			<dl class="log-info-container">
+				{#if groupedLogs.command }
+					<dt class="key">command</dt>
 
-			<dd class="value">
-				<Prism
-					language="bash"
-					source={ groupedLogs.command }
-				/>
-			</dd>
+					<dd class="value">
+						<Prism
+							language="bash"
+							source={ groupedLogs.command }
+						/>
+					</dd>
+				{/if}
 
-			<dt class="key">resolved</dt>
+				{#if groupedLogs.resolved }
+					<dt class="key">resolved</dt>
 
-			<dd class="value">
-				<Prism
-					language="bash"
-					source={ groupedLogs.resolved }
-				/>
-			</dd>
+					<dd class="value">
+						<Prism
+							language="bash"
+							source={ groupedLogs.resolved }
+						/>
+					</dd>
+				{/if}
 
-			<dt class="key">I/O stream{ ioStreams.length === 1 ? '' : 's' }</dt>
+				{#if ioStreams }
+					<dt class="key">I/O stream{ ioStreams.includes(',') ? 's' : '' }</dt>
 
-			<dd class="value">
-				<Prism
-					language="bash"
-					source={ ioStreams.join(', ') }
-				/>
-			</dd>
+					<dd class="value">
+						<Prism
+							language="bash"
+							source={ ioStreams }
+						/>
+					</dd>
+				{/if}
 
-			<dt class="key">exit code</dt>
+				{#if groupedLogs.exitCode != null }
+					<dt class="key">exit code</dt>
 
-			<dd
-				class="value exit-code-value"
-				class:non-zero-exit-code={ groupedLogs.exitCode !== 0 }
-			>
-				<Prism
-					language="bash"
-					source={ groupedLogs.exitCode + '' }
-				/>
-			</dd>
-		</dl>
-	</aside>
-</div>
+					<dd
+						class="value exit-code-value"
+						class:non-zero-exit-code={ groupedLogs.exitCode !== 0 }
+					>
+						<Prism
+							language="bash"
+							source={ groupedLogs.exitCode + '' }
+						/>
+					</dd>
+				{/if}
+			</dl>
+		</aside>
+	</div>
+{/if}

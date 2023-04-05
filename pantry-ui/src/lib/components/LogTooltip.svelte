@@ -44,6 +44,8 @@
 		&:hover {
 			.tooltip {
 				@extend %hover-focus;
+
+				z-index: 2;
 			}
 		}
 
@@ -51,6 +53,8 @@
 			&:hover {
 				.tooltip {
 					@extend %hover-focus-default-position;
+
+					z-index: 2;
 				}
 			}
 

@@ -115,6 +115,11 @@ export default async function Pantry(buffer, trace, meta) {
                         utilityName: 'merge',
                     };
                     break;
+                case 'atomic.copy':
+                    descriptor = {
+                        utilityName: 'copy',
+                    };
+                    break;
                 default:
                     console.warn(`Unrecognized atomic action type|${actionTypeKey}|`);
                     descriptor = {};

@@ -2,24 +2,16 @@ import {Tracer} from "./dependencies/ts-core/sentry.js"
 import { createId } from './lib/helper.js';
 import { BuffIngester } from "./lib/ingester.js";
 import {
-    AddFileAction,
     UtilityBuildAction,
-    UtilityAction,
     FilesetBuildAction,
     FilesetAction,
     FilesetType,
     Action,
     BuildAction,
     BuildActionsObject,
-    MergeAction,
-    MakeDirectoryAction,
-    MoveAction,
-    PatchAction,
     ParentAction,
     BuildPipeline,
     Pipeline,
-    CreateSymbolicLinkAction,
-    UserAction,
     UserBuildAction,
     TimingInfo,
     AssembledLog,
@@ -32,6 +24,7 @@ import {
     PatchBuildAction,
     CreateSymbolicLinkBuildAction,
     MergeBuildAction,
+    CopyBuildAction,
 } from "./lib/model.js";
 import {stdin} from "node:process";
 import {bool, error, nil} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -184,36 +177,49 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
                     }
 
                     break
+
                 case 'atomic.mv':
                     descriptor = <MoveBuildAction>{
                         utilityName: 'move',
                     }
 
                     break
+
                 case 'atomic.addfile':
                     descriptor = <AddFileBuildAction>{
                         utilityName: 'add file',
                     }
 
                     break
+
                 case 'atomic.patch':
                     descriptor = <PatchBuildAction>{
                         utilityName: 'patch',
                     }
 
                     break
+
                 case 'atomic.symlink':
                     descriptor = <CreateSymbolicLinkBuildAction>{
                         utilityName: 'create symbolic link',
                     }
 
                     break
+
                 case 'atomic.merge':
                     descriptor = <MergeBuildAction>{
                         utilityName: 'merge',
                     }
 
                     break
+
+                case 'atomic.copy':
+                    descriptor = <CopyBuildAction>{
+                        utilityName: 'copy',
+                    }
+
+                    break
+
                 default:
                     console.warn(`Unrecognized atomic action type|${actionTypeKey }|`)
 

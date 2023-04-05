@@ -304,6 +304,7 @@ export type ActionType =
 type UtilityActionType =
     | 'utility'
     | 'merge'
+    | 'copy'
     | 'makeDirectory'
     | 'addFile'
     | 'move'
@@ -335,17 +336,7 @@ export interface MakeDirectoryBuildAction extends UtilityBuildAction {
     utilityName: 'make directory'
 }
 
-export interface MakeDirectoryAction extends UtilityAction {
-    type: 'makeDirectory'
-    utilityName: 'make directory'
-}
-
 export interface MoveBuildAction extends UtilityBuildAction {
-    type: 'move'
-    utilityName: 'move'
-}
-
-export interface MoveAction extends UtilityAction {
     type: 'move'
     utilityName: 'move'
 }
@@ -355,17 +346,7 @@ export interface AddFileBuildAction extends UtilityBuildAction {
     utilityName: 'add file'
 }
 
-export interface AddFileAction extends UtilityAction {
-    type: 'addFile'
-    utilityName: 'add file'
-}
-
 export interface PatchBuildAction extends UtilityBuildAction {
-    type: 'patch'
-    utilityName: 'patch'
-}
-
-export interface PatchAction extends UtilityAction {
     type: 'patch'
     utilityName: 'patch'
 }
@@ -375,19 +356,14 @@ export interface CreateSymbolicLinkBuildAction extends UtilityBuildAction {
     utilityName: 'create symbolic link'
 }
 
-export interface CreateSymbolicLinkAction extends UtilityAction {
-    type: 'createSymbolicLink'
-    utilityName: 'create symbolic link'
-}
-
 export interface MergeBuildAction extends UtilityBuildAction {
     type: 'merge'
     utilityName: 'merge'
 }
 
-export interface MergeAction extends UtilityAction {
-    type: 'merge'
-    utilityName: 'merge'
+export interface CopyBuildAction extends UtilityBuildAction {
+    type: 'copy'
+    utilityName: 'copy'
 }
 
 type FilesetBaseAction = {

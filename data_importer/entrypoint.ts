@@ -387,8 +387,8 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     )
 
     for (const item of timingInfo) {
-        // calculate percent of total runtime, rounded to 3 decimal places
-        item.percent = Math.round(item.runtime / summedTimingRuntime * 100 * 1000) / 1000
+        // calculate percent of total runtime, rounded to 2 decimal places
+        item.percent = Math.round(item.runtime / summedTimingRuntime * 100 * 100) / 100
     }
 
     return {

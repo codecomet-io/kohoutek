@@ -53,7 +53,7 @@
 		}
 
 		@media (min-width: 1280px) {
-			grid-template-columns: min-content auto;
+			grid-template-columns: 33% auto;
 		}
 
 		:global(pre) {

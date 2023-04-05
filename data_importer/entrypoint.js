@@ -246,7 +246,7 @@ export default async function Pantry(buffer, trace, meta) {
     delete buildPipeline.actionsObject;
     const summedTimingRuntime = timingInfo.reduce((sum, item) => sum + item.runtime, 0);
     for (const item of timingInfo) {
-        // calculate percent of total runtime, rounded to 3 decimal places
+        // calculate percent of total runtime, rounded to 2 decimal places
         item.percent = Math.round(item.runtime / summedTimingRuntime * 100 * 100) / 100;
     }
     return Object.assign(Object.assign({}, buildPipeline), { timingInfo,

@@ -1,34 +1,34 @@
 <script lang="ts">
-	import type { FilesetAction, Action, GroupedLogs, ParsedLog } from '../../../../data_importer/lib/model'
+	import type { FilesetAction, Action, GroupedLogs } from '../../../../data_importer/lib/model';
 
-	import LogInfoContainer from '$lib/components/LogInfoContainer.svelte'
-	import LogConsoleContainer from '$lib/components/LogConsoleContainer.svelte'
+	import LogInfoContainer from '$lib/components/LogInfoContainer.svelte';
+	import LogConsoleContainer from '$lib/components/LogConsoleContainer.svelte';
 
 
-	export let item : FilesetAction | Action
+	export let item : FilesetAction | Action;
 
-	$: parseLineNumberMap()
+	$: parseLineNumberMap();
 
-	let lineNumberMapArr : { [ key : string ] : number }[] = []
+	let lineNumberMapArr : { [ key : string ] : number }[] = [];
 
 	function parseLineNumberMap() : void {
 		if (!item?.groupedLogs?.commands) {
-			return
+			return;
 		}
 
-		let lineCount : number = 0
+		let lineCount : number = 0;
 
 		lineNumberMapArr = item.groupedLogs.commands.map((groupedLogs : GroupedLogs) => {
-			const lineNumberMap : { [ key : string ] : number } = {}
+			const lineNumberMap : { [ key : string ] : number } = {};
 
 			groupedLogs.logs.forEach((log : any, logIndex : number) => {
 				log.lines.forEach((line : string, lineIndex : number) => {
-					lineNumberMap[`${ logIndex }${ lineIndex }`] = ++lineCount
-				})
-			})
+					lineNumberMap[`${ logIndex }${ lineIndex }`] = ++lineCount;
+				});
+			});
 
-			return lineNumberMap
-		})
+			return lineNumberMap;
+		});
 	}
 </script>
 

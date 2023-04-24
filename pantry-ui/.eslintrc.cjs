@@ -19,7 +19,17 @@ module.exports = {
 	},
 	rules: {
 		'import/no-unresolved': ['error', { 'ignore': ['^jquery'] }],
-		'import/order': ['error', { 'newlines-between': 'always' }],
+		'import/order': [
+			'error',
+			{
+				'newlines-between': 'always',
+				'groups': [
+					'type',
+					'external',
+					'internal'
+				]
+			}
+		],
 		'template-curly-spacing': ['error', 'always'],
 		'comma-dangle': ['error', 'always-multiline'],
 		'curly': 'off',

@@ -1,5 +1,5 @@
-import {Tracer} from "./dependencies/ts-core/sentry.js"
-import { createId } from './lib/helper.js';
+import { createId } from 'briznads-helpers';
+import {Tracer} from "./dependencies/ts-core/sentry.js";
 import { BuffIngester } from "./lib/ingester.js";
 import {
     UtilityBuildAction,
@@ -466,7 +466,7 @@ function parseGroupedLogs(assembledLogs : AssembledLog[]) : GroupedLogsPayload {
                 resolved,
                 exitCode,
                 logs,
-                id : createId('html'),
+                id : createId('html_id'),
             })
         }
 

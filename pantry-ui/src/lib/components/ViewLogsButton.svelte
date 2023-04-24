@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { FilesetAction, Action } from '../../../../data_importer/lib/model'
+	import type { FilesetAction, Action } from '../../../../data_importer/lib/model';
 
-	import { receiptOutline } from 'ionicons/icons'
+	import { receiptOutline } from 'ionicons/icons';
 
-	import { gotoSearchString } from '$lib/helper'
+	import { gotoSearchString } from '$lib/helper';
 
 
-	export let item : FilesetAction | Action
+	export let item : FilesetAction | Action;
 </script>
 
 

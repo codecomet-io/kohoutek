@@ -1,26 +1,26 @@
 <script lang="ts">
-	import type { GroupedLogs } from '../../../../data_importer/lib/model'
+	import type { GroupedLogs } from '../../../../data_importer/lib/model';
 
-	import Prism from 'svelte-prism'
-	import 'prismjs/components/prism-bash.min.js'
+	import Prism from 'svelte-prism';
+	import 'prismjs/components/prism-bash.min.js';
 
 
-	export let groupedLogs : GroupedLogs
+	export let groupedLogs : GroupedLogs;
 
-	$: ioStreams = parseIoStreams(groupedLogs)
+	$: ioStreams = parseIoStreams(groupedLogs);
 
 	function parseIoStreams(groupedLogs : GroupedLogs) : string {
-		const ioStreamsArr : Array<'StdOut' | 'StdErr'> = []
+		const ioStreamsArr : Array<'StdOut' | 'StdErr'> = [];
 
 		if (groupedLogs.logs.some((item) => !item.isStderr)) {
-			ioStreamsArr.push('StdOut')
+			ioStreamsArr.push('StdOut');
 		}
 
 		if (groupedLogs.logs.some((item) => item.isStderr)) {
-			ioStreamsArr.push('StdErr')
+			ioStreamsArr.push('StdErr');
 		}
 
-		return ioStreamsArr.join(', ')
+		return ioStreamsArr.join(', ');
 	}
 </script>
 

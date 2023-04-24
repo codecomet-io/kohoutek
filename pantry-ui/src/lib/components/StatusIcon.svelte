@@ -9,8 +9,8 @@
 	}
 
 
-	export let status : PipelineStatus | ActionStatus
-	export let size : undefined | 'small' | 'default' | 'large' = undefined
+	export let status : PipelineStatus | ActionStatus;
+	export let size : undefined | 'small' | 'default' | 'large' = undefined;
 
 	const successStatus = [
 		'completed',
@@ -18,12 +18,12 @@
 	];
 
 	const statusColorMap : ColorMap = {
-		completed: 'success',
-		errored: 'danger',
-		degraded: 'warning',
-		cancelled: 'dark',
-		ignored: 'medium',
-		cached: 'tertiary',
+		completed : 'success',
+		errored   : 'danger',
+		degraded  : 'warning',
+		cancelled : 'dark',
+		ignored   : 'medium',
+		cached    : 'tertiary',
 	};
 </script>
 

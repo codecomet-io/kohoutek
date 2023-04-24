@@ -10,66 +10,67 @@
 	}
 
 
-	export let fileset : FilesetAction
+	export let fileset : FilesetAction;
 
-	const specialFields : [ SpecialField | {}, SpecialField | {} ] = [{}, {}]
+	const specialFields : [ SpecialField | {}, SpecialField | {} ] = [{}, {}];
 
 	$: {
 		switch (fileset.filesetType) {
 			case 'git':
 				specialFields[0] = {
-					key: 'keep .git directory',
-					value: fileset.keepDir,
-				}
+					key   : 'keep .git directory',
+					value : fileset.keepDir,
+				};
 
 				break;
 
 			case 'http':
 				specialFields[0] = {
-					key: 'checksum',
-					value: fileset.checksum,
-				}
+					key   : 'checksum',
+					value : fileset.checksum,
+				};
 
 				specialFields[1] = {
-					key: 'filename',
-					value: fileset.filename,
-				}
+					key   : 'filename',
+					value : fileset.filename,
+				};
 
 				break;
 
-			case 'docker':
+			case 'docker': {
 				specialFields[0] = {
-					key: 'force resolve',
-					value: fileset.forceResolve
+					key   : 'force resolve',
+					value : fileset.forceResolve
 						? 'yes'
-						: 'no'
-				}
+						: 'no',
+				};
 
-				let archKey = 'architecture'
-				let archValue = fileset.architecture
+				let archKey = 'architecture';
+				let archValue = fileset.architecture;
 
 				if (archValue && fileset.variant) {
-					archKey += '/variant'
-					archValue += `/${ fileset.variant }`
+					archKey += '/variant';
+					archValue += `/${ fileset.variant }`;
 				}
 
 				specialFields[1] = {
-					key: archKey,
-					value: archValue,
-				}
+					key   : archKey,
+					value : archValue,
+				};
 
 				break;
+			}
 
 			case 'local':
 				specialFields[0] = {
-					key: 'include pattern',
-					value: fileset.includePattern?.join(', '),
-				}
+					key   : 'include pattern',
+					value : fileset.includePattern?.join(', '),
+				};
 
 				specialFields[1] = {
-					key: 'exclude pattern',
-					value: fileset.excludePattern?.join(', '),
-				}
+					key   : 'exclude pattern',
+					value : fileset.excludePattern?.join(', '),
+				};
 
 				break;
 		}

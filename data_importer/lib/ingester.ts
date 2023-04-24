@@ -1,3 +1,4 @@
+import { createId } from 'briznads-helpers';
 import {bool, int, uint64} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
 import {digest} from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
 import {Types} from "codecomet-js/source/protobuf/types.js";
@@ -6,7 +7,6 @@ import {
     Vertex,
     VertexLog,
 } from "codecomet-js/source/buildkit-port/client/graph.js"
-import { createId } from './helper.js';
 import * as model from "./model.js";
 import {ActionStatus, BuildActionsObject, BuildPipeline, ActionsInfo, Stack, User, Repository} from "./model.js";
 import * as readline from 'node:readline/promises';
@@ -124,7 +124,7 @@ class Build implements BuildPipeline {
 
         if (!this.actionsObject[vertice.Digest]) {
             let action = <model.BuildAction>{
-                id : createId('html'),
+                id : createId('html_id'),
                 name: vertice.Name,
                 digest: vertice.Digest,
                 cached: false,
@@ -371,7 +371,7 @@ export class BuffIngester {
             console.warn(action.stdout)
             console.warn(action.stderr)
         })
-        
+
          */
 
         const sortByTimestamp = (a, b) => a.timestamp - b.timestamp

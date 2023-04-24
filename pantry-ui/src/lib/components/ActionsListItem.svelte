@@ -1,7 +1,9 @@
 <script lang="ts">
 	import type { Action, UtilityAction } from '../../../../data_importer/lib/model';
 
-	import { getDateString, getTimeString, gotoSearchString } from '$lib/helper';
+	import { getDateString, getTimeString } from 'briznads-helpers';
+
+	import { gotoSearchString } from '$lib/helper';
 
 	import { highlightAccordion } from '$lib/stores';
 
@@ -10,16 +12,16 @@
 	import ViewLogs from '$lib/components/ViewLogs.svelte';
 
 
-	export let action : Action | UtilityAction
+	export let action : Action | UtilityAction;
 
-	$: nameOrType = (action as UtilityAction).utilityName ?? action.type
+	$: nameOrType = (action as UtilityAction).utilityName ?? action.type;
 
 	function handleParentHoverFocus(id? : string) : void {
-		highlightAccordion.set(id ?? '')
+		highlightAccordion.set(id ?? '');
 	}
 
 	function handleParentClick(id : string) : void {
-		gotoSearchString('active_accordion', id)
+		gotoSearchString('active_accordion', id);
 	}
 </script>
 

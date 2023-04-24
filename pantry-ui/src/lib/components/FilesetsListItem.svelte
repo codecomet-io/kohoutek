@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { FilesetAction } from '../../../../data_importer/lib/model'
+	import type { FilesetAction } from '../../../../data_importer/lib/model';
 
-	import { highlightAccordion } from '$lib/stores'
+	import { highlightAccordion } from '$lib/stores';
 
-	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte'
-	import FilesetSpecialFields from '$lib/components/FilesetSpecialFields.svelte'
-	import DetailField from '$lib/components/DetailField.svelte'
-	import ViewLogs from '$lib/components/ViewLogs.svelte'
+	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
+	import FilesetSpecialFields from '$lib/components/FilesetSpecialFields.svelte';
+	import DetailField from '$lib/components/DetailField.svelte';
+	import ViewLogs from '$lib/components/ViewLogs.svelte';
 
 
-	export let fileset : FilesetAction
+	export let fileset : FilesetAction;
 </script>
 
 

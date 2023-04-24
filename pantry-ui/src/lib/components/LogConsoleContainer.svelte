@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { GroupedLogs } from '../../../../data_importer/lib/model'
+	import type { GroupedLogs } from '../../../../data_importer/lib/model';
 
-	import LogConsoleLine from '$lib/components/LogConsoleLine.svelte'
+	import LogConsoleLine from '$lib/components/LogConsoleLine.svelte';
 
 
-	export let groupedLogs : GroupedLogs
-	export let lineNumberMap : { [ key : string ] : number }
-	export let totalLinesLength : number
+	export let groupedLogs : GroupedLogs;
+	export let lineNumberMap : { [ key : string ] : number };
+	export let totalLinesLength : number;
 </script>
 
 

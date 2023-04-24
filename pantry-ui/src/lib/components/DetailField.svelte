@@ -1,15 +1,15 @@
 <script lang="ts">
-	export let key : string
-	export let value : undefined | string = undefined
-	export let title : undefined | string = undefined
-	export let preserveEmptyColumn : boolean = true
-	export let truncateOverflowText : boolean = true
-	export let customClass : undefined | string | string[] = undefined
+	export let key : string;
+	export let value : undefined | string = undefined;
+	export let title : undefined | string = undefined;
+	export let preserveEmptyColumn : boolean = true;
+	export let truncateOverflowText : boolean = true;
+	export let customClass : undefined | string | string[] = undefined;
 
-	const classes : string[] = [ 'column-container' ]
+	const classes : string[] = [ 'column-container' ];
 
 	$: if (customClass) {
-		classes.push(...(typeof customClass === 'string' ? [ customClass ] : customClass))
+		classes.push(...(typeof customClass === 'string' ? [ customClass ] : customClass));
 	}
 </script>
 
@@ -55,13 +55,13 @@
 		{#if value || $$slots.default }
 			<header
 				class="key"
-				title={ !truncateOverflowText ? '' : title ?? value }
+				title={ truncateOverflowText ? title ?? value : '' }
 			>{ key }</header>
 
 			<div
 				class="value"
 				class:truncate-overflow-text={ truncateOverflowText }
-				title={ !truncateOverflowText ? '' : title ?? value }
+				title={ truncateOverflowText ? title ?? value : '' }
 			>
 				<slot>{ value }</slot>
 			</div>

@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { GroupedLogs } from '../../../../data_importer/lib/model'
+	import type { GroupedLogs } from '../../../../data_importer/lib/model';
 
-	import Prism from 'svelte-prism'
-	import 'prismjs/components/prism-bash.min.js'
+	import Prism from 'svelte-prism';
+	import 'prismjs/components/prism-bash.min.js';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
-	import LogTooltip from '$lib/components/LogTooltip.svelte'
+	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import LogTooltip from '$lib/components/LogTooltip.svelte';
 
 
-	export let groupedLogs : GroupedLogs
-	export let count : number
+	export let groupedLogs : GroupedLogs;
+	export let count : number;
 </script>
 
 

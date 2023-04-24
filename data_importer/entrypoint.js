@@ -1,5 +1,5 @@
+import { createId } from 'briznads-helpers';
 import { Tracer } from "./dependencies/ts-core/sentry.js";
-import { createId } from './lib/helper.js';
 import { BuffIngester } from "./lib/ingester.js";
 import { FilesetType, } from "./lib/model.js";
 import { nil } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -306,7 +306,7 @@ function parseGroupedLogs(assembledLogs) {
                 resolved,
                 exitCode,
                 logs,
-                id: createId('html'),
+                id: createId('html_id'),
             });
         }
         lastCommand = command;

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { Pipeline } from '../../../../data_importer/lib/model'
+	import type { Pipeline } from '../../../../data_importer/lib/model';
 
-	import PipelineTitleInfo from '$lib/components/PipelineTitleInfo.svelte'
-	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte'
-	import TimingChart from '$lib/components/TimingChart.svelte'
+	import PipelineTitleInfo from '$lib/components/PipelineTitleInfo.svelte';
+	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
+	import TimingChart from '$lib/components/TimingChart.svelte';
 
 
-	export let pipeline : Pipeline
+	export let pipeline : Pipeline;
 </script>
 
 

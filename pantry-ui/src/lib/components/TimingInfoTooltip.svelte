@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { TimingInfo } from '../../../../data_importer/lib/model'
+	import type { TimingInfo } from '../../../../data_importer/lib/model';
 
-	import { parseLapsed } from '$lib/helper'
+	import { lapsed } from 'briznads-helpers';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
+	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
 
 
-	export let timingInfo : TimingInfo
+	export let timingInfo : TimingInfo;
 </script>
 
 
@@ -102,7 +102,7 @@
 		{#if timingInfo.cached }
 			<ChunkyLabel>cached</ChunkyLabel>
 		{:else}
-			<ChunkyLabel allcaps={ false }>{ parseLapsed(timingInfo.runtime, true, true) } / { timingInfo.percent }%</ChunkyLabel>
+			<ChunkyLabel allcaps={ false }>{ lapsed(timingInfo.runtime, true, true) } / { timingInfo.percent }%</ChunkyLabel>
 		{/if}
 	</div>
 </aside>

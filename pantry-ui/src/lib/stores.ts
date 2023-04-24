@@ -1,21 +1,21 @@
-import type { Writable } from 'svelte/store'
+import type { Writable } from 'svelte/store';
 
-import { writable, derived } from 'svelte/store'
+import { writable, derived } from 'svelte/store';
 
 
 export type HighlightLineBounds = [ number, number ]
 
 
-export const highlightAccordion : Writable<string> = writable('')
-export const activeAccordion : Writable<string> = writable('')
-export const activeModal : Writable<string> = writable('')
+export const highlightAccordion : Writable<string> = writable('');
+export const activeAccordion : Writable<string> = writable('');
+export const activeModal : Writable<string> = writable('');
 
 class HighlightLine {
-	public active : Writable<string>
+	public active : Writable<string>;
 
 
 	constructor() {
-		this.active = writable('')
+		this.active = writable('');
 	}
 
 
@@ -23,7 +23,7 @@ class HighlightLine {
 		return derived(
 			[ this.active ],
 			([ $active ]) : HighlightLineBounds => {
-				let bounds : HighlightLineBounds = [ 0, 0 ]
+				let bounds : HighlightLineBounds = [ 0, 0 ];
 
 				if ($active) {
 					// does highlight contain a dash, indicating a range
@@ -31,18 +31,18 @@ class HighlightLine {
 					if (/-/.test($active)) {
 						bounds = $active
 							.split('-')
-							.map((item : string) => parseInt(item, 10)) as [ number, number ]
+							.map((item : string) => parseInt(item, 10)) as [ number, number ];
 					} else {
-						const lineNumber = parseInt($active, 10)
+						const lineNumber = parseInt($active, 10);
 
-						bounds = [ lineNumber, lineNumber ]
+						bounds = [ lineNumber, lineNumber ];
 					}
 				}
 
-				return bounds
+				return bounds;
 			},
-		)
+		);
 	}
 }
 
-export const highlightLine = new HighlightLine()
+export const highlightLine = new HighlightLine();

@@ -1,30 +1,30 @@
 {
-  "name": "pantry",
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": "git@github.com:codecomet-io/pantry.git",
-  "author": "CodeComet, Inc.",
-  "license": "UNLICENSED",
-  "dependencies": {
-    "@sentry/integrations": "^7.40.0",
-    "@sentry/node": "^7.40.0",
-    "codecomet-js": "file:vendor/codecomet-js-v1.0.0.tgz",
-    "nanoid": "^4.0.2"
-  },
-  "devDependencies": {
-    "@types/node": "^18.14.4",
-    "tslib": "^2.5.0",
-    "typescript": "^4.9.5"
-  },
-  "bundledDependencies": [
-    "codecomet-js"
-  ],
-  "type": "module",
-  "scripts": {
-    "build": "npm run build:typescript && ./build.sh",
-    "build:typescript": "tsc"
-  },
-  "bundleDependencies": [
-    "codecomet-js"
-  ]
+	"name": "pantry-data-importer",
+	"version": "1.0.0",
+	"private": true,
+	"license": "UNLICENSED",
+	"author": "CodeComet, Inc.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/codecomet-io/pantry.git"
+	},
+	"type": "module",
+	"scripts": {
+		"build": "npm run build:typescript && ./build.sh",
+		"build:typescript": "tsc"
+	},
+	"devDependencies": {
+		"@types/node": "^18.14.4",
+		"tslib": "^2.5.0",
+		"typescript": "^4.9.5"
+	},
+	"dependencies": {
+		"@sentry/integrations": "^7.40.0",
+		"@sentry/node": "^7.40.0",
+		"briznads-helpers": "^1.0.17",
+		"codecomet-js": "file:vendor/codecomet-js-v1.0.0.tgz"
+	},
+	"bundleDependencies": [
+		"codecomet-js"
+	]
 }

@@ -1,11 +1,11 @@
 <script lang="ts">
+	import { isListPopulated } from 'briznads-helpers';
+
 	import type { FilesetAction } from '../../../../data_importer/lib/model';
 	import type { Action } from '../../../../data_importer/lib/model';
 
-	import { isPopulated } from '$lib/helper';
 
-
-	export let items : FilesetAction[] | Action[]
+	export let items : FilesetAction[] | Action[];
 </script>
 
 
@@ -27,7 +27,7 @@
 </style>
 
 
-{#if isPopulated(items) }
+{#if isListPopulated(items) }
 	<header>
 		<h2>
 			{ items?.[0]?.type === 'fileset' ? 'Fileset' : 'Action' }{ items.length === 1 ? '' : 's' }

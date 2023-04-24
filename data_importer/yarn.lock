@@ -151,6 +151,13 @@
   dependencies:
     "debug" "4"
 
+"briznads-helpers@^1.0.17":
+  "integrity" "sha512-CoFpf8cyq6/KZ25coeKeC1/LnIi3zcT1LdsxGyq7sAhOVj2Zg+9ZmZG2be4HxM5U4lif/rTJWq4/8ofYUGF27g=="
+  "resolved" "https://registry.npmjs.org/briznads-helpers/-/briznads-helpers-1.0.17.tgz"
+  "version" "1.0.17"
+  dependencies:
+    "nanoid" "^4.0.2"
+
 "codecomet-js@file:vendor/codecomet-js-v1.0.0.tgz":
   "integrity" "sha512-0+tIVrJZErUb+CW4EWHh7AM8gcWbIofhzxAsMDf+xX2m24ej3MN5RVUOFqFnxeqcjaThjqZ9JfPJ4UWbBfpz4Q=="
   "resolved" "file:vendor/codecomet-js-v1.0.0.tgz"

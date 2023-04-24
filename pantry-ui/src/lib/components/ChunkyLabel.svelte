@@ -1,6 +1,6 @@
 <script lang="ts">
-	export let allcaps : boolean = true
-	export let title : undefined | string = undefined
+	export let allcaps : boolean = true;
+	export let title : undefined | string = undefined;
 </script>
 
 

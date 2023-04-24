@@ -13,21 +13,21 @@
 
 	type IconGroup = {
 		name : string
-		icons : StatusIcon[] | TypeIcon[] | MiscIcon[]
+		icons : StatusIconDefinition[] | TypeIconDefinition[] | MiscIconDefinition[]
 	}
 
-	type StatusIcon = {
+	type StatusIconDefinition = {
 		name? : string
 		status : PipelineStatus | ActionStatus
 	}
 
-	type TypeIcon = {
+	type TypeIconDefinition = {
 		name? : string
 		type : ActionType | FilesetType | 'unknown'
 		icon? : 'gitlab'
 	}
 
-	type MiscIcon = {
+	type MiscIconDefinition = {
 		name? : string
 		icon : string
 	}
@@ -35,11 +35,11 @@
 
 	const miscIconMap : { [ key : string ] : string } = {
 		receiptOutline,
-	}
+	};
 
 	const groupedIconsList : GroupedIconsList = [
 		{
-			name : 'status',
+			name  : 'status',
 			icons : [
 				{
 					status : ActionStatus.Cached,
@@ -62,7 +62,7 @@
 			],
 		},
 		{
-			name : 'fileset type',
+			name  : 'fileset type',
 			icons : [
 				{
 					type : FilesetType.Image,
@@ -83,7 +83,7 @@
 			],
 		},
 		{
-			name : 'action type',
+			name  : 'action type',
 			icons : [
 				{
 					type : 'addFile',
@@ -118,7 +118,7 @@
 			],
 		},
 		{
-			name : 'misc',
+			name  : 'misc',
 			icons : [
 				{
 					icon : 'receiptOutline',
@@ -126,7 +126,7 @@
 				},
 			],
 		},
-	]
+	];
 </script>
 
 

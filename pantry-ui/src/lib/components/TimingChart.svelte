@@ -1,16 +1,16 @@
 <script lang="ts">
-	import type { TimingInfo } from '../../../../data_importer/lib/model'
+	import type { TimingInfo } from '../../../../data_importer/lib/model';
 
 	import { gotoSearchString } from '$lib/helper';
 
-	import { highlightAccordion } from '$lib/stores'
+	import { highlightAccordion } from '$lib/stores';
 
-	import { timingChartTooltipHelper } from '$lib/actions/timing-chart-tooltip-helper'
+	import { timingChartTooltipHelper } from '$lib/actions/timing-chart-tooltip-helper';
 
-	import TimingInfoTooltip from '$lib/components/TimingInfoTooltip.svelte'
+	import TimingInfoTooltip from '$lib/components/TimingInfoTooltip.svelte';
 
 
-	export let timingInfo : TimingInfo[] = []
+	export let timingInfo : TimingInfo[] = [];
 
 	const colors : string[] = [
 		'#ffc312',
@@ -33,18 +33,18 @@
 		'#1b1464',
 		'#5758bb',
 		'#6f1e51',
-	]
+	];
 
 	function getColor(index : number) : string {
-		return colors[ index % colors.length ]
+		return colors[ index % colors.length ];
 	}
 
 	function handleHoverFocus(id? : string) : void {
-		highlightAccordion.set(id ?? '')
+		highlightAccordion.set(id ?? '');
 	}
 
 	function handleClick(id : string) : void {
-		gotoSearchString('active_accordion', id)
+		gotoSearchString('active_accordion', id);
 	}
 </script>
 
@@ -174,10 +174,10 @@
 				href="#{ item.id }"
 				class:cached={ item.cached }
 				style="background-color: { getColor(index) };"
-				on:mouseover={ (event) => handleHoverFocus(item.id) }
-				on:mouseout={ (event) => handleHoverFocus() }
-				on:focus={ (event) => handleHoverFocus(item.id) }
-				on:blur={ (event) => handleHoverFocus() }
+				on:mouseover={ () => handleHoverFocus(item.id) }
+				on:mouseout={ () => handleHoverFocus() }
+				on:focus={ () => handleHoverFocus(item.id) }
+				on:blur={ () => handleHoverFocus() }
 				on:click|preventDefault={ () => handleClick(item.id) }
 			><span class="visually-hidden">{ item.name }</span></a>
 

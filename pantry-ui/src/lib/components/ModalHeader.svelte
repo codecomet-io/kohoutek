@@ -1,6 +1,6 @@
 <script lang="ts">
-	export let title : string
-	export let dismissModal : () => void | Promise<any>
+	export let title : string;
+	export let dismissModal : () => void | Promise<any>;
 </script>
 
 

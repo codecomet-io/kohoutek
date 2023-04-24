@@ -1,92 +1,92 @@
 <script lang="ts">
-	import type { FilesetAction, Action } from '../../../../data_importer/lib/model'
+	import type { FilesetAction, Action } from '../../../../data_importer/lib/model';
 
-	import { gotoSearchString } from '$lib/helper'
+	import { gotoSearchString } from '$lib/helper';
 
-	import { activeModal } from '$lib/stores'
+	import { activeModal } from '$lib/stores';
 
-	import ViewLogsButton from '$lib/components/ViewLogsButton.svelte'
-	import ModalHeader from '$lib/components/ModalHeader.svelte'
-	import ViewLogsModalContent from '$lib/components/ViewLogsModalContent.svelte'
+	import ViewLogsButton from '$lib/components/ViewLogsButton.svelte';
+	import ModalHeader from '$lib/components/ModalHeader.svelte';
+	import ViewLogsModalContent from '$lib/components/ViewLogsModalContent.svelte';
 
 
-	export let item : FilesetAction | Action
+	export let item : FilesetAction | Action;
 
-	let modalElement : HTMLIonModalElement
+	let modalElement : HTMLIonModalElement;
 
 	function updateModalAndTooltip(modalElement : HTMLElement) : void {
-		const scrollWrapper = modalElement.querySelector('ion-content .scroll-wrapper') as HTMLElement
+		const scrollWrapper = modalElement.querySelector('ion-content .scroll-wrapper') as HTMLElement;
 
-		setModalHeight(modalElement, scrollWrapper)
+		setModalHeight(modalElement, scrollWrapper);
 
-		checkTooltipPosition(scrollWrapper)
+		checkTooltipPosition(scrollWrapper);
 	}
 
 	function setModalHeight(modalElement : HTMLElement, scrollWrapper : HTMLElement) : void {
 		if (modalElement.style.getPropertyValue('--height')) {
-			return
+			return;
 		}
 
-		const scrollWrapperHeight = (scrollWrapper.offsetHeight - scrollWrapper.clientHeight + scrollWrapper.scrollHeight) || 0
+		const scrollWrapperHeight = (scrollWrapper.offsetHeight - scrollWrapper.clientHeight + scrollWrapper.scrollHeight) || 0;
 
-		const header = modalElement.querySelector('ion-header') as HTMLElement
-		const headerHeight = header?.offsetHeight ?? 0
+		const header = modalElement.querySelector('ion-header') as HTMLElement;
+		const headerHeight = header?.offsetHeight ?? 0;
 
-		modalElement.style.setProperty('--height', `${ headerHeight + scrollWrapperHeight }px`)
+		modalElement.style.setProperty('--height', `${ headerHeight + scrollWrapperHeight }px`);
 	}
 
 	function checkTooltipPosition(scrollWrapper : HTMLElement) : void {
-		const tooltipWrappers : NodeListOf<Element> = scrollWrapper.querySelectorAll('.tooltip-wrapper')
+		const tooltipWrappers : NodeListOf<Element> = scrollWrapper.querySelectorAll('.tooltip-wrapper');
 
 		if (!(tooltipWrappers && tooltipWrappers.length)) {
-			return
+			return;
 		}
 
 		tooltipWrappers.forEach((item : Element) => {
-			const tooltipWrapper = item as HTMLElement
+			const tooltipWrapper = item as HTMLElement;
 
-			const tooltip : HTMLElement | null = tooltipWrapper.querySelector('.tooltip')
+			const tooltip : HTMLElement | null = tooltipWrapper.querySelector('.tooltip');
 
 			if (!tooltip) {
-				return
+				return;
 			}
 
-			const bottomOfTooltip =
-				tooltipWrapper.offsetTop
+			const bottomOfTooltip
+				= tooltipWrapper.offsetTop
 				+ tooltipWrapper.offsetHeight
 				+ tooltip.offsetHeight
-				+ 50 // we should clear the bottom of the modal by at least 50 pixels
+				+ 50; // we should clear the bottom of the modal by at least 50 pixels
 
-				if (bottomOfTooltip <= scrollWrapper.offsetHeight) {
-					setTooltipChecked(tooltipWrapper)
+			if (bottomOfTooltip <= scrollWrapper.offsetHeight) {
+				setTooltipChecked(tooltipWrapper);
 
-					return
-				}
+				return;
+			}
 
-				tooltipWrapper.classList.remove('default-position')
+			tooltipWrapper.classList.remove('default-position');
 
-				setTooltipChecked(tooltipWrapper)
-		})
+			setTooltipChecked(tooltipWrapper);
+		});
 	}
 
 	function setTooltipChecked(tooltipWrapper : HTMLElement) : void {
-		tooltipWrapper.style.overflow = 'visible'
+		tooltipWrapper.style.overflow = 'visible';
 	}
 
 	function handleWillPresent(event : any) : void {
-		updateActiveModal(true)
+		updateActiveModal(true);
 
-		setTimeout(() => updateModalAndTooltip(event.target), 10)
+		setTimeout(() => updateModalAndTooltip(event.target), 10);
 	}
 
 	function updateActiveModal(active : boolean) : void {
 		if (active) {
-			gotoSearchString('active_modal', item.id)
+			gotoSearchString('active_modal', item.id);
 		} else {
 			gotoSearchString({
-				'active_modal' : undefined,
+				'active_modal'   : undefined,
 				'highlight_line' : undefined,
-			})
+			});
 		}
 	}
 </script>

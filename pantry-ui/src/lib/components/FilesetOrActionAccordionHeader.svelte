@@ -3,22 +3,24 @@
 
 	import { receiptOutline } from 'ionicons/icons';
 
-	import { parseLapsed, gotoSearchString } from '$lib/helper';
+	import { lapsed } from 'briznads-helpers';
+
+	import { gotoSearchString } from '$lib/helper';
 
 	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
 
 
-	export let item : FilesetAction | Action
+	export let item : FilesetAction | Action;
 
-	$: iconType = (item as FilesetAction).filesetType ?? item.type
+	$: iconType = (item as FilesetAction).filesetType ?? item.type;
 
 	// support GitLab icon for GitLab-hosted filesets
-	let customIcon : 'gitlab'
+	let customIcon : 'gitlab';
 
 	$: if ((item as FilesetAction).filesetType === 'git' && /\/\/(?:www\.)?gitlab\.com\//.test((item as FilesetAction).source)) {
-		customIcon = 'gitlab'
+		customIcon = 'gitlab';
 	}
 </script>
 
@@ -63,10 +65,10 @@
 	<ChunkyLabel>cached</ChunkyLabel>
 {:else if item.runtime }
 	<ChunkyLabel
-		title={ parseLapsed(item.runtime, false, true) || undefined }
+		title={ lapsed(item.runtime, false, true) || undefined }
 		allcaps={ false }
 	>
-		{ parseLapsed(item.runtime, true) || '0ms' }
+		{ lapsed(item.runtime, true) || '0ms' }
 	</ChunkyLabel>
 {/if}
 

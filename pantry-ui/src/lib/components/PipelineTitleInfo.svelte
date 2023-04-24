@@ -1,18 +1,18 @@
 <script lang="ts">
-	import type { Pipeline } from '../../../../data_importer/lib/model'
+	import type { Pipeline } from '../../../../data_importer/lib/model';
 
-	import { parseLapsed } from '$lib/helper'
+	import { lapsed } from 'briznads-helpers';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
-	import Ago from '$lib/components/Ago.svelte'
-	import StatusIcon from '$lib/components/StatusIcon.svelte'
-	import ModalHeader from '$lib/components/ModalHeader.svelte'
-	import PipelineInfoModalContent from '$lib/components/PipelineInfoModalContent.svelte'
+	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import Ago from '$lib/components/Ago.svelte';
+	import StatusIcon from '$lib/components/StatusIcon.svelte';
+	import ModalHeader from '$lib/components/ModalHeader.svelte';
+	import PipelineInfoModalContent from '$lib/components/PipelineInfoModalContent.svelte';
 
 
-	export let pipeline : Pipeline
+	export let pipeline : Pipeline;
 
-	let modalElement : HTMLIonModalElement
+	let modalElement : HTMLIonModalElement;
 </script>
 
 
@@ -78,7 +78,7 @@
 		<h1>{ pipeline?.name }</h1>
 	</div>
 
-	<ChunkyLabel>{ pipeline?.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline?.completed } /> <span title="{ pipeline?.runtime } milliseconds">in { parseLapsed(pipeline?.runtime, false, true) }</span></ChunkyLabel>
+	<ChunkyLabel>{ pipeline?.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline?.completed } /> <span title="{ pipeline?.runtime } milliseconds">in { lapsed(pipeline?.runtime, false, true) }</span></ChunkyLabel>
 </button>
 
 <ion-modal

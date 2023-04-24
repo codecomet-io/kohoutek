@@ -1,100 +1,102 @@
 <script lang="ts">
-	import type { HighlightLineBounds } from '$lib/stores'
+	import type { HighlightLineBounds } from '$lib/stores';
 
-	import { get } from 'svelte/store'
+	import { get } from 'svelte/store';
 
-	import Prism from 'svelte-prism'
-	import 'prismjs/components/prism-shell-session.min.js'
+	import Prism from 'svelte-prism';
+	import 'prismjs/components/prism-shell-session.min.js';
 
-	import { gotoSearchString, getDateString } from '$lib/helper'
+	import { getDateString } from 'briznads-helpers';
 
-	import { highlightLine } from '$lib/stores'
+	import { gotoSearchString } from '$lib/helper';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte'
+	import { highlightLine } from '$lib/stores';
+
+	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
 
 
-	export let line : string
-	export let lineNumber : number
-	export let totalLinesLength : number
-	export let isStderr : boolean
-	export let timestamp : number
+	export let line : string;
+	export let lineNumber : number;
+	export let totalLinesLength : number;
+	export let isStderr : boolean;
+	export let timestamp : number;
 
-	$: lineCount = lineNumber.toString()
+	$: lineCount = lineNumber.toString();
 
-	const { active, bounds } = highlightLine
+	const { active, bounds } = highlightLine;
 
 	function isHighlighted(bounds : HighlightLineBounds) : boolean {
 		if (!bounds) {
-			return false
+			return false;
 		}
 
-		return lineNumber >= bounds[0] && lineNumber <= bounds[1]
+		return lineNumber >= bounds[0] && lineNumber <= bounds[1];
 	}
 
 	function handleHighlightLineClick(event : MouseEvent, activeLine : string, bounds : HighlightLineBounds) : void {
-		let value : string | undefined = undefined
+		let value : string | undefined = undefined;
 
 		if (activeLine !== lineCount) {
 			if (activeLine && event.shiftKey) {
 				if (lineNumber === bounds[0] || lineNumber === bounds[1]) {
-					return
+					return;
 				} else if (lineNumber < bounds[0]) {
-					value = `${ lineNumber }-${ bounds[1] }`
+					value = `${ lineNumber }-${ bounds[1] }`;
 				} else {
-					value = `${ bounds[0] }-${ lineNumber }`
+					value = `${ bounds[0] }-${ lineNumber }`;
 				}
 			} else {
-				value = lineCount
+				value = lineCount;
 			}
 		}
 
-		gotoSearchString('highlight_line', value)
+		gotoSearchString('highlight_line', value);
 
 		// wait a beat for updated search params to flow down
-		setTimeout(() => selectText(event), 10)
+		setTimeout(() => selectText(event), 10);
 	}
 
 	function selectText(event : MouseEvent) : void {
-		const container = (event.target as HTMLElement)?.closest('.log-container')
+		const container = (event.target as HTMLElement)?.closest('.log-container');
 
 		if (!container) {
-			return
+			return;
 		}
 
-		const highlightBounds = get(bounds)
+		const highlightBounds = get(bounds);
 
-		const startBeforeNode = container.querySelector(`a[data-line="${ highlightBounds[0] }"] + code + pre`)
-		const endAfterNode = container.querySelector(`a[data-line="${ highlightBounds[1] }"] + code + pre`)
+		const startBeforeNode = container.querySelector(`a[data-line="${ highlightBounds[0] }"] + code + pre`);
+		const endAfterNode = container.querySelector(`a[data-line="${ highlightBounds[1] }"] + code + pre`);
 
 		if (!(startBeforeNode && endAfterNode)) {
-			return
+			return;
 		}
 
-		const range = new Range()
+		const range = new Range();
 
-		range.setStartBefore(startBeforeNode)
+		range.setStartBefore(startBeforeNode);
 
-		range.setEndAfter(endAfterNode)
+		range.setEndAfter(endAfterNode);
 
-		const selection = window.getSelection()
+		const selection = window.getSelection();
 
 		if (!selection) {
-			return
+			return;
 		}
 
-		selection.removeAllRanges()
+		selection.removeAllRanges();
 
-		selection.addRange(range)
+		selection.addRange(range);
 	}
 
 	// insure each line number is as long as the last line number for even alignment
 	// to do this we compare the length of the total lines number to the current line
 	// if necessary we insert zeros ("0"), which will be hidden, to balance the number
 	function insertSpacingDigits() : string {
-		const lineLength : number = lineCount.length
+		const lineLength : number = lineCount.length;
 
 		if (!totalLinesLength || totalLinesLength === lineLength) {
-			return ''
+			return '';
 		}
 
 		// taking 10 to the power of the number of digits we need,
@@ -103,7 +105,7 @@
 		// remove the 1 and return
 		return (10 ** (totalLinesLength - lineLength))
 			.toString()
-			.replace(/[^0]/, '')
+			.replace(/[^0]/, '');
 	}
 </script>
 

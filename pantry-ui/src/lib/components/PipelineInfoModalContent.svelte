@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { Pipeline } from '../../../../data_importer/lib/model'
+	import type { Pipeline } from '../../../../data_importer/lib/model';
 
-	import { getDateString, getTimeString } from '$lib/helper';
+	import { getDateString, getTimeString } from 'briznads-helpers';
 
 	import DetailField from '$lib/components/DetailField.svelte';
 
 
-	export let pipeline : Pipeline
+	export let pipeline : Pipeline;
 </script>
 
 

@@ -25,13 +25,13 @@ meta="$(echo '{}' | jq -c --arg id "$id" --arg name "$name" --arg desc "$descrip
 destination=../pantry-ui/static/data
 if [ "$source" != "" ]; then
   echo processing $source
-  node ./entrypoint.js "mocks/$source/llb.proto" "mocks/$source/trace.json" "$meta" "$destination/$normalizedSource.json"
+  node ./build/entrypoint.js "mocks/$source/llb.proto" "mocks/$source/trace.json" "$meta" "$destination/$normalizedSource.json"
 else
   for mockfamily in "mocks"/*; do
     mockfamily="$(basename "$mockfamily")"
     for mock in "mocks/$mockfamily"/*; do
       mock="$(basename "$mock")"
-      node ./entrypoint.js "mocks/$mockfamily/$mock/llb.proto" "mocks/$mockfamily/$mock/trace.json" "$meta" "$destination/$mockfamily-$mock.json"
+      node ./build//entrypoint.js "mocks/$mockfamily/$mock/llb.proto" "mocks/$mockfamily/$mock/trace.json" "$meta" "$destination/$mockfamily-$mock.json"
     done
   done
 fi

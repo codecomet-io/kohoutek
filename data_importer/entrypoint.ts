@@ -1,5 +1,5 @@
 import { createId } from 'briznads-helpers';
-import {Tracer} from "./dependencies/ts-core/sentry.js";
+import {Tracer} from "./dependencies/sentry.js";
 import { BuffIngester } from "./lib/ingester.js";
 import {
     UtilityBuildAction,

@@ -10,8 +10,9 @@
 	},
 	"type": "module",
 	"scripts": {
-		"build": "npm run build:typescript && ./build.sh",
-		"build:typescript": "tsc"
+		"clean": "if [ -d build ]; then rm -Rf build; fi",
+		"build:typescript": "tsc",
+    "build": "npm run clean && npm run build:typescript && ./build.sh"
 	},
 	"devDependencies": {
 		"@types/node": "^18.14.4",

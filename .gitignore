@@ -5,6 +5,7 @@ node_modules
 /pantry-ui/.svelte-kit
 .svelte-kit
 /pantry-ui/package
+/data_importer/build
 .env
 .env.*
 !.env.example

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { GroupedLogs } from '../../../../data_importer/lib/model';
+	import type { GroupedLogs } from '../../../../data_importer/src/lib/model';
 
 	import LogConsoleLine from '$lib/components/LogConsoleLine.svelte';
 

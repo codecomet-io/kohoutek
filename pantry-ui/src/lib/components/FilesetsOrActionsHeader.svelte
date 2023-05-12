@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { isListPopulated } from 'briznads-helpers';
 
-	import type { FilesetAction } from '../../../../data_importer/lib/model';
-	import type { Action } from '../../../../data_importer/lib/model';
+	import type { FilesetAction } from '../../../../data_importer/src/lib/model';
+	import type { Action } from '../../../../data_importer/src/lib/model';
 
 
 	export let items : FilesetAction[] | Action[];

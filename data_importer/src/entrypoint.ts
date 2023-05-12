@@ -36,6 +36,7 @@ import {Types} from "codecomet-js/source/protobuf/types.js";
 import {readFileSync, writeFileSync} from "fs";
 import {description} from "codecomet-js/experimental/protoc/github.com/gogo/protobuf/gogoproto/gogo_pb.js";
 import { LocalVariables } from "@sentry/node/types/integrations/localvariables.js";
+import { Firestore } from './lib/firestore.js';
 
 // Init Sentry
 new Tracer("https://c02314800c4d4be2a32f1d28c4220f3f@o1370052.ingest.sentry.io/6673370")
@@ -504,6 +505,11 @@ async function run(protoPath: string, tracePath: string, meta: string, destinati
     }
 
     writeFileSync(destination, JSON.stringify(pipeline, null, 2))
+
+    // save run to db
+    const firestore = new Firestore();
+
+    await firestore.saveRun(pipeline);
 }
 
 run(

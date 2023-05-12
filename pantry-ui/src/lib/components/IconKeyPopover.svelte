@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { ActionType } from '../../../../data_importer/lib/model';
+	import type { ActionType } from '../../../../data_importer/src/lib/model';
 
-	import { PipelineStatus, ActionStatus, FilesetType } from '../../../../data_importer/lib/model';
+	import { PipelineStatus, ActionStatus, FilesetType } from '../../../../data_importer/src/lib/model';
 
 	import { receiptOutline } from 'ionicons/icons';
 

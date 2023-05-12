@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Pipeline } from '../../../../data_importer/lib/model';
+	import type { Pipeline } from '../../../../data_importer/src/lib/model';
 
 	import { lapsed } from 'briznads-helpers';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { FilesetAction, Action } from '../../../../data_importer/lib/model';
+	import type { FilesetAction, Action } from '../../../../data_importer/src/lib/model';
 
 	import { gotoSearchString } from '$lib/helper';
 

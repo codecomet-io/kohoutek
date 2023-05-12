@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Pipeline } from '../../../../data_importer/lib/model';
+	import type { Pipeline } from '../../../../data_importer/src/lib/model';
 
 	import PipelineTitleInfo from '$lib/components/PipelineTitleInfo.svelte';
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';

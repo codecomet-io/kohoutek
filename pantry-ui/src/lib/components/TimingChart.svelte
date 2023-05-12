@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { TimingInfo } from '../../../../data_importer/lib/model';
+	import type { TimingInfo } from '../../../../data_importer/src/lib/model';
 
 	import { gotoSearchString } from '$lib/helper';
 

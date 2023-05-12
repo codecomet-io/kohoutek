@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { FilesetAction } from '../../../../data_importer/lib/model';
+	import type { FilesetAction } from '../../../../data_importer/src/lib/model';
 
 	import DetailField from '$lib/components/DetailField.svelte';
 

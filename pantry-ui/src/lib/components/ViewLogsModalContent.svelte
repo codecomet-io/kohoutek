@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { FilesetAction, Action, GroupedLogs } from '../../../../data_importer/lib/model';
+	import type { FilesetAction, Action, GroupedLogs } from '../../../../data_importer/src/lib/model';
 
 	import LogInfoContainer from '$lib/components/LogInfoContainer.svelte';
 	import LogConsoleContainer from '$lib/components/LogConsoleContainer.svelte';

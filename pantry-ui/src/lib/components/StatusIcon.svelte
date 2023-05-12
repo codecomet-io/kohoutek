@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PipelineStatus, ActionStatus } from '../../../../data_importer/lib/model';
+	import type { PipelineStatus, ActionStatus } from '../../../../data_importer/src/lib/model';
 
 	import { checkmarkCircle, alertCircle } from 'ionicons/icons';
 

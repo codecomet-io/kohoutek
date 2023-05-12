@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ActionType, FilesetType } from '../../../../data_importer/lib/model';
+	import type { ActionType, FilesetType } from '../../../../data_importer/src/lib/model';
 
 	import {
 		colorPaletteOutline,

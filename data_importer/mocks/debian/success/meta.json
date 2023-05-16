@@ -1,0 +1,29 @@
+{
+  "id": "github.com/codecomet-io/installers/codecomet/builders/debian/debian.go",
+  "name": "CodeComet Debian rootfs",
+  "description": "This builds a multi-architecture Debian rootfs upon that all CodeComet images use as a base",
+
+  "trigger": "https://github.com/codecomet-io/pantry/pull/9",
+
+  "actor": {
+    "id": "codecomet/github-actions",
+    "name": "Github Actions Bot"
+  },
+  "host": {
+    "id": "7e2a0672-managed-runner",
+    "owner": {
+      "id": "codecomet",
+      "name": "CodeComet"
+    }
+  },
+  "repository": {
+    "commit": "4c7abcac49ecb609913d422529c4b6fe4b08eb18",
+    "author": "spacedub <spaceraccoon@codecomet.io>",
+    "parent": "3a56fe162b28500c7e2a067266a6b78348f786e2",
+    "dirty": true,
+    "location": "https://github.com/codecomet-io/installers"
+  },
+  "metadata": {
+    "org": "devops"
+  }
+}

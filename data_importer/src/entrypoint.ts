@@ -24,7 +24,7 @@ import {
     PatchBuildAction,
     CreateSymbolicLinkBuildAction,
     MergeBuildAction,
-    CopyBuildAction,
+    CopyBuildAction, User, Host, Repository,
 } from "./lib/model.js";
 import {stdin} from "node:process";
 import {bool, error, nil} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
@@ -41,15 +41,14 @@ import { Firestore } from './lib/firestore.js';
 // Init Sentry
 new Tracer("https://c02314800c4d4be2a32f1d28c4220f3f@o1370052.ingest.sentry.io/6673370")
 
-
 type Meta = {
     id: string
     description: string
-    commit: string // "651a7ef66b7277f7c293dee8aec6e38305b03022",
-    author: string // "spacedub",
-    parent: string // "c2356d03e4bb824ef898808cf558fc75615beddb",
-    dirty: bool // true,
-    location: string // "github.com/codecomet-io/reporter-elastic",
+    name: string
+    trigger: string
+    actor: User
+    host: Host
+    repository: Repository
 }
 
 type LowLevelBuilderOperation = {
@@ -247,9 +246,15 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
     const buffIngester = new BuffIngester()
     const buildPipeline : BuildPipeline = buffIngester.ingest(trace)
     //    , function(pl: BuildPipeline, tsks: BuildActionsObject){
-    // XXX piggyback on metadata
-    buildPipeline.id = metadata.id
+
+    // Suck up metadata - TODO @spacedub: reincorporate metadata into protobuf pipeline definitions instead of separate entity
+    buildPipeline.pipelineID = metadata.id
     buildPipeline.description = metadata.description
+    buildPipeline.name = metadata.name
+    buildPipeline.trigger = metadata.trigger
+    buildPipeline.actor = metadata.actor
+    buildPipeline.host = metadata.host
+    buildPipeline.repository = metadata.repository
 
     // disable repository output for now
     // it leaks info and isn't currently needed

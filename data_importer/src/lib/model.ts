@@ -3,6 +3,13 @@ import {digest} from "codecomet-js/source/buildkit-port/dependencies/opencontain
 import {Types} from "codecomet-js/source/protobuf/types.js";
 import  * as os from "node:os"
 
+import {PipelineStatus, ActionStatus} from "./model/run.js";
+import {Stack, LogLine, AssembledLog, GroupedLogsPayload} from "./model/logs.js";
+
+// Re-export
+export * from "./model/run.js";
+export * from "./model/logs.js";
+
 /**
  * IMPORTANT NOTES
  *
@@ -45,8 +52,8 @@ export class Host {
     // A unique identifier
     id: string //  = "uuid1233445"
 
-    // Provisional: free form labels
-    metadata: {
+    // free form labels
+    metadata?: {
         [key: string]: string
     }
     /*= {
@@ -62,9 +69,9 @@ export class Host {
     }
 
     // runtime information
-    runtime: {[key: string]: string | undefined} = process.versions
+    runtime?: {[key: string]: string | undefined} = process.versions
 
-    system: {
+    system?: {
         arch: string,
         cpus: any[],
         endianness: string,
@@ -116,39 +123,7 @@ export type Repository = {
 
 // usage: process.resourceUsage(),
 
-/*
- * PipelineStatus represents the completion status of the plan.
- * Possible values are:
- * - errored: an action failed
- * - cancelled: the pipeline was interrupted (by the user, or the process has been otherwise killed)
- * - completed: all actions succesfully returned and the pipeline has completed
- */
-export enum PipelineStatus {
-    // At least one non optional task errored out
-    Errored = 'errored',
-    // The plan was interrupted (user interrupt, crash, network shutdown, poney, whatever)
-    Cancelled = 'cancelled',
-    // All tasks returned succesfully
-    Completed = 'completed',
-    // All non-optional tasks returned successfully, but some optional ones failed
-    // This is provisional, and not used right now
-    Degraded = 'degraded',
-}
 
-/*
- * Represents action statuses
- * - cached: the action was not run, as it has already been in the past and is unmodified
- * - errored: the action ran, but failed
- * - completed: the action ran successfully
- */
-export enum ActionStatus {
-    Cached = 'cached',
-    Errored = 'errored',
-    Completed = 'completed',
-    Ignored = 'ignored',
-    Started = 'started',
-    Cancelled = 'cancelled'
-}
 
 export type ActionsInfo = {
     // total number of tasks
@@ -185,13 +160,18 @@ export type ActionsInfo = {
  */
 type GeneralPipeline = {
     // The unique, never changing identifier of a pipeline - should be the git source and codecomet plan file
-    id: string
+    pipelineID: string
 
     // User chosen short name for the pipeline. Example: "My Pipeline for Netlify"
     name: string
 
     // User defined description for the plan. Example: "This pipeline is doing fancy and boo"
     description: string
+
+    // User defined free-form key value custom metadata
+    metadata?: {
+        [key: string]: string
+    }
 
     // Digest uuid of the run
     runID: string
@@ -237,46 +217,6 @@ export interface Pipeline extends GeneralPipeline {
     actions: Action[]
 }
 
-type LogLine  = {
-    timestamp: int
-    line: string
-}
-
-export type AssembledLog = {
-    timestamp: uint64
-    command: string
-    resolved: string
-    stdout: string
-    stderr: string
-    exitCode: uint64
-}
-
-export type GroupedLogsPayload = {
-    commands: GroupedLogs[]
-    totalLines: uint64
-}
-
-export type GroupedLogs = {
-    id: string
-    command: string
-    resolved: string
-    exitCode: uint64
-    logs: ParsedLog[]
-}
-
-export type ParsedLog = {
-    timestamp: uint64
-    isStderr?: boolean
-    lines: string[]
-}
-
-export type Stack = {
-    timestamp: int
-    lineNumber: uint64
-    exitCode: uint64
-    command: string
-    source: string[]
-}
 
 type GeneralAction = {
     id: string

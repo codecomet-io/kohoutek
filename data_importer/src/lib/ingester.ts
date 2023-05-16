@@ -17,10 +17,10 @@ import "@sentry/tracing";
 import {createHash} from "node:crypto";
 
 class Build implements BuildPipeline {
-    id = "github.com/codecomet-io/reporter-elastic/plan.js"
+    runID = "12345"
+    pipelineID = "unique-pipeline-identifier"
     name = "User defined name"
     description = "This is our super test plan, and guess what this description can change at any time"
-    runID = ""
     started = 0
     completed = 0
     status = model.PipelineStatus.Completed

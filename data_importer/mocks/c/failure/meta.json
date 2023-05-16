@@ -1,0 +1,29 @@
+{
+  "id": "github.com/codecomet-io/installers/codecomet/builders/c/c.go",
+  "name": "CodeComet cross compilation toolchain",
+  "description": "This is a pipeline that builds a cross compilation toolchain for C based projects, including macOS",
+
+  "trigger": "manual",
+  "actor": {
+    "id": "spacedub",
+    "name": "Space Raccoon"
+  },
+  "host": {
+    "id": "500c7e2a-space-raccoon-macbook-pro",
+    "owner": {
+      "id": "spacedub",
+      "name": "Space Raccoon"
+    }
+  },
+  "repository": {
+    "commit": "4c7abcac49ecb609913d422529c4b6fe4b08eb18",
+    "author": "spacedub <spaceraccoon@codecomet.io>",
+    "parent": "3a56fe162b28500c7e2a067266a6b78348f786e2",
+    "dirty": true,
+    "location": "https://github.com/codecomet-io/installers"
+  },
+  "metadata": {
+    "org": "devops",
+    "broken": true
+  }
+}

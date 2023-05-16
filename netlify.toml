@@ -1,7 +1,7 @@
 [build]
   # Default build command.
-  command = "cd ./data_importer/; npm install; npm run build; cd ../pantry-ui/; npm install; npm run build"
-  publish = "pantry-ui/build/"
+  command = "cd ./pantry/; npm install; npm run build; cd ../app/; npm install; npm run build"
+  publish = "app/build/"
 
 
 [[redirects]]

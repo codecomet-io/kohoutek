@@ -2,8 +2,8 @@ source="${1:-}"
 normalizedSource="$(printf "%s" "$source" | tr "/" "-")"
 normalizedSource="${normalizedSource:-c-failure}"
 
-cd ./data_importer/
+cd ./pantry/
 npm run build "$source"
-cd ../pantry-ui/
+cd ../app/
 npm run build
 npm run preview -- --open /anonymous-run/$normalizedSource

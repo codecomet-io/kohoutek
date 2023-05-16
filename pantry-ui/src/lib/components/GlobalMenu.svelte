@@ -5,7 +5,17 @@
 </script>
 
 
-<style lang="scss"></style>
+<style lang="scss">
+	ion-content {
+		:global(ion-list + ion-list) {
+			margin-top: 20px;
+		}
+
+		:global(ion-list-header > ion-label) {
+			margin-top: 0;
+		}
+	}
+</style>
 
 
 <ion-header>
@@ -25,4 +35,12 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">Menu Content</ion-content>
+<ion-content>
+	<ion-list>
+		<ion-item href="/sign-out">
+			<ion-label>Sign Out</ion-label>
+		</ion-item>
+	</ion-list>
+
+	<slot />
+</ion-content>

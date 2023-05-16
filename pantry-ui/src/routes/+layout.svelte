@@ -54,8 +54,6 @@
 
 	import { setupIonicBase } from 'ionic-svelte';
 
-	import GlobalMenu from '$lib/components/GlobalMenu.svelte';
-
 	/* Call Ionic's setup routine */
 	setupIonicBase({
 		mode : 'ios',
@@ -77,13 +75,5 @@
 
 
 <ion-app>
-	<ion-split-pane content-id="main">
-		<ion-menu content-id="main">
-			<GlobalMenu />
-		</ion-menu>
-
-		<div class="ion-page" id="main">
-			<slot />
-		</div>
-	</ion-split-pane>
+	<slot />
 </ion-app>

@@ -6,4 +6,4 @@ cd ./data_importer/
 npm run build "$source"
 cd ../pantry-ui/
 npm run build
-npm run preview -- --open ?pipeline="$normalizedSource"
+npm run preview -- --open /run/$normalizedSource

@@ -151,17 +151,31 @@ export enum ActionStatus {
 }
 
 export type ActionsInfo = {
-    // Total number of tasks
+    // total number of tasks
     total: int
-    // How many were cached
+
+    // how many were cached
     cached: int
-    // How many ran success
+
+    // how many ran successfully; aka started, not cached, not errored, finished
     ran: int
-    // How many ran error
+
+    // how many finished successfully; aka started, not errored, finished; aka cached + ran
+    finishedSuccessfully: int
+
+    // percent of how many of the total tasks finished successfully
+    finishedSuccessfullyPercent: int
+
+    // percent of total tasks that were cached
+    cachedPercent: int
+
+    // how many errored
     errored: int
-    // How many started but got interrupted
+
+    // how many started but got interrupted; aka started, not cached, not errored, never finished
     interrupted: int
-    // How many did not run
+
+    // how many did not run
     notRan: int
 }
 

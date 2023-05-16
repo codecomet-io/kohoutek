@@ -3,7 +3,7 @@ import type { Firestore as FirestoreType } from 'firebase/firestore';
 import type { Pipeline } from '../../../data_importer/src/lib/model';
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 
 
 export class Firestore {
@@ -20,11 +20,11 @@ export class Firestore {
 
 
 	constructor() {
-		this.init();
+		this.db = this.initDb() as FirestoreType;
 	}
 
 
-	private init() : void {
+	private initDb() : FirestoreType | void {
 		let app;
 
 		try {
@@ -35,7 +35,7 @@ export class Firestore {
 			return;
 		}
 
-		this.db = getFirestore(app);
+		return getFirestore(app);
 	}
 
 	async getRun(documentId : string) : Promise<Pipeline | void> {
@@ -49,5 +49,29 @@ export class Firestore {
 		}
 
 		return docSnap.data() as Pipeline;
+	}
+
+	async getRuns(sortByNewest : boolean = true, limitDocuments? : number) : Promise<any> {
+		const collectionRef = collection(this.db, 'runs');
+
+		const queryParameters = []
+
+		if (sortByNewest) {
+			queryParameters.push(orderBy('started', 'desc'));
+		}
+
+		if (limitDocuments != null) {
+			queryParameters.push(limit(limitDocuments));
+		}
+
+		const q = query(collectionRef, ...queryParameters);
+
+		const querySnapshot = await getDocs(q);
+
+		return querySnapshot.docs
+			.map((doc) => ({
+				...doc.data(),
+				_id : doc.id,
+			}));
 	}
 }

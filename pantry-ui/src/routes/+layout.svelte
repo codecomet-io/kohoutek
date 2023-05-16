@@ -1,16 +1,6 @@
 <script lang="ts">
-	import { setupIonicBase } from 'ionic-svelte';
-
-	/* Call Ionic's setup routine */
-	setupIonicBase({
-		mode : 'ios',
-	});
-
 	/* Import all components - or do partial loading - see below */
 	// import 'ionic-svelte/components/all'
-
-	/* Theme variables */
-	import '../theme/variables.css';
 
 	/*
 		This part - import 'ionic-svelte/components/all'; -  loads all components at once.
@@ -25,8 +15,8 @@
 		Example: if you replace the line import 'ionic-svelte/components/all'; with the imports below, you will see the resulting bundle being much smaller
 	*/
 
-	import 'ionic-svelte/components/ion-accordion-group';
 	import 'ionic-svelte/components/ion-accordion';
+	import 'ionic-svelte/components/ion-accordion-group';
 	import 'ionic-svelte/components/ion-app';
 	import 'ionic-svelte/components/ion-badge';
 	import 'ionic-svelte/components/ion-button';
@@ -36,10 +26,14 @@
 	import 'ionic-svelte/components/ion-header';
 	import 'ionic-svelte/components/ion-item';
 	import 'ionic-svelte/components/ion-label';
-	import 'ionic-svelte/components/ion-list-header';
 	import 'ionic-svelte/components/ion-list';
+	import 'ionic-svelte/components/ion-list-header';
+	import 'ionic-svelte/components/ion-menu';
+	import 'ionic-svelte/components/ion-menu-button';
+	import 'ionic-svelte/components/ion-menu-toggle';
 	import 'ionic-svelte/components/ion-modal';
 	import 'ionic-svelte/components/ion-popover';
+	import 'ionic-svelte/components/ion-split-pane';
 	import 'ionic-svelte/components/ion-title';
 	import 'ionic-svelte/components/ion-toolbar';
 
@@ -54,6 +48,16 @@
 		Want to know what is happening more - follow me on Twitter - https://twitter.com/Tommertomm
 		Discord channel on Ionic server - https://discordapp.com/channels/520266681499779082/1049388501629681675
 	*/
+
+	/* Theme variables */
+	import '../theme/variables.css';
+
+	import { setupIonicBase } from 'ionic-svelte';
+
+	/* Call Ionic's setup routine */
+	setupIonicBase({
+		mode : 'ios',
+	});
 </script>
 
 

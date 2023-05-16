@@ -2,7 +2,6 @@
 	import type { Pipeline } from '../../../../data_importer/src/lib/model';
 
 	import PipelineTitleInfo from '$lib/components/PipelineTitleInfo.svelte';
-	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
 	import TimingChart from '$lib/components/TimingChart.svelte';
 
 
@@ -31,8 +30,6 @@
 
 	.top-header-wrapper {
 		display: flex;
-		justify-content: space-between;
-		align-items: center;
 		gap: 0.5em;
 	}
 
@@ -45,9 +42,9 @@
 <ion-header>
   <div class="max-width-wrapper">
 		<div class="top-header-wrapper">
-			<PipelineTitleInfo pipeline={ pipeline } />
+			<ion-menu-button></ion-menu-button>
 
-			<CodeCometLogo />
+			<PipelineTitleInfo pipeline={ pipeline } />
 		</div>
 
 		<TimingChart timingInfo={ pipeline?.timingInfo } />

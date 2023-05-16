@@ -8,6 +8,7 @@
 		align-items: center;
 		flex-shrink: 0;
 		flex-grow: 0;
+		padding: 0.5em;
 		color: #1c1e21;
 		text-decoration: none;
 		font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
@@ -31,12 +32,7 @@
 	}
 
 	strong {
-		display: none;
 		margin-left: 0.25rem;
-
-		@media (min-width: 600px) {
-			display: block;
-		}
 	}
 </style>
 

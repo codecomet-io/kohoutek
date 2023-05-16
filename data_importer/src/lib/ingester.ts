@@ -8,7 +8,7 @@ import {
 	VertexLog,
 } from "codecomet-js/source/buildkit-port/client/graph.js";
 import * as model from "./model.js";
-import {ActionStatus, BuildActionsObject, BuildPipeline, ActionsInfo, Stack, User, Repository} from "./model.js";
+import {ActionStatus, BuildActionsObject, BuildRun, ActionsInfo, Stack, User, Repository} from "./model.js";
 import * as readline from 'node:readline/promises';
 import {ReadStream} from "tty";
 
@@ -16,7 +16,7 @@ import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
 
 
-class Build implements BuildPipeline {
+class Build implements BuildRun {
 	id = "abcd1234";
 	name = "user-defined name for this run";
 	pipelineId = "unique-pipeline-identifier";
@@ -24,7 +24,7 @@ class Build implements BuildPipeline {
 	description = "This is our super test plan, and guess what this description can change at any time";
 	started = 0;
 	completed = 0;
-	status = model.PipelineStatus.Completed;
+	status = model.RunStatus.Completed;
 	runtime = 0;
 	machineTime = 0;
 	trigger = "manual";
@@ -134,7 +134,7 @@ class Build implements BuildPipeline {
 				this.started = this.actionsObject[vertice.Digest].started;
 				// this.datestamp = new Date(this.timestamp).toISOString()
 				// Temporary hack to create unique Descriptions for each Report - obviously needs to be undone
-				this.description = "Some Pipeline"; //  + this.Report.Started.toString().slice(-4)
+				this.description = "Some Run"; //  + this.Report.Started.toString().slice(-4)
 			}
 			this.actionsObject[vertice.Digest].status = ActionStatus.Started;
 		}
@@ -160,11 +160,11 @@ class Build implements BuildPipeline {
 
 		this.actionsInfo = this.parseActionsInfo(actionKeys, this.actionsObject);
 
-		// if any action errored, the pipeline errored
+		// if any action errored, the run errored
 		if (actionKeys.some((key) => this.actionsObject[key].error)) {
-			this.status = model.PipelineStatus.Errored;
+			this.status = model.RunStatus.Errored;
 		} else if (!actionKeys.some((key) => this.actionsObject[key].completed)) { // if any action didn't complete, and we have NOT errored, it means we got cancelled
-			this.status = model.PipelineStatus.Cancelled;
+			this.status = model.RunStatus.Cancelled;
 		}
 
 		actionKeys.forEach((key) => {
@@ -327,7 +327,7 @@ export class BuffIngester {
 		this.build = new Build();
 	}
 
-	ingest(buff: Buffer) : BuildPipeline {
+	ingest(buff: Buffer) : BuildRun {
 		const transaction = Sentry.startTransaction({
 			op   : "Ingester",
 			name : "Data ingesting transaction",

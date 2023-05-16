@@ -10,8 +10,8 @@ import {
 	BuildAction,
 	BuildActionsObject,
 	ParentAction,
-	BuildPipeline,
-	Pipeline,
+	BuildRun,
+	Run,
 	UserBuildAction,
 	TimingInfo,
 	AssembledLog,
@@ -78,7 +78,7 @@ function ingest(buffer: Buffer): [ LowLevelBuilderOperation[], error ] {
 	return [ operations, nil ];
 }
 
-export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string): Promise<Pipeline> {
+export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string): Promise<Run> {
 	await CodeComet.Bootstrap();
 
 	// Spoof in metadata
@@ -229,31 +229,27 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 		}
 	});
 
-	// throw "lol"
-	// Suck up stdin for the logs
-	// new StdinIngester(stdin, function(pl: BuildPipeline, tsks: BuildActionsObject){
 	const buffIngester = new BuffIngester();
-	const buildPipeline : BuildPipeline = buffIngester.ingest(trace);
-	//    , function(pl: BuildPipeline, tsks: BuildActionsObject){
+	const buildRun : BuildRun = buffIngester.ingest(trace);
 
 	// Suck up metadata - TODO @spacedub: reincorporate metadata into protobuf pipeline definitions instead of separate entity
-	buildPipeline.pipelineId = metadata.id;
-	buildPipeline.description = metadata.description;
-	buildPipeline.pipelineName = metadata.name;
-	buildPipeline.trigger = metadata.trigger;
-	buildPipeline.actor = metadata.actor;
-	buildPipeline.host = metadata.host;
-	buildPipeline.repository = metadata.repository;
+	buildRun.pipelineId = metadata.id;
+	buildRun.description = metadata.description;
+	buildRun.pipelineName = metadata.name;
+	buildRun.trigger = metadata.trigger;
+	buildRun.actor = metadata.actor;
+	buildRun.host = metadata.host;
+	buildRun.repository = metadata.repository;
 
-	buildPipeline.name = buildPipeline.repository.commitSubject;
+	buildRun.name = buildRun.repository.commitSubject;
 
-	if (buildPipeline.repository.isDirty) {
-		buildPipeline.name = `[DIRTY] ${ buildPipeline.name }`;
+	if (buildRun.repository.isDirty) {
+		buildRun.name = `[DIRTY] ${ buildRun.name }`;
 	}
 
 	// Geez this is shit. @spacedub burn all of this with fire and rewrite the stitching probably (later...)
 	// briznad: @spacedub you're too hard on yourself
-	for (const [ digest, traceObject ] of Object.entries(buildPipeline.actionsObject)) {
+	for (const [ digest, traceObject ] of Object.entries(buildRun.actionsObject)) {
 		let typedObject: BuildAction;
 
 		if (buildActionsObject[digest]) {
@@ -262,7 +258,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 			// This is not good. Bad shit here: https://github.com/moby/buildkit/issues/3693
 			// So, try very-very hard to still retrieve the object, even with a different digest
 			for (const key of Object.keys(buildActionsObject)) {
-				if (buildActionsObject[key]?.name === buildPipeline.actionsObject[digest]?.name) {
+				if (buildActionsObject[key]?.name === buildRun.actionsObject[digest]?.name) {
 					typedObject = buildActionsObject[key];
 
 					break;
@@ -287,18 +283,18 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 		typedObject.buildParents = traceObject.buildParents;
 		typedObject.assembledLogs = traceObject.assembledLogs;
 
-		buildPipeline.actionsObject[digest] = typedObject;
+		buildRun.actionsObject[digest] = typedObject;
 	}
 
-	const actionsOrder : string[] = Object.keys(buildPipeline.actionsObject)
+	const actionsOrder : string[] = Object.keys(buildRun.actionsObject)
 		.sort((a, b) => // sort values chronologically, based on start time
-			buildPipeline.actionsObject[a]?.started - buildPipeline.actionsObject[b]?.started,
+			buildRun.actionsObject[a]?.started - buildRun.actionsObject[b]?.started,
 		);
 
 	// after initial chronological sort, run an additional check to insure no parent action comes after a child
 	outermostLoop: while (true) {
 		for (const key of actionsOrder) {
-			const parents = buildPipeline.actionsObject[key]?.buildParents;
+			const parents = buildRun.actionsObject[key]?.buildParents;
 
 			if (!(parents && parents.length)) {
 				continue;
@@ -331,7 +327,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 	const actions : Action[] = [];
 
 	for (const key of actionsOrder) {
-		const item : any = buildPipeline.actionsObject[key];
+		const item : any = buildRun.actionsObject[key];
 
 		if (item.runtime != null) {
 			timingInfo.push(parseActionTiming(item));
@@ -350,15 +346,15 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
 			if (item.buildParents) {
 				for (const digest of item.buildParents) {
-					if (!buildPipeline.actionsObject[digest]) {
+					if (!buildRun.actionsObject[digest]) {
 						continue;
 					}
 
 					// insert the entry into the parents list at the same index as the parent in the overall list
 					// this insures the correct order
 					parents[actionsOrder.indexOf(digest)] = {
-						id   : buildPipeline.actionsObject[digest].id,
-						name : buildPipeline.actionsObject[digest].name,
+						id   : buildRun.actionsObject[digest].id,
+						name : buildRun.actionsObject[digest].name,
 					};
 				}
 			}
@@ -379,7 +375,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 		}
 	}
 
-	delete buildPipeline.actionsObject;
+	delete buildRun.actionsObject;
 
 	const summedTimingRuntime : number = timingInfo.reduce(
 		(sum, item) => sum + item.runtime,
@@ -392,7 +388,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 	}
 
 	return {
-		...buildPipeline,
+		...buildRun,
 		timingInfo,
 		filesets,
 		actions,
@@ -487,21 +483,21 @@ async function run(protoPath: string, tracePath: string, meta: string, destinati
 	const buff = readFileSync(protoPath);
 	const trace = readFileSync(tracePath);
 
-	// Get the pipeline and the tasks from Pantry
-	const pipeline = await Pantry(buff, trace, meta);
+	// Get the run from Pantry
+	const run = await Pantry(buff, trace, meta);
 
-	if (pipeline == null) {
-		console.error(`\nERROR: pipeline "${ destination.replace(/^.+\//, '') }" could not be retrieved and/or generated\n`);
+	if (run == null) {
+		console.error(`\nERROR: run "${ destination.replace(/^.+\//, '') }" could not be retrieved and/or generated\n`);
 
 		return;
 	}
 
-	writeFileSync(destination, JSON.stringify(pipeline, null, 2));
+	writeFileSync(destination, JSON.stringify(run, null, 2));
 
 	// save run to db
 	const firestore = new Firestore();
 
-	await firestore.saveRun(pipeline);
+	await firestore.saveRun(run);
 }
 
 run(

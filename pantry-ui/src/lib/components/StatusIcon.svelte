@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { PipelineStatus, ActionStatus } from '../../../../data_importer/src/lib/model';
+	import type { RunStatus, ActionStatus } from '../../../../data_importer/src/lib/model';
 
 	import { checkmarkCircle, alertCircle } from 'ionicons/icons';
 
 
 	type ColorMap = {
-		[ key in PipelineStatus | ActionStatus ]? : 'success' | 'danger' | 'medium' | 'dark' | 'warning' | 'tertiary';
+		[ key in RunStatus | ActionStatus ]? : 'success' | 'danger' | 'medium' | 'dark' | 'warning' | 'tertiary';
 	}
 
 
-	export let status : PipelineStatus | ActionStatus;
+	export let status : RunStatus | ActionStatus;
 	export let size : undefined | 'small' | 'default' | 'large' = undefined;
 
 	const successStatus = [

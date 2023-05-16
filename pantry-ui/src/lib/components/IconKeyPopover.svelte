@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ActionType } from '../../../../data_importer/src/lib/model';
 
-	import { PipelineStatus, ActionStatus, FilesetType } from '../../../../data_importer/src/lib/model';
+	import { RunStatus, ActionStatus, FilesetType } from '../../../../data_importer/src/lib/model';
 
 	import { receiptOutline } from 'ionicons/icons';
 
@@ -18,7 +18,7 @@
 
 	type StatusIconDefinition = {
 		name? : string
-		status : PipelineStatus | ActionStatus
+		status : RunStatus | ActionStatus
 	}
 
 	type TypeIconDefinition = {
@@ -45,16 +45,16 @@
 					status : ActionStatus.Cached,
 				},
 				{
-					status : PipelineStatus.Cancelled,
+					status : RunStatus.Cancelled,
 				},
 				{
-					status : PipelineStatus.Completed,
+					status : RunStatus.Completed,
 				},
 				{
-					status : PipelineStatus.Degraded,
+					status : RunStatus.Degraded,
 				},
 				{
-					status : PipelineStatus.Errored,
+					status : RunStatus.Errored,
 				},
 				{
 					status : ActionStatus.Ignored,

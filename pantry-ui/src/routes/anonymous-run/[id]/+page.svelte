@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { PageData } from '../../$types';
-	import type { Pipeline } from '../../../../../data_importer/src/lib/model';
+	import type { Run } from '../../../../../data_importer/src/lib/model';
 
 	import { activeAccordion, activeModal, highlightLine } from '$lib/stores';
 
-	import PipelineHeader from '$lib/components/PipelineHeader.svelte';
+	import RunHeader from '$lib/components/RunHeader.svelte';
 	import IconKey from '$lib/components/IconKey.svelte';
 	import FilesetsOrActionsList from '$lib/components/FilesetsOrActionsList.svelte';
 	import FilesetsOrActionsHeader from '$lib/components/FilesetsOrActionsHeader.svelte';
@@ -12,7 +12,9 @@
 
 	export let data : PageData;
 
-	const pipeline : Pipeline = data.pipeline;
+	let run : Run;
+
+	$: run = data.run;
 
 	$: updateFromParams(data.searchParams);
 
@@ -57,21 +59,21 @@
 </style>
 
 
-<PipelineHeader pipeline={ pipeline } anonymous={ true } />
+<RunHeader { run } anonymous={ true } />
 
 <ion-content
 	fullscreen={ true }
 	bind:this={ ionContent }
 >
 	<div class="max-width-wrapper">
-		<FilesetsOrActionsHeader items={ pipeline?.filesets }>
+		<FilesetsOrActionsHeader items={ run?.filesets }>
 			<IconKey />
 		</FilesetsOrActionsHeader>
 
-		<FilesetsOrActionsList filesets={ pipeline?.filesets } />
+		<FilesetsOrActionsList filesets={ run?.filesets } />
 
-		<FilesetsOrActionsHeader items={ pipeline?.actions } />
+		<FilesetsOrActionsHeader items={ run?.actions } />
 
-		<FilesetsOrActionsList actions={ pipeline?.actions } />
+		<FilesetsOrActionsList actions={ run?.actions } />
 	</div>
 </ion-content>

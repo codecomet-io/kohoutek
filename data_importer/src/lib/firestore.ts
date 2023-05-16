@@ -1,7 +1,7 @@
 import type { ServiceAccount } from 'firebase-admin';
 import type { Firestore as FirestoreType } from 'firebase-admin/firestore';
 
-import type { Pipeline } from './model.js';
+import type { Run } from './model.js';
 
 import { initializeApp, cert } from 'firebase-admin/app';
 
@@ -52,11 +52,17 @@ export class Firestore {
 		this.db = getFirestore(app);
 	}
 
-	async saveRun(run : Pipeline) : Promise<void> {
-		// Add a new document with a generated id.
-		const res = await this.db.collection('runs').add(deepCopy(run));
+	async saveRun(run : Run) : Promise<void> {
+		try {
+			// Add a new document
+			await this.db.collection('runs').doc(run.id).set(deepCopy(run));
+		} catch (e) {
+			console.error(e);
 
-		console.log('Added document with ID: ', res.id);
+			return;
+		}
+
+		console.info('Added document with ID: ', run.id);
 
 		return;
 	}

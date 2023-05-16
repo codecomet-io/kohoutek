@@ -3,7 +3,7 @@ import {digest} from "codecomet-js/source/buildkit-port/dependencies/opencontain
 import {Types} from "codecomet-js/source/protobuf/types.js";
 import  * as os from "node:os";
 
-import {PipelineStatus, ActionStatus} from "./model/run.js";
+import {RunStatus, ActionStatus} from "./model/run.js";
 import {Stack, LogLine, AssembledLog, GroupedLogsPayload} from "./model/logs.js";
 
 // Re-export
@@ -38,14 +38,14 @@ export * from "./model/logs.js";
  * A User represents a GitHub account
  */
 export type User = {
-    id: string
-    name: string
-    // XXX signatures?
-    // gpg: string
+	id: string
+	name: string
+	// XXX signatures?
+	// gpg: string
 }
 
 /*
- * A runner is a machine able to run CodeComet pipelines.
+ * A runner is a machine able to run CodeComet pipelines
  * Right now this is being initialized with details from the machine running this script
  */
 export class Host {
@@ -54,14 +54,8 @@ export class Host {
 
 	// free form labels
 	metadata?: {
-        [key: string]: string
-    };
-	/*= {
-        nickname: "macRaccoon",
-        description: "lalalala",
-        grouptag: "red-team",
-        random: "joke"
-    }*/
+		[key: string]: string
+	};
 
 	constructor(id: string, meta: {[key: string]: string}){
 		this.id = id;
@@ -72,40 +66,40 @@ export class Host {
 	runtime?: {[key: string]: string | undefined} = process.versions;
 
 	system?: {
-        arch: string,
-        cpus: any[],
-        endianness: string,
-        freemem: int,
-        home: string,
-        hostname: string,
-        loadavg: number[],
-        networkInterfaces: {[key: string]: any},
-        platform: string,
-        release: string,
-        tmpdir: string,
-        totalmem: number,
-        type: string,
-        uptime: number,
-        userInfo: {[key: string]: any},
-        version: string
-    } = {
-			arch              : os.arch(),
-			cpus              : os.cpus(),
-			endianness        : os.endianness(),
-			freemem           : os.freemem(),
-			home              : os.homedir(),
-			hostname          : os.hostname(),
-			loadavg           : os.loadavg(),
-			networkInterfaces : os.networkInterfaces(),
-			platform          : os.platform(),
-			release           : os.release(),
-			tmpdir            : os.tmpdir(),
-			totalmem          : os.totalmem(),
-			type              : os.type(),
-			uptime            : os.uptime(),
-			userInfo          : os.userInfo(),
-			version           : os.version(),
-		};
+		arch: string,
+		cpus: any[],
+		endianness: string,
+		freemem: int,
+		home: string,
+		hostname: string,
+		loadavg: number[],
+		networkInterfaces: {[key: string]: any},
+		platform: string,
+		release: string,
+		tmpdir: string,
+		totalmem: number,
+		type: string,
+		uptime: number,
+		userInfo: {[key: string]: any},
+		version: string
+	} = {
+		arch              : os.arch(),
+		cpus              : os.cpus(),
+		endianness        : os.endianness(),
+		freemem           : os.freemem(),
+		home              : os.homedir(),
+		hostname          : os.hostname(),
+		loadavg           : os.loadavg(),
+		networkInterfaces : os.networkInterfaces(),
+		platform          : os.platform(),
+		release           : os.release(),
+		tmpdir            : os.tmpdir(),
+		totalmem          : os.totalmem(),
+		type              : os.type(),
+		uptime            : os.uptime(),
+		userInfo          : os.userInfo(),
+		version           : os.version(),
+	};
 
 	owner: User = <User>{
 		id   : "spacedub",
@@ -114,12 +108,12 @@ export class Host {
 }
 
 export type Repository = {
-    commit: string
-    author: string
-    parent: string
-    isDirty: bool
-    location: string
-    commitSubject: string
+	commit: string
+	author: string
+	parent: string
+	isDirty: bool
+	location: string
+	commitSubject: string
 }
 
 // usage: process.resourceUsage(),
@@ -127,242 +121,242 @@ export type Repository = {
 
 
 export type ActionsInfo = {
-    // total number of tasks
-    total: int
+	// total number of tasks
+	total: int
 
-    // how many were cached
-    cached: int
+	// how many were cached
+	cached: int
 
-    // how many ran successfully; aka started, not cached, not errored, finished
-    ran: int
+	// how many ran successfully; aka started, not cached, not errored, finished
+	ran: int
 
-    // how many finished successfully; aka started, not errored, finished; aka cached + ran
-    finishedSuccessfully: int
+	// how many finished successfully; aka started, not errored, finished; aka cached + ran
+	finishedSuccessfully: int
 
-    // percent of how many of the total tasks finished successfully
-    finishedSuccessfullyPercent: int
+	// percent of how many of the total tasks finished successfully
+	finishedSuccessfullyPercent: int
 
-    // percent of total tasks that were cached
-    cachedPercent: int
+	// percent of total tasks that were cached
+	cachedPercent: int
 
-    // how many errored
-    errored: int
+	// how many errored
+	errored: int
 
-    // how many started but got interrupted; aka started, not cached, not errored, never finished
-    interrupted: int
+	// how many started but got interrupted; aka started, not cached, not errored, never finished
+	interrupted: int
 
-    // how many did not run
-    notRan: int
+	// how many did not run
+	notRan: int
 }
 
 /**
- * A Pipeline represents a DAG of actions that are meant to be ran together in order
+ * A Run represents a DAG of actions that are meant to be ran together in order
  * The object here will hold individual tasks, and also a pre-computed report
  */
-type GeneralPipeline = {
-    // Digest uuid of the run
-    id: string
+type GeneralRun = {
+	// Digest uuid of the run
+	id: string
 
-    // unique name for the run. will be the last commit message, plus an indication if the current repo is dirty
-    name: string
+	// unique name for the run. will be the last commit message, plus an indication if the current repo is dirty
+	name: string
 
-    // The unique, never changing identifier of a pipeline - should be the git source and codecomet plan file
-    pipelineId: string
+	// The unique, never changing identifier of a pipeline - should be the git source and codecomet plan file
+	pipelineId: string
 
-    // User chosen short name for the pipeline. Example: "My Pipeline for Netlify"
-    pipelineName: string
+	// User chosen short name for the pipeline. Example: "My Pipeline for Netlify"
+	pipelineName: string
 
-    // User defined description for the plan. Example: "This pipeline is doing fancy and boo"
-    description: string
+	// User defined description for the plan. Example: "This pipeline is doing fancy and boo"
+	description: string
 
-    // User defined free-form key value custom metadata
-    metadata?: {
-        [key: string]: string
-    }
+	// User defined free-form key value custom metadata
+	metadata?: {
+		[key: string]: string
+	}
 
-    // This means: when did the first task start?
-    // Starting time
-    started: uint64 //string
-    // time at which the last task that did complete actually finished
-    completed: uint64 // string
-    // See status type
-    status: PipelineStatus
-    // The total number of seconds between the first task starting and the last task finishing
-    runtime: int
-    // actual CPU time
-    machineTime: int
+	// This means: when did the first task start?
+	// Starting time
+	started: uint64 //string
+	// time at which the last task that did complete actually finished
+	completed: uint64 // string
+	// See status type
+	status: RunStatus
+	// The total number of seconds between the first task starting and the last task finishing
+	runtime: int
+	// actual CPU time
+	machineTime: int
 
-    // Helpers providing high-level data about the tasks
-    actionsInfo: ActionsInfo
+	// Helpers providing high-level data about the tasks
+	actionsInfo: ActionsInfo
 
-    // Repository data
-    repository?: Repository
+	// Repository data
+	repository?: Repository
 
-    // Trigger: "manual" or pull request identifier
-    trigger: string
+	// Trigger: "manual" or pull request identifier
+	trigger: string
 
-    // User or entity that triggered the pipeline
-    actor: User
+	// User or entity that triggered the run
+	actor: User
 
-    // Host executing the pipeline
-    host?: Host
+	// Host executing the run
+	host?: Host
 }
 
-export interface BuildPipeline extends GeneralPipeline {
-    actionsObject: BuildActionsObject
+export interface BuildRun extends GeneralRun {
+	actionsObject: BuildActionsObject
 }
 
 export type BuildActionsObject = {
-    [key: digest.Digest]: BuildAction
+	[key: digest.Digest]: BuildAction
 }
 
-export interface Pipeline extends GeneralPipeline {
-    timingInfo: TimingInfo[]
-    filesets: FilesetAction[]
-    actions: Action[]
+export interface Run extends GeneralRun {
+	timingInfo: TimingInfo[]
+	filesets: FilesetAction[]
+	actions: Action[]
 }
 
 
 type GeneralAction = {
-    id: string
-    name: string
-    digest: digest.Digest
-    started: uint64
-    completed: uint64
-    runtime: int
-    cached: bool
-    error: string
-    status: ActionStatus
-    stack: Stack
-    progressGroup: Types.ProgressGroup
-    type: ActionType
+	id: string
+	name: string
+	digest: digest.Digest
+	started: uint64
+	completed: uint64
+	runtime: int
+	cached: bool
+	error: string
+	status: ActionStatus
+	stack: Stack
+	progressGroup: Types.ProgressGroup
+	type: ActionType
 }
 
 export interface BuildAction extends GeneralAction {
-    buildParents?: digest.Digest[]
-    stdout: LogLine[]
-    stderr: LogLine[]
-    assembledLogs: AssembledLog[]
+	buildParents?: digest.Digest[]
+	stdout: LogLine[]
+	stderr: LogLine[]
+	assembledLogs: AssembledLog[]
 }
 
 export interface Action extends GeneralAction {
-    parents?: ParentAction[]
-    groupedLogs?: GroupedLogsPayload
+	parents?: ParentAction[]
+	groupedLogs?: GroupedLogsPayload
 }
 
 export type ParentAction = {
-    id: string
-    name: string
+	id: string
+	name: string
 }
 
 export type ActionType =
-    | UtilityActionType
-    | 'custom'
-    | 'fileset'
+	| UtilityActionType
+	| 'custom'
+	| 'fileset'
 
 type UtilityActionType =
-    | 'utility'
-    | 'merge'
-    | 'copy'
-    | 'makeDirectory'
-    | 'addFile'
-    | 'move'
-    | 'createSymbolicLink'
-    | 'patch'
+	| 'utility'
+	| 'merge'
+	| 'copy'
+	| 'makeDirectory'
+	| 'addFile'
+	| 'move'
+	| 'createSymbolicLink'
+	| 'patch'
 
 export interface UserBuildAction extends BuildAction {
-    type: 'custom'
+	type: 'custom'
 }
 
 export interface UserAction extends Action {
-    type: 'custom'
+	type: 'custom'
 }
 
 type UtilityBaseAction = {
-    utilityName : string
+	utilityName : string
 }
 
 export interface UtilityBuildAction extends BuildAction, UtilityBaseAction {
-    type: UtilityActionType
+	type: UtilityActionType
 }
 
 export interface UtilityAction extends Action, UtilityBaseAction {
-    type: UtilityActionType
+	type: UtilityActionType
 }
 
 export interface MakeDirectoryBuildAction extends UtilityBuildAction {
-    type: 'makeDirectory'
-    utilityName: 'make directory'
+	type: 'makeDirectory'
+	utilityName: 'make directory'
 }
 
 export interface MoveBuildAction extends UtilityBuildAction {
-    type: 'move'
-    utilityName: 'move'
+	type: 'move'
+	utilityName: 'move'
 }
 
 export interface AddFileBuildAction extends UtilityBuildAction {
-    type: 'addFile'
-    utilityName: 'add file'
+	type: 'addFile'
+	utilityName: 'add file'
 }
 
 export interface PatchBuildAction extends UtilityBuildAction {
-    type: 'patch'
-    utilityName: 'patch'
+	type: 'patch'
+	utilityName: 'patch'
 }
 
 export interface CreateSymbolicLinkBuildAction extends UtilityBuildAction {
-    type: 'createSymbolicLink'
-    utilityName: 'create symbolic link'
+	type: 'createSymbolicLink'
+	utilityName: 'create symbolic link'
 }
 
 export interface MergeBuildAction extends UtilityBuildAction {
-    type: 'merge'
-    utilityName: 'merge'
+	type: 'merge'
+	utilityName: 'merge'
 }
 
 export interface CopyBuildAction extends UtilityBuildAction {
-    type: 'copy'
-    utilityName: 'copy'
+	type: 'copy'
+	utilityName: 'copy'
 }
 
 type FilesetBaseAction = {
-    filesetType: FilesetType
-    source: string
-    link?: string
-    // ImageFileset
-    forceResolve?: bool
-    architecture?: string
-    variant?: string
-    // GitFileset
-    keepDir?: bool
-    // HTTPFileset
-    checksum?: string
-    filename?: string
-    // LocalFileset
-    includePattern?: string[]
-    excludePattern?: string[]
+	filesetType: FilesetType
+	source: string
+	link?: string
+	// ImageFileset
+	forceResolve?: bool
+	architecture?: string
+	variant?: string
+	// GitFileset
+	keepDir?: bool
+	// HTTPFileset
+	checksum?: string
+	filename?: string
+	// LocalFileset
+	includePattern?: string[]
+	excludePattern?: string[]
 }
 
 export interface FilesetBuildAction extends BuildAction, FilesetBaseAction {
-    type: 'fileset'
+	type: 'fileset'
 }
 
 export interface FilesetAction extends Action, FilesetBaseAction {
-    type: 'fileset'
+	type: 'fileset'
 }
 
 export enum FilesetType {
-    Git = 'git',
-    HTTP = 'http',
-    Image = 'docker',
-    Local = 'local',
-    Scratch = 'scratch',
+	Git = 'git',
+	HTTP = 'http',
+	Image = 'docker',
+	Local = 'local',
+	Scratch = 'scratch',
 }
 
 export type TimingInfo = {
-    id: string
-    name: string
-    runtime: number
-    percent: number
-    cached?: true
+	id: string
+	name: string
+	runtime: number
+	percent: number
+	cached?: true
 }

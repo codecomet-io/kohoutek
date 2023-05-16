@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Pipeline } from '../../../../data_importer/src/lib/model';
+	import type { Run } from '../../../../data_importer/src/lib/model';
 
 	import { lapsed } from 'briznads-helpers';
 
@@ -7,10 +7,10 @@
 	import Ago from '$lib/components/Ago.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import ModalHeader from '$lib/components/ModalHeader.svelte';
-	import PipelineInfoModalContent from '$lib/components/PipelineInfoModalContent.svelte';
+	import RunInfoModalContent from '$lib/components/RunInfoModalContent.svelte';
 
 
-	export let pipeline : Pipeline;
+	export let run : Run;
 
 	let modalElement : HTMLIonModalElement;
 </script>
@@ -67,28 +67,28 @@
 
 <button
 	class="header"
-	id="openPipelineInfoModal"
+	id="openRunInfoModal"
 >
 	<div class="title">
 		<StatusIcon
-			status={ pipeline?.status }
+			status={ run?.status }
 			size="large"
 		/>
 
-		<h1>{ pipeline?.name }</h1>
+		<h1>{ run?.name }</h1>
 	</div>
 
-	<ChunkyLabel>{ pipeline?.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ pipeline?.completed } /> <span title="{ pipeline?.runtime } milliseconds">in { lapsed(pipeline?.runtime, false, true) }</span></ChunkyLabel>
+	<ChunkyLabel>{ run?.status === 'completed' ? 'succeed' : 'fail' }ed <Ago date={ run?.completed } /> <span title="{ run?.runtime } milliseconds">in { lapsed(run?.runtime, false, true) }</span></ChunkyLabel>
 </button>
 
 <ion-modal
-	trigger="openPipelineInfoModal"
+	trigger="openRunInfoModal"
 	bind:this={ modalElement }
 >
 	<ModalHeader
-		title="Pipeline Info"
+		title="Run Info"
 		dismissModal={ () => modalElement.dismiss(null, 'cancel') }
 	></ModalHeader>
 
-	<PipelineInfoModalContent pipeline={ pipeline } />
+	<RunInfoModalContent { run } />
 </ion-modal>

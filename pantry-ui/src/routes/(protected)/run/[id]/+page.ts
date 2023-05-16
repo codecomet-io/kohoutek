@@ -4,23 +4,23 @@ import { Firestore } from '$lib/firestore';
 
 
 export const load = (async ({ params, url }) => {
-	const documentId = params?.id ?? '';
+	const runId = params?.id ?? '';
 
 	const { searchParams } = url;
 
-	if (!documentId) {
+	if (!runId) {
 		return {
 			searchParams,
-			error : 'Missing required parameters. Document id must be provided.',
+			error : 'Missing required parameters. Run id must be provided.',
 		};
 	}
 
 	const firestore = new Firestore();
 
-	const pipeline = await firestore.getRun(documentId);
+	const run = await firestore.getRun(runId);
 
 	return {
 		searchParams,
-		pipeline,
+		run,
 	};
 }) satisfies PageLoad;

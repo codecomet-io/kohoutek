@@ -1,10 +1,15 @@
 <script lang="ts">
-	import { Firestore } from '$lib/firestore';
+	import type { PageData } from './$types';
+	import type { Run } from '../../../../../data_importer/src/lib/model';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 
 
-	const firestore = new Firestore();
+	export let data : PageData;
+
+	let runs : Run[];
+
+	$: runs = data.runs;
 </script>
 
 
@@ -22,16 +27,14 @@
 		<ion-label>All Runs</ion-label>
 	</ion-list-header>
 
-	{#await firestore.getRuns() then runs }
-		{#each runs as run }
-			<ion-item href="/document/{ run._id }">
-				<StatusIcon
-					size="small"
-					status={ run.status }
-				/>
+	{#each runs as run }
+		<ion-item href="/document/{ run.id }">
+			<StatusIcon
+				size="small"
+				status={ run.status }
+			/>
 
-				<ion-label>{ run.name }</ion-label>
-			</ion-item>
-		{/each}
-	{/await}
+			<ion-label>{ run.name }</ion-label>
+		</ion-item>
+	{/each}
 </ion-list>

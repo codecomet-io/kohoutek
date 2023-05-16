@@ -6,5 +6,5 @@
 
 [[redirects]]
   from = "/*"
-  to = "/index.html?pipeline=:splat"
+  to = "/anonymous-run/:splat"
   status = 200

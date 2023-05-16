@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let context : undefined | 'pipeline-header' = undefined;
+	export let context : undefined | 'run-header' = undefined;
 </script>
 
 
@@ -36,7 +36,7 @@
 		margin-left: 0.25rem;
 	}
 
-	.pipeline-header {
+	.run-header {
 		strong {
 			display: none;
 

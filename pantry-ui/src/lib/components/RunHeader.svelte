@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { Pipeline } from '../../../../data_importer/src/lib/model';
+	import type { Run } from '../../../../data_importer/src/lib/model';
 
-	import PipelineTitleInfo from '$lib/components/PipelineTitleInfo.svelte';
+	import RunTitleInfo from '$lib/components/RunTitleInfo.svelte';
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
 	import TimingChart from '$lib/components/TimingChart.svelte';
 
 
-	export let pipeline : Pipeline;
+	export let run : Run;
 
 	export let anonymous : boolean = false;
 </script>
@@ -57,13 +57,13 @@
 				<ion-menu-button></ion-menu-button>
 			{/if}
 
-			<PipelineTitleInfo pipeline={ pipeline } />
+			<RunTitleInfo { run } />
 
 			{#if anonymous }
-				<CodeCometLogo context="pipeline-header" />
+				<CodeCometLogo context="run-header" />
 			{/if}
 		</div>
 
-		<TimingChart timingInfo={ pipeline?.timingInfo } />
+		<TimingChart timingInfo={ run?.timingInfo } />
   </div>
 </ion-header>

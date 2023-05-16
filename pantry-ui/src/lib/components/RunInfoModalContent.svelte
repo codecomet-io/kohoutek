@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { Pipeline } from '../../../../data_importer/src/lib/model';
+	import type { Run } from '../../../../data_importer/src/lib/model';
 
 	import { getDateString, getTimeString } from 'briznads-helpers';
 
 	import DetailField from '$lib/components/DetailField.svelte';
 
 
-	export let pipeline : Pipeline;
+	export let run : Run;
 </script>
 
 
@@ -41,53 +41,53 @@
 	<div class="flex-wrapper">
 		<DetailField
 			key="name"
-			value={ pipeline?.name }
+			value={ run?.name }
 			customClass="span-2-columns"
 			truncateOverflowText={ false }
 		/>
 
 		<DetailField
 			key="description"
-			value={ pipeline?.description }
+			value={ run?.description }
 			customClass="span-2-columns"
 			truncateOverflowText={ false }
 		/>
 
 		<DetailField
 			key="started at"
-			value={ pipeline?.started ? getTimeString(pipeline?.started) : undefined }
-			title={ pipeline?.started ? getDateString(pipeline?.started) : undefined }
+			value={ run?.started ? getTimeString(run?.started) : undefined }
+			title={ run?.started ? getDateString(run?.started) : undefined }
 		/>
 
 		<DetailField
 			key="ended at"
-			value={ pipeline?.completed ? getTimeString(pipeline?.completed) : undefined }
-			title={ pipeline?.completed ? getDateString(pipeline?.completed) : undefined }
+			value={ run?.completed ? getTimeString(run?.completed) : undefined }
+			title={ run?.completed ? getDateString(run?.completed) : undefined }
 		/>
 
 		<DetailField
 			key="status"
-			value={ pipeline?.status }
+			value={ run?.status }
 		/>
 
 		<DetailField
 			key="trigger"
-			value={ pipeline?.trigger }
+			value={ run?.trigger }
 		/>
 
 		<DetailField
 			key="total actions"
-			value={ `${ pipeline?.actionsInfo.total }` }
+			value={ `${ run?.actionsInfo.total }` }
 		/>
 
 		<DetailField
 			key="cached actions"
-			value={ `${ pipeline?.actionsInfo.cached }` }
+			value={ `${ run?.actionsInfo.cached }` }
 		/>
 
 		<DetailField
 			key="errored actions"
-			value={ `${ pipeline?.actionsInfo.errored }` }
+			value={ `${ run?.actionsInfo.errored }` }
 		/>
 	</div>
 </ion-content>

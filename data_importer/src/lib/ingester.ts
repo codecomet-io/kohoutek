@@ -35,6 +35,9 @@ class Build implements BuildPipeline {
         errored: 0,
         interrupted: 0,
         notRan: 0,
+        finishedSuccessfully: 0,
+        finishedSuccessfullyPercent: 0,
+        cachedPercent: 0,
     }
     // disable repository output for now
     // it leaks info and isn't currently needed
@@ -230,6 +233,15 @@ class Build implements BuildPipeline {
             )
             .length
 
+        // finished successfully have started, not errored, finished; aka cached + ran
+        const finishedSuccessfully = cached + ran;
+
+        // percent of how many of the total tasks finished successfully
+        const finishedSuccessfullyPercent = Math.round((finishedSuccessfully / total) * 100);
+
+        // percent of how many of the tasks that finished successfully were cached
+        const cachedPercent = Math.round((cached / finishedSuccessfully) * 100);
+
         // Interrupted has started, not cached, not errored, never finished
         const interrupted = actionKeys
             .filter((key) =>
@@ -246,6 +258,9 @@ class Build implements BuildPipeline {
             errored,
             notRan,
             ran,
+            finishedSuccessfully,
+            finishedSuccessfullyPercent,
+            cachedPercent,
             interrupted,
         }
     }

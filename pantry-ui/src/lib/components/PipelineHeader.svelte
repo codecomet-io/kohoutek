@@ -2,10 +2,13 @@
 	import type { Pipeline } from '../../../../data_importer/src/lib/model';
 
 	import PipelineTitleInfo from '$lib/components/PipelineTitleInfo.svelte';
+	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
 	import TimingChart from '$lib/components/TimingChart.svelte';
 
 
 	export let pipeline : Pipeline;
+
+	export let anonymous : boolean = false;
 </script>
 
 
@@ -31,6 +34,11 @@
 	.top-header-wrapper {
 		display: flex;
 		gap: 0.5em;
+
+		&.anonymous {
+			justify-content: space-between;
+			align-items: center;
+		}
 	}
 
 	:global(.toolbar-container) {
@@ -41,10 +49,19 @@
 
 <ion-header>
   <div class="max-width-wrapper">
-		<div class="top-header-wrapper">
-			<ion-menu-button></ion-menu-button>
+		<div
+			class="top-header-wrapper"
+			class:anonymous={ anonymous }
+		>
+			{#if !anonymous }
+				<ion-menu-button></ion-menu-button>
+			{/if}
 
 			<PipelineTitleInfo pipeline={ pipeline } />
+
+			{#if anonymous }
+				<CodeCometLogo context="pipeline-header" />
+			{/if}
 		</div>
 
 		<TimingChart timingInfo={ pipeline?.timingInfo } />

@@ -57,7 +57,7 @@
 </style>
 
 
-<PipelineHeader pipeline={ pipeline } />
+<PipelineHeader pipeline={ pipeline } anonymous={ true } />
 
 <ion-content
 	fullscreen={ true }

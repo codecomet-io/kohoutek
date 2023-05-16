@@ -1,4 +1,6 @@
-<script lang="ts"></script>
+<script lang="ts">
+	export let context : undefined | 'pipeline-header' = undefined;
+</script>
 
 
 <style lang="scss">
@@ -8,7 +10,6 @@
 		align-items: center;
 		flex-shrink: 0;
 		flex-grow: 0;
-		padding: 0.5em;
 		color: #1c1e21;
 		text-decoration: none;
 		font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
@@ -34,10 +35,21 @@
 	strong {
 		margin-left: 0.25rem;
 	}
+
+	.pipeline-header {
+		strong {
+			display: none;
+
+			@media (min-width: 600px) {
+				display: block;
+			}
+		}
+	}
 </style>
 
 
 <a
+	class="code-comet-logo{ context ? ' ' + context : '' }"
 	href="https://codecomet.io/"
 	itemtype="http://schema.org/Corporation"
 	itemscope

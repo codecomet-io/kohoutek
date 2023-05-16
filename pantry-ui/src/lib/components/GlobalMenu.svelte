@@ -15,6 +15,12 @@
 			margin-top: 0;
 		}
 	}
+
+	ion-toolbar {
+		:global(> a.code-comet-logo) {
+			padding: 0.5em;
+		}
+	}
 </style>
 
 

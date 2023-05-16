@@ -166,7 +166,7 @@ export type ActionsInfo = {
     // percent of how many of the total tasks finished successfully
     finishedSuccessfullyPercent: int
 
-    // percent of how many of the tasks that finished successfully were cached
+    // percent of total tasks that were cached
     cachedPercent: int
 
     // how many errored

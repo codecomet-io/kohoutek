@@ -239,8 +239,8 @@ class Build implements BuildPipeline {
         // percent of how many of the total tasks finished successfully
         const finishedSuccessfullyPercent = Math.round((finishedSuccessfully / total) * 100);
 
-        // percent of how many of the tasks that finished successfully were cached
-        const cachedPercent = Math.round((cached / finishedSuccessfully) * 100);
+        // percent of total tasks that were cached
+        const cachedPercent = Math.round((cached / total) * 100);
 
         // Interrupted has started, not cached, not errored, never finished
         const interrupted = actionKeys

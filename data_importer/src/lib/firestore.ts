@@ -28,9 +28,9 @@ export class Firestore {
 		dotenv.config();
 
 		return {
-			projectId : process.env.FIREBASE_PROJECT_ID,
+			projectId   : process.env.FIREBASE_PROJECT_ID,
 			clientEmail : process.env.FIREBASE_CLIENT_EMAIL,
-			privateKey : process.env.FIREBASE_PRIVATE_KEY,
+			privateKey  : process.env.FIREBASE_PRIVATE_KEY,
 		};
 	}
 
@@ -41,7 +41,7 @@ export class Firestore {
 		try {
 			app = initializeApp({
 				databaseURL : 'https://kohoutek-349c1.firebaseio.com',
-				credential : cert(this.serviceAccount),
+				credential  : cert(this.serviceAccount),
 			});
 		} catch (e) {
 			console.error(e);

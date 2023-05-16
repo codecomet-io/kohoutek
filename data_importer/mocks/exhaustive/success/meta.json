@@ -19,8 +19,9 @@
     "commit": "4c7abcac49ecb609913d422529c4b6fe4b08eb18",
     "author": "spacedub <spaceraccoon@codecomet.io>",
     "parent": "3a56fe162b28500c7e2a067266a6b78348f786e2",
-    "dirty": true,
-    "location": "https://github.com/codecomet-io/installers"
+    "isDirty": true,
+    "location": "https://github.com/codecomet-io/installers",
+    "commitSubject": "get pipeline from local or firestore document"
   },
   "metadata": {
     "org": "frontend",

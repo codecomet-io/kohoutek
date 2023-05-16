@@ -12,17 +12,22 @@
 	"scripts": {
 		"clean": "if [ -d build ]; then rm -Rf build; fi",
 		"build:typescript": "tsc",
-		"build": "npm run clean && npm run build:typescript && ./build.sh"
+		"build": "npm run clean && npm run build:typescript && ./build.sh",
+		"lint": "eslint src",
+		"lint:fix": "npm run lint -- --fix"
 	},
 	"devDependencies": {
 		"@types/node": "^18.14.4",
+		"@typescript-eslint/eslint-plugin": "^5.45.0",
+		"@typescript-eslint/parser": "^5.45.0",
+		"eslint": "^8.28.0",
 		"tslib": "^2.5.0",
 		"typescript": "^4.9.5"
 	},
 	"dependencies": {
 		"@sentry/integrations": "^7.40.0",
 		"@sentry/node": "^7.40.0",
-		"briznads-helpers": "^1.0.17",
+		"briznads-helpers": "^1.0.18",
 		"codecomet-js": "file:vendor/codecomet-js-v1.0.0.tgz",
 		"dotenv": "^16.0.3",
 		"firebase-admin": "^11.8.0"

@@ -1,7 +1,7 @@
 import {bool, int, uint64} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
 import {digest} from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
 import {Types} from "codecomet-js/source/protobuf/types.js";
-import  * as os from "node:os"
+import  * as os from "node:os";
 
 import {PipelineStatus, ActionStatus} from "./model/run.js";
 import {Stack, LogLine, AssembledLog, GroupedLogsPayload} from "./model/logs.js";
@@ -49,29 +49,29 @@ export type User = {
  * Right now this is being initialized with details from the machine running this script
  */
 export class Host {
-    // A unique identifier
-    id: string //  = "uuid1233445"
+	// A unique identifier
+	id: string; //  = "uuid1233445"
 
-    // free form labels
-    metadata?: {
+	// free form labels
+	metadata?: {
         [key: string]: string
-    }
-    /*= {
+    };
+	/*= {
         nickname: "macRaccoon",
         description: "lalalala",
         grouptag: "red-team",
         random: "joke"
     }*/
 
-    constructor(id: string, meta: {[key: string]: string}){
-        this.id = id
-        this.metadata = meta
-    }
+	constructor(id: string, meta: {[key: string]: string}){
+		this.id = id;
+		this.metadata = meta;
+	}
 
-    // runtime information
-    runtime?: {[key: string]: string | undefined} = process.versions
+	// runtime information
+	runtime?: {[key: string]: string | undefined} = process.versions;
 
-    system?: {
+	system?: {
         arch: string,
         cpus: any[],
         endianness: string,
@@ -89,36 +89,37 @@ export class Host {
         userInfo: {[key: string]: any},
         version: string
     } = {
-        arch: os.arch(),
-        cpus: os.cpus(),
-        endianness: os.endianness(),
-        freemem: os.freemem(),
-        home: os.homedir(),
-        hostname: os.hostname(),
-        loadavg: os.loadavg(),
-        networkInterfaces: os.networkInterfaces(),
-        platform: os.platform(),
-        release: os.release(),
-        tmpdir: os.tmpdir(),
-        totalmem: os.totalmem(),
-        type: os.type(),
-        uptime: os.uptime(),
-        userInfo: os.userInfo(),
-        version: os.version()
-    }
+			arch              : os.arch(),
+			cpus              : os.cpus(),
+			endianness        : os.endianness(),
+			freemem           : os.freemem(),
+			home              : os.homedir(),
+			hostname          : os.hostname(),
+			loadavg           : os.loadavg(),
+			networkInterfaces : os.networkInterfaces(),
+			platform          : os.platform(),
+			release           : os.release(),
+			tmpdir            : os.tmpdir(),
+			totalmem          : os.totalmem(),
+			type              : os.type(),
+			uptime            : os.uptime(),
+			userInfo          : os.userInfo(),
+			version           : os.version(),
+		};
 
-    owner: User = <User>{
-        id: "spacedub",
-        name: "Space Raccoon"
-    }
+	owner: User = <User>{
+		id   : "spacedub",
+		name : "Space Raccoon",
+	};
 }
 
 export type Repository = {
     commit: string
     author: string
     parent: string
-    dirty: bool
+    isDirty: bool
     location: string
+    commitSubject: string
 }
 
 // usage: process.resourceUsage(),
@@ -159,11 +160,17 @@ export type ActionsInfo = {
  * The object here will hold individual tasks, and also a pre-computed report
  */
 type GeneralPipeline = {
+    // Digest uuid of the run
+    id: string
+
+    // unique name for the run. will be the last commit message, plus an indication if the current repo is dirty
+    name: string
+
     // The unique, never changing identifier of a pipeline - should be the git source and codecomet plan file
-    pipelineID: string
+    pipelineId: string
 
     // User chosen short name for the pipeline. Example: "My Pipeline for Netlify"
-    name: string
+    pipelineName: string
 
     // User defined description for the plan. Example: "This pipeline is doing fancy and boo"
     description: string
@@ -173,8 +180,6 @@ type GeneralPipeline = {
         [key: string]: string
     }
 
-    // Digest uuid of the run
-    runID: string
     // This means: when did the first task start?
     // Starting time
     started: uint64 //string

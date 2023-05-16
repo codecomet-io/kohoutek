@@ -4,13 +4,13 @@
   "description": "Pantry demo pipeline with forced failure",
   "trigger": "manual",
   "actor": {
-    "id": "spacedub",
+    "id": "github.com/spacedub",
     "name": "Space Raccoon"
   },
   "host": {
     "id": "500c7e2a-space-raccoon-macbook-pro",
     "owner": {
-      "id": "spacedub",
+      "id": "github.com/spacedub",
       "name": "Space Raccoon"
     }
   },

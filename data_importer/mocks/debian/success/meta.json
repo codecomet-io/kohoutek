@@ -6,13 +6,13 @@
   "trigger": "https://github.com/codecomet-io/pantry/pull/9",
 
   "actor": {
-    "id": "codecomet/github-actions",
+    "id": "github.com/codecomet/github-actions",
     "name": "Github Actions Bot"
   },
   "host": {
     "id": "7e2a0672-managed-runner",
     "owner": {
-      "id": "codecomet",
+      "id": "github.com/codecomet",
       "name": "CodeComet"
     }
   },

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import type { Pipeline } from '../../../data_importer/src/lib/model';
+	import type { PageData } from '../../$types';
+	import type { Pipeline } from '../../../../../data_importer/src/lib/model';
 
 	import { activeAccordion, activeModal, highlightLine } from '$lib/stores';
 

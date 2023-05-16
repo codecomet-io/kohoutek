@@ -6,7 +6,7 @@
 	"author": "CodeComet, Inc.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/codecomet-io/pantry.git"
+		"url": "git+https://github.com/codecomet-io/kohoutek.git"
 	},
 	"type": "module",
 	"scripts": {

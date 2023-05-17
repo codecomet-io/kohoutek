@@ -27,7 +27,7 @@ import {
 	CopyBuildAction,
 } from "./lib/model.js";
 import { error, nil } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
-import CodeComet from "codecomet-js/index.js";
+import CodeComet from "codecomet-js";
 import { ReadFromIMPL } from "codecomet-js/source/buildkit-port/client/llb/marshal.js";
 import { digest as CryptoDigest } from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
 import { Protobuf } from "codecomet-js/source/utils/protobuf.js";

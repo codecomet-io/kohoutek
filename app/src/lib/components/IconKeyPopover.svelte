@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { ActionType } from '../../../../pantry/src/lib/model';
-
-	import { RunStatus, ActionStatus, FilesetType } from '../../../../pantry/src/lib/model';
+	import type { RunStatus, ActionStatus, FilesetType } from '../../../../pantry/src/lib/model';
 
 	import { receiptOutline } from 'ionicons/icons';
 

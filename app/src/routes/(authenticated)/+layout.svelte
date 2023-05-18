@@ -131,7 +131,7 @@
 				{/if}
 
 				{#if run }
-					<ion-breadcrumb href="/run/{ run }">This Run</ion-breadcrumb>
+					<ion-breadcrumb href="/run/{ run.id }">This Run</ion-breadcrumb>
 				{/if}
 			</ion-breadcrumbs>
 		</div>

@@ -4,12 +4,12 @@
 
 ### Initial setup
 
-Review and possibly modify `.env`.
+Review and possibly modify `.conf`.
 
 Then, do this once:
 
 ```bash
-source .env
+source .conf
 sudo echo "127.0.0.1 kohoutek.$ROOT_DOMAIN" >> /etc/hosts
 sudo echo "127.0.0.1 auth.$ROOT_DOMAIN" >> /etc/hosts
 ```

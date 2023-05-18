@@ -5,7 +5,7 @@ VERSION_XCADDY=0.3.3
 OS_XCADDY="mac_arm64"
 
 readonly _here=$(cd "$(dirname "${BASH_SOURCE[0]:-$PWD}")" 2>/dev/null 1>&2 && pwd)
-source "$_here"/.env
+source "$_here"/.conf
 mkdir -p "$_here"/run
 
 export JWT_SHARED_KEY="$_here/$JWT_SHARED_KEY"

@@ -233,9 +233,9 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 	const buildRun : BuildRun = buffIngester.ingest(trace);
 
 	// Suck up metadata - TODO @spacedub: reincorporate metadata into protobuf pipeline definitions instead of separate entity
-	buildRun.pipelineId = metadata.id;
-	buildRun.description = metadata.description;
+	buildRun.pipelineFqn = metadata.id;
 	buildRun.pipelineName = metadata.name;
+	buildRun.description = metadata.description;
 	buildRun.trigger = metadata.trigger;
 	buildRun.actor = metadata.actor;
 	buildRun.host = metadata.host;
@@ -476,6 +476,23 @@ function parseGroupedLogs(assembledLogs : AssembledLog[]) : GroupedLogsPayload {
 	};
 }
 
+async function saveRunToFirestore(run : Run) : Promise<Run> {
+	const firestore = new Firestore();
+
+	let pipelineId = await firestore.getPipelineIdFromPipelineFqn(run.pipelineFqn);
+
+	if (!pipelineId) {
+		pipelineId = createId('lowercase', 8);
+
+		await firestore.savePipeline(run.pipelineFqn, pipelineId);
+	}
+
+	run.pipelineId = pipelineId;
+
+	await firestore.saveRun(run);
+
+	return run;
+}
 
 async function run(protoPath: string, tracePath: string, meta: string, destination: string) {
 	// Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)
@@ -484,7 +501,7 @@ async function run(protoPath: string, tracePath: string, meta: string, destinati
 	const trace = readFileSync(tracePath);
 
 	// Get the run from Pantry
-	const run = await Pantry(buff, trace, meta);
+	let run = await Pantry(buff, trace, meta);
 
 	if (run == null) {
 		console.error(`\nERROR: run "${ destination.replace(/^.+\//, '') }" could not be retrieved and/or generated\n`);
@@ -492,12 +509,9 @@ async function run(protoPath: string, tracePath: string, meta: string, destinati
 		return;
 	}
 
+	run = await saveRunToFirestore(run);
+
 	writeFileSync(destination, JSON.stringify(run, null, 2));
-
-	// save run to db
-	const firestore = new Firestore();
-
-	await firestore.saveRun(run);
 }
 
 run(

@@ -19,7 +19,8 @@ import "@sentry/tracing";
 class Build implements BuildRun {
 	id = "abcd1234";
 	name = "user-defined name for this run";
-	pipelineId = "unique-pipeline-identifier";
+	pipelineId = "1234abcd";
+	pipelineFqn = "org/repo/pipeline.go";
 	pipelineName = "user-defined name for the pipeline";
 	description = "This is our super test plan, and guess what this description can change at any time";
 	started = 0;

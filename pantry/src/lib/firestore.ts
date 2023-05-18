@@ -62,7 +62,37 @@ export class Firestore {
 			return;
 		}
 
-		console.info('Added document with ID: ', run.id);
+		console.info('Added document to "runs" collection with ID: ', run.id);
+
+		return;
+	}
+
+	async getPipelineIdFromPipelineFqn(pipelineFqn : string) : Promise<undefined | string> {
+		const querySnapshot = await this.db.collection('pipelines')
+			.where('pipelineFqn', '==', pipelineFqn)
+			.get();
+
+		if (querySnapshot.empty) {
+			return;
+		}
+
+		return querySnapshot.docs[0].id;
+	}
+
+	async savePipeline(pipelineFqn : string, id : string) : Promise<void> {
+		try {
+			// Add a new document
+			await this.db.collection('pipelines').doc(id).set({
+				id,
+				pipelineFqn,
+			});
+		} catch (e) {
+			console.error(e);
+
+			return;
+		}
+
+		console.info('Added document to "pipelines" collection with ID: ', id);
 
 		return;
 	}

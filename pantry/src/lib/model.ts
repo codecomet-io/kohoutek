@@ -154,14 +154,17 @@ export type ActionsInfo = {
  * The object here will hold individual tasks, and also a pre-computed report
  */
 type GeneralRun = {
-	// Digest uuid of the run
+	// generated nanoid of the run
 	id: string
 
 	// unique name for the run. will be the last commit message, plus an indication if the current repo is dirty
 	name: string
 
-	// The unique, never changing identifier of a pipeline - should be the git source and codecomet plan file
+	// generated nanoid of the pipeline
 	pipelineId: string
+
+	// the fully qualified name of the path to a CodeComet pipeline file within a git repo
+	pipelineFqn: string
 
 	// User chosen short name for the pipeline. Example: "My Pipeline for Netlify"
 	pipelineName: string

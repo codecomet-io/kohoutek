@@ -1,0 +1,70 @@
+<html>
+<head>
+    <script type="module">
+        import * as jose from "https://cdnjs.cloudflare.com/ajax/libs/jose/4.14.4/index.js";
+        import { Octokit, App } from "https://cdn.skypack.dev/octokit";
+
+        var getCookie = function (cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for(let i = 0; i <ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        // Get basic info for the user:
+        let userInfo = jose.decodeJwt(getCookie("access_token"))
+    /*
+        {
+  "addr": "127.0.0.1",
+  "exp": 1684378510,
+  "forwarded_token": "ghu_xda7Op2Fkj9HLYdiogo1p9YK67tgHL3OX5Yq",
+  "iat": 1684374910,
+  "iss": "https://auth.codecomet.local/auth/oauth2/github/",
+  "jti": "YKnbP5JTKgh1yzxXHG1qZp4Hg3swTiLlAXn57Cz",
+  "metadata": {
+    "id": 104954251
+  },
+  "name": "Space Raccoon",
+  "nbf": 1684374850,
+  "origin": "https://api.github.com/user",
+  "picture": "https://avatars.githubusercontent.com/u/104954251?v=4",
+  "realm": "github",
+  "roles": [
+    "authp/user",
+    "authp/admin"
+  ],
+  "sub": "github.com/spacedub"
+}
+         */
+
+        // Extract the GitHub PAT from the cookie
+        let token = userInfo.forwarded_token
+
+        // Now, go play with octokit for cool stuff: https://github.com/octokit/octokit.js
+        const octokit = new Octokit({ auth: token });
+
+        const data  = await octokit.rest.repos.listForAuthenticatedUser();
+        // const data = await octokit.request("GET /search/repositories?q=user:spacedub")
+        // request("GET /user");
+
+        console.warn("Hey rabbit", data.data);
+
+
+    </script>
+</head>
+<body>
+Any other page but "/login" is protected - as-in, you have the guarantee here that people are logged-in.
+
+
+
+</body>
+</html>

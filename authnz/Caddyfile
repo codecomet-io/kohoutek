@@ -1,0 +1,88 @@
+{
+    http_port 80
+    https_port 443
+
+    skip_install_trust
+
+    debug
+
+    order authenticate before respond
+    order authorize before basicauth
+
+    security {
+        oauth identity provider github {
+            realm github
+            driver github
+            client_id {env.GITHUB_CLIENT_ID}
+            client_secret {env.GITHUB_CLIENT_SECRET}
+
+            enable accept header
+            # enable js callback
+            enable logout
+
+            extract all from userinfo
+
+            enable id token cookie codecomet
+
+            scopes openid email profile
+        }
+
+        authentication portal codecometauthentication {
+            crypto default token lifetime {env.TOKEN_LIFETIME}
+            crypto key sign-verify {env.JWT_SHARED_KEY}
+            cookie domain {env.ROOT_DOMAIN}
+            cookie insecure on
+            enable identity provider github
+
+            transform user {
+                match realm github
+                action add role authp/user
+            }
+
+            transform user {
+                match realm github
+                match sub github.com/spacedub
+                action add role authp/admin
+            }
+        }
+
+        authorization policy codecometauthorization {
+            set auth url https://auth.{$ROOT_DOMAIN}/auth/oauth2/github/authorization-code-callback
+            crypto key verify {env.JWT_SHARED_KEY}
+            allow roles authp/admin authp/user
+            validate bearer header
+            inject headers with claims
+
+            # enable strip token
+        }
+    }
+
+}
+
+auth.{$ROOT_DOMAIN} {
+    tls internal
+
+    authenticate with codecometauthentication
+
+    header Access-Control-Allow-Origin "https://kohoutek.{$ROOT_DOMAIN}"
+    header Access-Control-Allow-Credentials true
+}
+
+kohoutek.{$ROOT_DOMAIN} {
+    tls internal
+
+    @requireauth {
+        not path /login*
+    }
+
+    route @requireauth {
+        authorize with codecometauthorization
+    }
+
+    # Serve from a backend
+	# reverse_proxy /* {$VITE_BACKEND}
+
+    # Alternatively, serve static files
+	root * {$WEB_ROOT}
+	file_server
+}

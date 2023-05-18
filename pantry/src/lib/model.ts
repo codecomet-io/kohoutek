@@ -1,3 +1,5 @@
+import type { AnyMap, StringMap } from 'briznads-helpers';
+
 import {bool, int, uint64} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
 import {digest} from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
 import {Types} from "codecomet-js/source/protobuf/types.js";
@@ -37,11 +39,30 @@ export * from "./model/logs.js";
 /*
  * A User represents a GitHub account
  */
-export type User = {
+type User = {
 	id: string
 	name: string
 	// XXX signatures?
 	// gpg: string
+}
+
+type HostSystem = {
+	arch: string;
+	cpus: any[];
+	endianness: string;
+	freemem: int;
+	home: string;
+	hostname: string;
+	loadavg: number[];
+	networkInterfaces: AnyMap;
+	platform: string;
+	release: string;
+	tmpdir: string;
+	totalmem: number;
+	type: string;
+	uptime: number;
+	userInfo: AnyMap;
+	version: string;
 }
 
 /*
@@ -53,36 +74,19 @@ export class Host {
 	id: string; //  = "uuid1233445"
 
 	// free form labels
-	metadata?: {
-		[key: string]: string
-	};
+	metadata?: StringMap;
 
-	constructor(id: string, meta: {[key: string]: string}){
+
+	constructor(id: string, meta: StringMap){
 		this.id = id;
 		this.metadata = meta;
 	}
 
+
 	// runtime information
 	runtime?: {[key: string]: string | undefined} = process.versions;
 
-	system?: {
-		arch: string,
-		cpus: any[],
-		endianness: string,
-		freemem: int,
-		home: string,
-		hostname: string,
-		loadavg: number[],
-		networkInterfaces: {[key: string]: any},
-		platform: string,
-		release: string,
-		tmpdir: string,
-		totalmem: number,
-		type: string,
-		uptime: number,
-		userInfo: {[key: string]: any},
-		version: string
-	} = {
+	system? : HostSystem = {
 		arch              : os.arch(),
 		cpus              : os.cpus(),
 		endianness        : os.endianness(),
@@ -101,7 +105,7 @@ export class Host {
 		version           : os.version(),
 	};
 
-	owner: User = <User>{
+	owner : User = {
 		id   : "spacedub",
 		name : "Space Raccoon",
 	};
@@ -166,16 +170,14 @@ type GeneralRun = {
 	// the fully qualified name of the path to a CodeComet pipeline file within a git repo
 	pipelineFqn: string
 
-	// User chosen short name for the pipeline. Example: "My Pipeline for Netlify"
+	// user chosen short name for the pipeline. Example: "My Pipeline for Netlify"
 	pipelineName: string
 
-	// User defined description for the plan. Example: "This pipeline is doing fancy and boo"
+	// user defined description for the plan. Example: "This pipeline is doing fancy and boo"
 	description: string
 
-	// User defined free-form key value custom metadata
-	metadata?: {
-		[key: string]: string
-	}
+	// user defined free-form key value custom metadata
+	metadata?: StringMap
 
 	// This means: when did the first task start?
 	// Starting time
@@ -198,8 +200,11 @@ type GeneralRun = {
 	// Trigger: "manual" or pull request identifier
 	trigger: string
 
-	// User or entity that triggered the run
-	actor: User
+	// user or entity id that triggered the run
+	actorId: string
+
+	// user or entity name that triggered the run
+	actorName: string
 
 	// Host executing the run
 	host?: Host

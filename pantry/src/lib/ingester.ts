@@ -1,16 +1,12 @@
 import { createId } from 'briznads-helpers';
-import {bool, int, uint64} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
-import {digest} from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
-import {Types} from "codecomet-js/source/protobuf/types.js";
+import { int } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
 import {
 	SolveStatus,
 	Vertex,
 	VertexLog,
 } from "codecomet-js/source/buildkit-port/client/graph.js";
 import * as model from "./model.js";
-import {ActionStatus, BuildActionsObject, BuildRun, ActionsInfo, Stack, User, Repository} from "./model.js";
-import * as readline from 'node:readline/promises';
-import {ReadStream} from "tty";
+import { ActionStatus, BuildActionsObject, BuildRun, ActionsInfo } from "./model.js";
 
 import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
@@ -41,10 +37,8 @@ class Build implements BuildRun {
 		finishedSuccessfullyPercent : 0,
 		cachedPercent               : 0,
 	};
-	actor: User = {
-		id   : "spacedub",
-		name : "Space Raccoon",
-	};
+	actorId = 'spacedub';
+	actorName = 'Space Raccoon';
 
 	addLog(log: VertexLog) {
 		// Retrieve log data from buildkit

@@ -237,7 +237,8 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 	buildRun.pipelineName = metadata.name;
 	buildRun.description = metadata.description;
 	buildRun.trigger = metadata.trigger;
-	buildRun.actor = metadata.actor;
+	buildRun.actorId = metadata.actor.id;
+	buildRun.actorName = metadata.actor.name;
 	buildRun.host = metadata.host;
 	buildRun.repository = metadata.repository;
 

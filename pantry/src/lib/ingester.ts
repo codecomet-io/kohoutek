@@ -6,7 +6,7 @@ import {
 	VertexLog,
 } from "codecomet-js/source/buildkit-port/client/graph.js";
 import * as model from "./model.js";
-import { ActionStatus, BuildActionsObject, BuildRun, ActionsInfo } from "./model.js";
+import { ActionStatus, BuildActionsObject, BuildRun, RunStats } from "./model.js";
 
 import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
@@ -26,7 +26,7 @@ class Build implements BuildRun {
 	machineTime = 0;
 	trigger = "manual";
 	actionsObject: BuildActionsObject = {};
-	actionsInfo: ActionsInfo = {
+	stats: RunStats = {
 		total                       : 0,
 		cached                      : 0,
 		ran                         : 0,
@@ -39,6 +39,7 @@ class Build implements BuildRun {
 	};
 	actorId = 'spacedub';
 	actorName = 'Space Raccoon';
+	erroredActionName = undefined;
 
 	addLog(log: VertexLog) {
 		// Retrieve log data from buildkit
@@ -153,12 +154,18 @@ class Build implements BuildRun {
 	wrap() {
 		const actionKeys = Object.keys(this.actionsObject);
 
-		this.actionsInfo = this.parseActionsInfo(actionKeys, this.actionsObject);
+		this.stats = this.parseRunStats(actionKeys, this.actionsObject);
 
-		// if any action errored, the run errored
-		if (actionKeys.some((key) => this.actionsObject[key].error)) {
+		const erroredActionKey = actionKeys
+			.find((key) => this.actionsObject[key].error);
+
+		if (erroredActionKey) {
+			// if any action errored, the run errored
 			this.status = model.RunStatus.Errored;
-		} else if (!actionKeys.some((key) => this.actionsObject[key].completed)) { // if any action didn't complete, and we have NOT errored, it means we got cancelled
+
+			this.erroredActionName = this.actionsObject[erroredActionKey]?.name;
+		} else if (!actionKeys.some((key) => this.actionsObject[key].completed)) {
+			// if any action didn't complete, and we have NOT errored, it means we got cancelled
 			this.status = model.RunStatus.Cancelled;
 		}
 
@@ -181,7 +188,7 @@ class Build implements BuildRun {
 		this.id = createId('lowercase', 8);
 	}
 
-	parseActionsInfo(actionKeys : string[], actionsObject : model.BuildActionsObject) : model.ActionsInfo {
+	parseRunStats(actionKeys : string[], actionsObject : model.BuildActionsObject) : model.RunStats {
 		// Total is easy
 		const total = actionKeys.length;
 

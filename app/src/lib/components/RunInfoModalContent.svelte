@@ -77,17 +77,17 @@
 
 		<DetailField
 			key="total actions"
-			value={ `${ run?.actionsInfo.total }` }
+			value={ `${ run?.stats.total }` }
 		/>
 
 		<DetailField
 			key="cached actions"
-			value={ `${ run?.actionsInfo.cached }` }
+			value={ `${ run?.stats.cached }` }
 		/>
 
 		<DetailField
 			key="errored actions"
-			value={ `${ run?.actionsInfo.errored }` }
+			value={ `${ run?.stats.errored }` }
 		/>
 	</div>
 </ion-content>

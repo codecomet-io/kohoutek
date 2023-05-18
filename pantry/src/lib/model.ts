@@ -124,7 +124,7 @@ export type Repository = {
 
 
 
-export type ActionsInfo = {
+export type RunStats = {
 	// total number of tasks
 	total: int
 
@@ -179,20 +179,26 @@ type GeneralRun = {
 	// user defined free-form key value custom metadata
 	metadata?: StringMap
 
-	// This means: when did the first task start?
-	// Starting time
+	// Starting time, aka when did the first task start?
 	started: uint64 //string
+
 	// time at which the last task that did complete actually finished
 	completed: uint64 // string
+
 	// See status type
 	status: RunStatus
+
 	// The total number of seconds between the first task starting and the last task finishing
 	runtime: int
+
 	// actual CPU time
 	machineTime: int
 
 	// Helpers providing high-level data about the tasks
-	actionsInfo: ActionsInfo
+	stats: RunStats
+
+	// if the run errored, the name of the first action that errored
+	erroredActionName?: string
 
 	// Repository data
 	repository?: Repository

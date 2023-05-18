@@ -53,7 +53,7 @@
         const octokit = new Octokit({ auth: token });
 
         const data  = await octokit.rest.repos.listForAuthenticatedUser();
-        // const data = await octokit.request("GET /search/repositories?q=user:spacedub")
+        // const data = await octokit.request("GET /user/repos")
         // request("GET /user");
 
         console.warn("Hey rabbit", data.data);

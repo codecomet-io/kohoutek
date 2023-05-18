@@ -10,25 +10,25 @@ Then, do this once:
 
 ```bash
 source .conf
-sudo echo "127.0.0.1 kohoutek.$ROOT_DOMAIN" >> /etc/hosts
+sudo echo "127.0.0.1 app.$ROOT_DOMAIN" >> /etc/hosts
 sudo echo "127.0.0.1 auth.$ROOT_DOMAIN" >> /etc/hosts
 ```
 
 Then
 
 ```bash
-./hack/mac.sh kohoutek::install
+./mac.sh kohoutek::install
 ```
 
 ### Running
 
 ```bash
-./hack/mac.sh kohoutek::run
+./mac.sh kohoutek::run
 ```
 
 Or if you want it daemonized:
 ```bash
-./hack/mac.sh kohoutek::run background
+./mac.sh kohoutek::run background
 ```
 
 ### Install certificate authority
@@ -36,7 +36,7 @@ Or if you want it daemonized:
 For browsers to accept the self-signed cert, call:
 
 ```bash
-./hack/mac.sh kohoutek::trust
+./mac.sh kohoutek::trust
 ```
 
 If you are concerned in the future about trusting that local CA,
@@ -77,7 +77,7 @@ into
 
 The default config requires authorization for everything, except `/login*`.
 
-To change that behavior, look in the Caddyfile for 
+To change that behavior, look in the Caddyfile for
 
 ```
     @requireauth {

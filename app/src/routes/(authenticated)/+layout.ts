@@ -19,7 +19,7 @@ export const load = (async ({ params, url }) => {
 	} else if (runId) {
 		run = (await firestore.getRun(runId)) as Run;
 
-		recentRuns = await firestore.getRunsByPipelineId(run.pipelineId, true, 3, runId);
+		recentRuns = await firestore.getRunsByPipelineId(run.pipeline.id, true, 3, runId);
 	}
 
 	const { searchParams } = url;

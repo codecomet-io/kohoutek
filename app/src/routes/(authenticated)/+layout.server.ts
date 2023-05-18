@@ -28,5 +28,5 @@ export const load = (async ({ cookies, url }) => {
 }) satisfies LayoutServerLoad;
 
 function eject(pathname : string) : void {
-	throw redirect(303, `/login?redirectTo=${ pathname }`);
+	throw redirect(303, `/login?redirect=${ encodeURIComponent(pathname) }`);
 }

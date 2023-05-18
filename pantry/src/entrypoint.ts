@@ -25,6 +25,7 @@ import {
 	CreateSymbolicLinkBuildAction,
 	MergeBuildAction,
 	CopyBuildAction,
+	Pipeline,
 } from "./lib/model.js";
 import { error, nil } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
 import CodeComet from "codecomet-js";
@@ -239,12 +240,12 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 	const buildRun : BuildRun = buffIngester.ingest(trace);
 
 	// Suck up metadata - TODO @spacedub: reincorporate metadata into protobuf pipeline definitions instead of separate entity
-	buildRun.pipelineFqn = metadata.id;
-	buildRun.pipelineName = metadata.name;
-	buildRun.description = metadata.description;
+	buildRun.pipeline.fqn = metadata.id;
+	buildRun.pipeline.name = metadata.name;
+	buildRun.pipeline.description = metadata.description;
+
 	buildRun.trigger = metadata.trigger;
-	buildRun.actorId = metadata.actor.id;
-	buildRun.actorName = metadata.actor.name;
+	buildRun.actor = metadata.actor;
 	buildRun.host = metadata.host;
 	buildRun.repository = metadata.repository;
 
@@ -411,10 +412,7 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 }
 
 function insertMockData(output : Run, dataMocker : DataMocker) : void {
-	const actor = dataMocker.actor();
-
-	output.actorId = actor.id;
-	output.actorName = actor.name;
+	output.actor = dataMocker.actor();
 
 	output.status = dataMocker.status();
 
@@ -513,19 +511,39 @@ function parseGroupedLogs(assembledLogs : AssembledLog[]) : GroupedLogsPayload {
 async function saveRunToFirestore(run : Run) : Promise<Run> {
 	const firestore = new Firestore();
 
-	let pipelineId = await firestore.getPipelineIdFromPipelineFqn(run.pipelineFqn);
-
-	if (!pipelineId) {
-		pipelineId = createId('lowercase', 8);
-
-		await firestore.savePipeline(run.pipelineFqn, pipelineId);
-	}
-
-	run.pipelineId = pipelineId;
+	// retrieve the pipeline id from firestore, or create it if it doesn't exist
+	// also update firestore pipeline details if they have changed
+	run.pipeline = await parsePipeline(firestore, run.pipeline);
 
 	await firestore.saveRun(run);
 
 	return run;
+}
+
+async function parsePipeline(firestore : Firestore, runPipeline : Pipeline) : Promise<Pipeline> {
+	let firestorePipeline = await firestore.getPipelineByFqn(runPipeline.fqn);
+
+	if (!firestorePipeline?.id) {
+		firestorePipeline = {
+			...firestorePipeline,
+			...runPipeline,
+			id : createId('lowercase', 8),
+		};
+
+		await firestore.savePipeline(firestorePipeline);
+	} else if (firestorePipeline.name !== runPipeline.name || firestorePipeline.description !== runPipeline.description) {
+		const { name, description } = runPipeline;
+
+		await firestore.updatePipeline(firestorePipeline.id , { name, description });
+
+		firestorePipeline = {
+			...firestorePipeline,
+			name,
+			description,
+		};
+	}
+
+	return firestorePipeline;
 }
 
 async function run(...args : string[]) {

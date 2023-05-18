@@ -20,7 +20,7 @@
 		runs = data.runs;
 		recentRuns = data.recentRuns;
 
-		pipelineId = run?.pipelineId ?? runs?.[0]?.pipelineId;
+		pipelineId = run?.pipeline.id ?? runs?.[0]?.pipeline.id;
 	}
 
 	let ionMenu : HTMLIonMenuElement;

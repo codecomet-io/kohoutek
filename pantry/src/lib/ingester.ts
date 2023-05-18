@@ -15,18 +15,20 @@ import "@sentry/tracing";
 class Build implements BuildRun {
 	id = "abcd1234";
 	name = "user-defined name for this run";
-	pipelineId = "1234abcd";
-	pipelineFqn = "org/repo/pipeline.go";
-	pipelineName = "user-defined name for the pipeline";
-	description = "This is our super test plan, and guess what this description can change at any time";
+	pipeline = {
+		id : "1234abcd",
+		fqn : "org/repo/pipeline.go",
+		name : "user-defined name for the pipeline",
+		description : "This is our super test plan, and guess what this description can change at any time",
+	};
 	started = 0;
 	completed = 0;
 	status = model.RunStatus.Completed;
 	runtime = 0;
 	machineTime = 0;
 	trigger = "manual";
-	actionsObject: BuildActionsObject = {};
-	stats: RunStats = {
+	actionsObject = {};
+	stats = {
 		total                       : 0,
 		cached                      : 0,
 		ran                         : 0,
@@ -37,8 +39,10 @@ class Build implements BuildRun {
 		finishedSuccessfullyPercent : 0,
 		cachedPercent               : 0,
 	};
-	actorId = 'spacedub';
-	actorName = 'Space Raccoon';
+	actor = {
+		id   : 'github.com/spacedub',
+		name : 'Space Raccoon',
+	};
 	erroredActionName = undefined;
 
 	addLog(log: VertexLog) {
@@ -125,26 +129,29 @@ class Build implements BuildRun {
 
 		if (vertice.Started){
 			this.actionsObject[vertice.Digest].started = Date.parse(vertice.Started);
-			// this.actionsObject[vertice.Digest].datestamp = new Date(Date.parse(vertice.Started)).toISOString()
+
 			if (!this.started || this.actionsObject[vertice.Digest].started < this.started) {
 				this.started = this.actionsObject[vertice.Digest].started;
-				// this.datestamp = new Date(this.timestamp).toISOString()
-				// Temporary hack to create unique Descriptions for each Report - obviously needs to be undone
-				this.description = "Some Run"; //  + this.Report.Started.toString().slice(-4)
 			}
+
 			this.actionsObject[vertice.Digest].status = ActionStatus.Started;
 		}
-		if (vertice.Completed){
+
+		if (vertice.Completed) {
 			this.actionsObject[vertice.Digest].completed = Date.parse(vertice.Completed);
 			this.actionsObject[vertice.Digest].runtime = this.actionsObject[vertice.Digest].completed - this.actionsObject[vertice.Digest].started;
 			this.actionsObject[vertice.Digest].status = ActionStatus.Completed;
 		}
-		if (vertice.Error){
+
+		if (vertice.Error) {
 			this.actionsObject[vertice.Digest].error = vertice.Error;
 			this.actionsObject[vertice.Digest].status = ActionStatus.Errored;
-			if (vertice.Error.match(/did not complete successfully: exit code: 137: context canceled: context canceled$/))
+
+			if (vertice.Error.match(/did not complete successfully: exit code: 137: context canceled: context canceled$/)) {
 				this.actionsObject[vertice.Digest].status = ActionStatus.Cancelled;
+			}
 		}
+
 		if (vertice.Cached) {
 			this.actionsObject[vertice.Digest].cached = true;
 			this.actionsObject[vertice.Digest].status = ActionStatus.Cached;
@@ -379,7 +386,7 @@ export class BuffIngester {
 
 		// Sort the logs and process them into something manageable
 		// let logs = {}
-		Object.values(this.build.actionsObject).forEach(function(action){
+		Object.values(this.build.actionsObject).forEach((action : any) => {
 			// Sort stdout
 			if (action.stdout) {
 				action.stdout.sort(sortByTimestamp);

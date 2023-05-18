@@ -1,7 +1,8 @@
 import type { ServiceAccount } from 'firebase-admin';
 import type { Firestore as FirestoreType } from 'firebase-admin/firestore';
+import type { AnyMap } from 'briznads-helpers';
 
-import type { Run } from './model.js';
+import type { Run, Pipeline } from './model.js';
 
 import { initializeApp, cert } from 'firebase-admin/app';
 
@@ -67,32 +68,44 @@ export class Firestore {
 		return;
 	}
 
-	async getPipelineIdFromPipelineFqn(pipelineFqn : string) : Promise<undefined | string> {
+	async getPipelineByFqn(fqn : string) : Promise<undefined | Pipeline> {
 		const querySnapshot = await this.db.collection('pipelines')
-			.where('pipelineFqn', '==', pipelineFqn)
+			.where('fqn', '==', fqn)
 			.get();
 
 		if (querySnapshot.empty) {
 			return;
 		}
 
-		return querySnapshot.docs[0].id;
+		return querySnapshot.docs[0]?.data() as Pipeline;
 	}
 
-	async savePipeline(pipelineFqn : string, id : string) : Promise<void> {
+	async savePipeline(pipeline : Pipeline) : Promise<void> {
 		try {
 			// Add a new document
-			await this.db.collection('pipelines').doc(id).set({
-				id,
-				pipelineFqn,
-			});
+			await this.db.collection('pipelines').doc(pipeline.id).set(pipeline);
 		} catch (e) {
 			console.error(e);
 
 			return;
 		}
 
-		console.info('Added document to "pipelines" collection with ID: ', id);
+		console.info('Added document to "pipelines" collection with ID: ', pipeline.id);
+
+		return;
+	}
+
+	async updatePipeline(id : string, updates : AnyMap) : Promise<void> {
+		try {
+			// Add a new document
+			await this.db.collection('pipelines').doc(id).update(updates);
+		} catch (e) {
+			console.error(e);
+
+			return;
+		}
+
+		console.info('Updated Pipeline with ID: ', id);
 
 		return;
 	}

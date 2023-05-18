@@ -1,5 +1,6 @@
 import type { AnyMap, StringMap } from 'briznads-helpers';
 
+import type { Pipeline } from "./models/pipeline.js";
 import type { RunStatus } from "./models/run.js";
 import type { ActionStatus } from "./models/action.js";
 
@@ -11,6 +12,7 @@ import  * as os from "node:os";
 import { Stack, LogLine, AssembledLog, GroupedLogsPayload } from "./models/logs.js";
 
 // Re-export
+export * from './models/pipeline.js';
 export * from './models/run.js';
 export * from './models/action.js';
 export * from './models/logs.js';
@@ -26,7 +28,7 @@ export * from './models/logs.js';
  * - cputype
  * - memory
  * - load
- * And we also need parallelisism info, or at the very least, a way to correct the "weight" a task based on plan timing info
+ * And we also need parallelism info, or at the very least, a way to correct the "weight" a task based on plan timing info
  *
  * 2. Tasks currently do not have a satisfying identifier information:
  * - "name" is purely at the discretion of the user, and can very well be used by different tasks
@@ -42,7 +44,7 @@ export * from './models/logs.js';
 /*
  * A User represents a GitHub account
  */
-type User = {
+export type User = {
 	id: string
 	name: string
 	// XXX signatures?
@@ -109,8 +111,8 @@ export class Host {
 	};
 
 	owner : User = {
-		id   : "spacedub",
-		name : "Space Raccoon",
+		id   : 'github.com/spacedub',
+		name : 'Space Raccoon',
 	};
 }
 
@@ -167,17 +169,7 @@ type GeneralRun = {
 	// unique name for the run. will be the last commit message, plus an indication if the current repo is dirty
 	name: string
 
-	// generated nanoid of the pipeline
-	pipelineId: string
-
-	// the fully qualified name of the path to a CodeComet pipeline file within a git repo
-	pipelineFqn: string
-
-	// user chosen short name for the pipeline. Example: "My Pipeline for Netlify"
-	pipelineName: string
-
-	// user defined description for the plan. Example: "This pipeline is doing fancy and boo"
-	description: string
+	pipeline : Pipeline
 
 	// user defined free-form key value custom metadata
 	metadata?: StringMap
@@ -209,11 +201,8 @@ type GeneralRun = {
 	// Trigger: "manual" or pull request identifier
 	trigger: 'manual' | string
 
-	// user or entity id that triggered the run
-	actorId: string
-
-	// user or entity name that triggered the run
-	actorName: string
+	// user or entity that triggered the run
+	actor: User
 
 	// Host executing the run
 	host?: Host

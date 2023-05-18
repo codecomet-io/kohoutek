@@ -1,4 +1,4 @@
-import type { Action } from './model.js';
+import type { Action, User } from './model.js';
 
 import { RunStatus, ActionStatus } from './model.js';
 
@@ -231,7 +231,7 @@ export class DataMocker {
 		return this.getRandomIntegerFromInterval(100, 3600000);
 	}
 
-	actor() : { id : string, name : string } {
+	actor() : User {
 		const name = this.getRandomElement(this.actorNames);
 
 		return {

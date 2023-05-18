@@ -48,7 +48,7 @@
 
 		<DetailField
 			key="description"
-			value={ run?.description }
+			value={ run?.pipeline.description }
 			customClass="span-2-columns"
 			truncateOverflowText={ false }
 		/>

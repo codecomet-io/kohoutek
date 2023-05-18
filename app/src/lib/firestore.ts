@@ -51,11 +51,11 @@ export class Firestore {
 		return docSnap.data() as Run;
 	}
 
-	async getRunsByPipelineId(pipelineId : string, sortByNewest : boolean = true, limitDocuments? : number, excludeRun? : string) : Promise<Run[]> {
+	async getRunsByPipelineId(id : string, sortByNewest : boolean = true, limitDocuments? : number, excludeRun? : string) : Promise<Run[]> {
 		const collectionRef = collection(this.db, 'runs');
 
 		const queryParameters : any[] = [
-			where('pipelineId', '==', pipelineId),
+			where('pipeline.id', '==', id),
 		];
 
 		if (sortByNewest) {

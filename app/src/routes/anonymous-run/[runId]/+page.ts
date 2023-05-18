@@ -1,8 +1,8 @@
-import type { PageLoad } from '../../$types';
+import type { PageLoad } from './$types';
 
 
 export const load = (async ({ params, url, fetch }) => {
-	const runId = params?.id ?? '';
+	const { runId } = params;
 
 	const { searchParams } = url;
 

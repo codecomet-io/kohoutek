@@ -1,6 +1,5 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import type { Run } from '../../../../../pantry/src/lib/model';
+	import type { Run } from '../../../../pantry/src/lib/model';
 
 	import { activeAccordion, activeModal, highlightLine } from '$lib/stores';
 
@@ -10,13 +9,11 @@
 	import FilesetsOrActionsHeader from '$lib/components/FilesetsOrActionsHeader.svelte';
 
 
-	export let data : PageData;
+	export let run : Run;
+	export let searchParams : URLSearchParams;
+	export let anonymous : boolean = false;
 
-	let run : Run;
-
-	$: run = data.run;
-
-	$: updateFromParams(data.searchParams);
+	$: updateFromParams(searchParams);
 
 	function updateFromParams(searchParams : URLSearchParams) : void {
 		const active_accordion = searchParams.get('active_accordion') ?? '';
@@ -59,12 +56,12 @@
 </style>
 
 
-<RunHeader { run } />
-
 <ion-content
 	fullscreen={ true }
 	bind:this={ ionContent }
 >
+	<RunHeader { run } { anonymous } />
+
 	<div class="max-width-wrapper">
 		<FilesetsOrActionsHeader items={ run?.filesets }>
 			<IconKey />

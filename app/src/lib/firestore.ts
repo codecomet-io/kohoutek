@@ -3,7 +3,7 @@ import type { Firestore as FirestoreType } from 'firebase/firestore';
 import type { Run } from '../../../pantry/src/lib/model';
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 
 
 export class Firestore {
@@ -51,27 +51,35 @@ export class Firestore {
 		return docSnap.data() as Run;
 	}
 
-	async getRuns(sortByNewest : boolean = true, limitDocuments? : number) : Promise<any> {
+	async getRunsByPipelineId(pipelineId : string, sortByNewest : boolean = true, limitDocuments? : number, excludeRun? : string) : Promise<Run[]> {
 		const collectionRef = collection(this.db, 'runs');
 
-		const queryParameters = []
+		const queryParameters : any[] = [
+			where('pipelineId', '==', pipelineId),
+		];
 
 		if (sortByNewest) {
 			queryParameters.push(orderBy('started', 'desc'));
 		}
 
 		if (limitDocuments != null) {
-			queryParameters.push(limit(limitDocuments));
+			queryParameters.push(limit(limitDocuments + (excludeRun ? 1 : 0)));
 		}
 
 		const q = query(collectionRef, ...queryParameters);
 
 		const querySnapshot = await getDocs(q);
 
-		return querySnapshot.docs
-			.map((doc) => ({
-				...doc.data(),
-				_id : doc.id,
-			}));
+		let runs : any[] = querySnapshot.docs;
+
+		if (excludeRun) {
+			runs = runs.filter((doc) => doc.id !== excludeRun);
+		}
+
+		runs = runs
+			.map((doc) => doc.data())
+			.slice(0, limitDocuments);
+
+		return runs;
 	}
 }

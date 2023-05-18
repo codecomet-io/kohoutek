@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import type { Run } from '../../../../../pantry/src/lib/model';
+	import type { Run } from '../../../../../../../pantry/src/lib/model';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 
@@ -28,7 +28,7 @@
 	</ion-list-header>
 
 	{#each runs as run }
-		<ion-item href="/document/{ run.id }">
+		<ion-item href="/run/{ run.id }">
 			<StatusIcon
 				size="small"
 				status={ run.status }

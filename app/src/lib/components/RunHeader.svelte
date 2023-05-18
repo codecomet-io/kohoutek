@@ -13,21 +13,30 @@
 
 
 <style lang="scss">
-	.max-width-wrapper {
+	ion-header {
 		padding: 16px;
-		background-color: #f7f7f7;
-		border-bottom: 0.55px solid rgba(0, 0, 0, 0.2);
 
-		@media (prefers-color-scheme: dark) {
-			background-color: #0d0d0d;
-			border-bottom-color: #262626;
+		&:not(.anonymous) {
+			max-width: 1280px;
+			margin-left: auto;
+			margin-right: auto;
 		}
 
-		@media (min-width: 1280px) {
-			--max-width-gutter-padding: calc((100vw - 1280px) / 2 + 16px);
+		&.anonymous {
+			background-color: #f7f7f7;
+			border-bottom: 0.55px solid rgba(0, 0, 0, 0.2);
 
-			padding-left: var(--max-width-gutter-padding);
-			padding-right: var(--max-width-gutter-padding);
+			@media (min-width: 1280px) {
+				--max-width-gutter-padding: calc((100vw - 1280px) / 2 + 16px);
+
+				padding-left: var(--max-width-gutter-padding);
+				padding-right: var(--max-width-gutter-padding);
+			}
+
+			@media (prefers-color-scheme: dark) {
+				background-color: #0d0d0d;
+				border-bottom-color: #262626;
+			}
 		}
 	}
 
@@ -35,7 +44,7 @@
 		display: flex;
 		gap: 0.5em;
 
-		&.anonymous {
+		.anonymous & {
 			justify-content: space-between;
 			align-items: center;
 		}
@@ -47,23 +56,14 @@
 </style>
 
 
-<ion-header>
-  <div class="max-width-wrapper">
-		<div
-			class="top-header-wrapper"
-			class:anonymous={ anonymous }
-		>
-			{#if !anonymous }
-				<ion-menu-button></ion-menu-button>
-			{/if}
+<ion-header class:anonymous={ anonymous }>
+	<div class="top-header-wrapper">
+		<RunTitleInfo { run } />
 
-			<RunTitleInfo { run } />
+		{#if anonymous }
+			<CodeCometLogo context="run-header" />
+		{/if}
+	</div>
 
-			{#if anonymous }
-				<CodeCometLogo context="run-header" />
-			{/if}
-		</div>
-
-		<TimingChart timingInfo={ run?.timingInfo } />
-  </div>
+	<TimingChart timingInfo={ run?.timingInfo } />
 </ion-header>

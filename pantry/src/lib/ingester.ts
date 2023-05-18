@@ -323,11 +323,13 @@ function parseLogEntry(line) {
 }
 
 export class BuffIngester {
-	private build: Build;
+	private build : Build;
+
 
 	constructor() {
 		this.build = new Build();
 	}
+
 
 	ingest(buff: Buffer) : BuildRun {
 		const transaction = Sentry.startTransaction({

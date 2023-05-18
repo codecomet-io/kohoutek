@@ -1,16 +1,19 @@
 import type { AnyMap, StringMap } from 'briznads-helpers';
 
-import {bool, int, uint64} from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
-import {digest} from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
-import {Types} from "codecomet-js/source/protobuf/types.js";
+import type { RunStatus } from "./models/run.js";
+import type { ActionStatus } from "./models/action.js";
+
+import { bool, int, uint64 } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
+import { digest } from "codecomet-js/source/buildkit-port/dependencies/opencontainers/go-digest.js";
+import { Types } from "codecomet-js/source/protobuf/types.js";
 import  * as os from "node:os";
 
-import {RunStatus, ActionStatus} from "./model/run.js";
-import {Stack, LogLine, AssembledLog, GroupedLogsPayload} from "./model/logs.js";
+import { Stack, LogLine, AssembledLog, GroupedLogsPayload } from "./models/logs.js";
 
 // Re-export
-export * from "./model/run.js";
-export * from "./model/logs.js";
+export * from './models/run.js';
+export * from './models/action.js';
+export * from './models/logs.js';
 
 /**
  * IMPORTANT NOTES
@@ -188,7 +191,7 @@ type GeneralRun = {
 	// See status type
 	status: RunStatus
 
-	// The total number of seconds between the first task starting and the last task finishing
+	// The total number of milliseconds between the first task starting and the last task finishing
 	runtime: int
 
 	// actual CPU time
@@ -204,7 +207,7 @@ type GeneralRun = {
 	repository?: Repository
 
 	// Trigger: "manual" or pull request identifier
-	trigger: string
+	trigger: 'manual' | string
 
 	// user or entity id that triggered the run
 	actorId: string

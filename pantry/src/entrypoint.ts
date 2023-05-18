@@ -34,6 +34,7 @@ import { Protobuf } from "codecomet-js/source/utils/protobuf.js";
 import { Types } from "codecomet-js/source/protobuf/types.js";
 import { readFileSync, writeFileSync } from "fs";
 import { Firestore } from './lib/firestore.js';
+import { DataMocker } from './lib/data-mocker.js';
 
 
 // Init Sentry
@@ -78,8 +79,13 @@ function ingest(buffer: Buffer): [ LowLevelBuilderOperation[], error ] {
 	return [ operations, nil ];
 }
 
-export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string): Promise<Run> {
+export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string, mockData : boolean = false): Promise<Run> {
 	await CodeComet.Bootstrap();
+
+	// init data mocker
+	const dataMocker = mockData
+		? new DataMocker()
+		: null;
 
 	// Spoof in metadata
 	const metadata = JSON.parse(meta);
@@ -98,9 +104,9 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 
 		if (
 			llbOperation.metadata.caps['source.image']
-            || llbOperation.metadata.caps['source.git']
-            || llbOperation.metadata.caps['source.local']
-            || llbOperation.metadata.caps['source.http']
+			|| llbOperation.metadata.caps['source.git']
+			|| llbOperation.metadata.caps['source.local']
+			|| llbOperation.metadata.caps['source.http']
 		) {
 			let fileset = <FilesetBuildAction>{
 				name,
@@ -242,9 +248,11 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 	buildRun.host = metadata.host;
 	buildRun.repository = metadata.repository;
 
-	buildRun.name = buildRun.repository.commitSubject;
+	buildRun.name = mockData
+		? dataMocker.name()
+		: buildRun.repository.commitSubject;
 
-	if (buildRun.repository.isDirty) {
+	if (mockData ? dataMocker.isDirty() : buildRun.repository.isDirty) {
 		buildRun.name = `[DIRTY] ${ buildRun.name }`;
 	}
 
@@ -388,12 +396,37 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 		item.percent = Math.round(item.runtime / summedTimingRuntime * 100 * 100) / 100;
 	}
 
-	return {
+	const output : Run = {
 		...buildRun,
 		timingInfo,
 		filesets,
 		actions,
 	};
+
+	if (mockData) {
+		insertMockData(output, dataMocker);
+	}
+
+	return output;
+}
+
+function insertMockData(output : Run, dataMocker : DataMocker) : void {
+	const actor = dataMocker.actor();
+
+	output.actorId = actor.id;
+	output.actorName = actor.name;
+
+	output.status = dataMocker.status();
+
+	output.started = dataMocker.started();
+
+	output.machineTime = dataMocker.machineTime();
+
+	output.trigger = dataMocker.trigger();
+
+	output.erroredActionName = output.status === 'errored'
+		? dataMocker.erroredActionName(output.actions)
+		: undefined;
 }
 
 function parseActionTiming(item : any) : TimingInfo {
@@ -495,14 +528,16 @@ async function saveRunToFirestore(run : Run) : Promise<Run> {
 	return run;
 }
 
-async function run(protoPath: string, tracePath: string, meta: string, destination: string) {
+async function run(...args : string[]) {
+	const [ protoPath, tracePath, meta, destination, mockData ] = args;
+
 	// Retrieve the protobuf definition and the trace file from wherever they are (XHR, file)
 	// Here, just lazily readfilesync them
 	const buff = readFileSync(protoPath);
 	const trace = readFileSync(tracePath);
 
 	// Get the run from Pantry
-	let run = await Pantry(buff, trace, meta);
+	let run = await Pantry(buff, trace, meta, mockData === 'mockData=true');
 
 	if (run == null) {
 		console.error(`\nERROR: run "${ destination.replace(/^.+\//, '') }" could not be retrieved and/or generated\n`);
@@ -515,9 +550,4 @@ async function run(protoPath: string, tracePath: string, meta: string, destinati
 	writeFileSync(destination, JSON.stringify(run, null, 2));
 }
 
-run(
-	process.argv[2],
-	process.argv[3],
-	process.argv[4],
-	process.argv[5],
-);
+run(...process.argv.slice(2));

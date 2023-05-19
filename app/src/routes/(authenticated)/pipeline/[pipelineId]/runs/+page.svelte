@@ -81,6 +81,10 @@
 		grid-template-columns: var(--grid-template-columns);
 		align-items: center;
 		border-bottom: 0.5px solid #c8c7cc;
+
+		&.header {
+			font-weight: 700;
+		}
 	}
 
 	a.row {
@@ -152,6 +156,7 @@
 			<div
 				class="cell { column.name.replace('.', '-') }"
 				class:invisible={ column.showHeader === false }
+				title={ column.name }
 			>{ column.name }</div>
 		{/each}
 	</div>

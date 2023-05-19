@@ -25,8 +25,11 @@
 	import 'ionic-svelte/components/ion-button';
 	import 'ionic-svelte/components/ion-buttons';
 	import 'ionic-svelte/components/ion-card-subtitle';
+	import 'ionic-svelte/components/ion-card-title';
 	import 'ionic-svelte/components/ion-chip';
+	import 'ionic-svelte/components/ion-col';
 	import 'ionic-svelte/components/ion-content';
+	import 'ionic-svelte/components/ion-grid';
 	import 'ionic-svelte/components/ion-header';
 	import 'ionic-svelte/components/ion-item';
 	import 'ionic-svelte/components/ion-item-divider';
@@ -39,6 +42,7 @@
 	import 'ionic-svelte/components/ion-menu-toggle';
 	import 'ionic-svelte/components/ion-modal';
 	import 'ionic-svelte/components/ion-popover';
+	import 'ionic-svelte/components/ion-row';
 	import 'ionic-svelte/components/ion-split-pane';
 	import 'ionic-svelte/components/ion-title';
 	import 'ionic-svelte/components/ion-toolbar';

@@ -1,7 +1,8 @@
 <script lang="ts">
-	import type { ActionType, RunStatus, ActionStatus, FilesetType } from '../../../../../pantry/src/lib/model';
+	import type { ActionType } from '../../../../pantry/src/lib/model';
 
 	import { receiptOutline } from 'ionicons/icons';
+	import { RunStatus, ActionStatus, FilesetType } from '../../../../pantry/src/lib/model';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
@@ -129,22 +130,49 @@
 
 
 <style lang="scss">
-	ion-list-header {
-		margin-bottom: 7px;
-	}
-
 	@media (min-width: 768px) {
 		:global(.icon-key-popover) {
 			--width: calc(2 / 3 * 100%);
 			--max-width: 700px;
 		}
 
-		.groups-container {
+		ion-list {
 			display: flex;
 		}
 
-		ion-list {
+		ion-item-group {
 			flex: 1;
+		}
+	}
+
+	ion-item-divider {
+		--padding-top: 2px;
+		--padding-bottom: 2px;
+		--background: transparent;
+
+		margin-top: 10px;
+		border-style: solid;
+		border-color: #c8c7cc;
+		border-width: 0.5px 0;
+
+		@media (min-width: 768px) {
+			margin-top: 4px;
+			border-top-width: 0;
+		}
+
+		ion-item-group:first-child & {
+			margin-top: 4px;
+			border-top-width: 0;
+		}
+	}
+
+	ion-item {
+		&:last-child {
+			--border-style: none;
+
+			@media (min-width: 768px) {
+				--border-style: solid;
+			}
 		}
 	}
 
@@ -156,10 +184,12 @@
 </style>
 
 
-<div class="groups-container">
+<ion-list>
 	{#each groupedIconsList as iconGroup }
-		<ion-list>
-			<ion-list-header>{ iconGroup.name }</ion-list-header>
+		<ion-item-group>
+			<ion-item-divider>
+				<ion-label>{ iconGroup.name }</ion-label>
+			</ion-item-divider>
 
 			{#each iconGroup.icons as item }
 				<ion-item>
@@ -186,6 +216,6 @@
 					<ion-label class="specificity-class">{ item.name ?? item.status ?? item.icon ?? item.type }</ion-label>
 				</ion-item>
 			{/each}
-		</ion-list>
+		</ion-item-group>
 	{/each}
-</div>
+</ion-list>

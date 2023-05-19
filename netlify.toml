@@ -1,5 +1,5 @@
 [build]
   # Default build command.
   command = "cd ./pantry/; npm install; npm run build; cd ../app/; npm install; npm run build"
-  publish = "app/.netlify/"
+  publish = "app/build/"
 

@@ -3,8 +3,16 @@
 	import type { Run } from '../../../../../../../pantry/src/lib/model';
 
 	import { get } from 'briznads-helpers';
+	import { chevronForwardOutline } from 'ionicons/icons';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
+
+
+	type Column = {
+		name : string;
+		size? : number;
+		showHeader? : boolean;
+	};
 
 
 	export let data : PageData;
@@ -15,7 +23,7 @@
 
 	$: runs = data.runs ?? [];
 
-	const columns : { name : string, size? : number }[] = [
+	const columns : Column[] = [
 		{
 			name : 'status',
 			size : 0.5,
@@ -32,7 +40,6 @@
 		},
 		{
 			name : 'actor.name',
-			size : 1.5,
 		},
 		{
 			name : 'trigger',
@@ -40,6 +47,11 @@
 		{
 			name : 'erroredActionName',
 			size : 2,
+		},
+		{
+			name : 'link',
+			size : 0.3,
+			showHeader : false,
 		},
 	];
 
@@ -60,11 +72,37 @@
 
 
 <style lang="scss">
+	.table-container {
+		padding: 20px;
+	}
+
 	.row {
 		display: grid;
 		grid-template-columns: var(--grid-template-columns);
 		align-items: center;
 		border-bottom: 0.5px solid #c8c7cc;
+	}
+
+	a.row {
+		position: relative;
+		text-decoration: none;
+
+		&::after {
+			inset: 0px;
+			position: absolute;
+			content: '';
+			opacity: 0;
+			transition: background-color 200ms linear, opacity 200ms linear;
+			z-index: -1;
+		}
+
+		&:hover,
+		&:focus {
+			&::after {
+				background-color: #000;
+				opacity: 0.04;
+			}
+		}
 	}
 
 	.cell {
@@ -80,6 +118,23 @@
 		&:last-child {
 			padding-right: 0;
 		}
+
+		&.invisible {
+			visibility: hidden;
+		}
+
+		&.status,
+		&.link {
+			display: flex;
+		}
+
+		&.status {
+			justify-content: center;
+		}
+	}
+
+	ion-icon {
+		font-size: 25px;
 	}
 </style>
 
@@ -94,7 +149,10 @@
 
   <div class="row header">
 		{#each columns as column }
-			<div class="cell">{ column.name }</div>
+			<div
+				class="cell { column.name.replace('.', '-') }"
+				class:invisible={ column.showHeader === false }
+			>{ column.name }</div>
 		{/each}
 	</div>
 
@@ -107,7 +165,7 @@
 				{@const value = get(run, column.name.split('.')) }
 
 				<div
-					class="cell"
+					class="cell { column.name.replace('.', '-') }"
 					title={ value ?? undefined }
 				>
 					{#if column.name === 'status' }
@@ -115,6 +173,11 @@
 							size="small"
 							status={ run[ column.name ] }
 						/>
+					{:else if column.name === 'link' }
+						<ion-icon
+							icon={ chevronForwardOutline }
+							color="medium"
+						></ion-icon>
 					{:else}
 						{ value ?? '' }
 					{/if}

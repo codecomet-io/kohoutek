@@ -1,6 +1,6 @@
 import type { Firestore as FirestoreType } from 'firebase/firestore';
 
-import type { Run } from '../../../pantry/src/lib/model';
+import type { Pipeline, Run } from '../../../pantry/src/lib/model';
 
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, getDoc, collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
@@ -38,8 +38,21 @@ export class Firestore {
 		return getFirestore(app);
 	}
 
-	async getRun(documentId : string) : Promise<Run | void> {
-		const docRef = doc(this.db, 'runs', documentId);
+	async getPipeline(id : string) : Promise<Pipeline | void> {
+		const docRef = doc(this.db, 'pipelines', id);
+		const docSnap = await getDoc(docRef);
+
+		if (!docSnap.exists()) {
+			console.error('No such document!');
+
+			return;
+		}
+
+		return docSnap.data() as Pipeline;
+	}
+
+	async getRun(id : string) : Promise<Run | void> {
+		const docRef = doc(this.db, 'runs', id);
 		const docSnap = await getDoc(docRef);
 
 		if (!docSnap.exists()) {

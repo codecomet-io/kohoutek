@@ -2,10 +2,11 @@
 	import type { PageData } from './$types';
 	import type { Run } from '../../../../../../../pantry/src/lib/model';
 
-	import { get } from 'briznads-helpers';
+	import { get, getDateString, getTimeString, lapsed } from 'briznads-helpers';
 	import { chevronForwardOutline } from 'ionicons/icons';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
+	import Ago from '$lib/components/Ago.svelte';
 
 
 	type Column = {
@@ -16,12 +17,6 @@
 
 
 	export let data : PageData;
-
-	$: console.debug(data)
-
-	let runs : any[];
-
-	$: runs = data.runs ?? [];
 
 	const columns : Column[] = [
 		{
@@ -68,6 +63,20 @@
 
 		return percentArr.join(' ');
 	}
+
+	function parseCellTitle(column : Column, value : any) : string {
+		let parsedValue = value?.toString();
+
+		if (column.name === 'started') {
+			parsedValue = getDateString(value);
+		} else if (column.name === 'machineTime') {
+			parsedValue += ` millisecond${ value === 1 ? '' : 's' }`;
+		} else if (column.name === 'link') {
+			parsedValue = 'View Run';
+		}
+
+		return parsedValue;
+	}
 </script>
 
 
@@ -83,6 +92,7 @@
 		border-bottom: 0.5px solid #c8c7cc;
 
 		&.header {
+			margin-top: 20px;
 			font-weight: 700;
 		}
 	}
@@ -90,13 +100,14 @@
 	a.row {
 		position: relative;
 		text-decoration: none;
+		color: unset;
 
 		&::after {
 			inset: 0px;
 			position: absolute;
 			content: '';
 			opacity: 0;
-			transition: background-color 200ms linear, opacity 200ms linear;
+			transition: background-color 150ms linear, opacity 150ms linear;
 			z-index: -1;
 		}
 
@@ -147,7 +158,7 @@
 	class="table-container"
 	style='--grid-template-columns:{ parseGridTemplateColumns() };'
 >
-	<ion-card-subtitle>Pipeline Name</ion-card-subtitle>
+	<ion-card-subtitle>{ data.pipeline?.name ?? '' }</ion-card-subtitle>
 
 	<ion-card-title>All Pipeline Runs</ion-card-title>
 
@@ -161,7 +172,7 @@
 		{/each}
 	</div>
 
-	{#each runs as run }
+	{#each data.runs ?? [] as run }
 		<a
 			class="row"
 			href="/run/{ run.id }"
@@ -171,13 +182,17 @@
 
 				<div
 					class="cell { column.name.replace('.', '-') }"
-					title={ value ?? undefined }
+					title={ parseCellTitle(column, value) }
 				>
 					{#if column.name === 'status' }
 						<StatusIcon
 							size="small"
 							status={ run[ column.name ] }
 						/>
+					{:else if column.name === 'started' }
+						{ getTimeString(value) }
+					{:else if column.name === 'machineTime' }
+						{ lapsed(value, true) }
 					{:else if column.name === 'link' }
 						<ion-icon
 							icon={ chevronForwardOutline }

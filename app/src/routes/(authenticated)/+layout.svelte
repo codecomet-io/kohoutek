@@ -9,20 +9,6 @@
 
 	export let data : LayoutData;
 
-	let run : undefined | Run;
-	let runs : undefined | Run[];
-	let recentRuns : undefined | Run[];
-
-	let pipelineId : undefined | string;
-
-	$: {
-		run = data.run;
-		runs = data.runs;
-		recentRuns = data.recentRuns;
-
-		pipelineId = run?.pipeline.id ?? runs?.[0]?.pipeline.id;
-	}
-
 	let ionMenu : HTMLIonMenuElement;
 
 	function closeMenu(event : any) {
@@ -124,14 +110,16 @@
 			<CodeCometLogo />
 
 			<ion-breadcrumbs>
-				<ion-breadcrumb href="#">All Pipelines</ion-breadcrumb>
+				<ion-breadcrumb href="/pipelines">All Pipelines</ion-breadcrumb>
 
-				{#if pipelineId }
-					<ion-breadcrumb href="/pipeline/{ pipelineId }/runs">All Pipeline Runs</ion-breadcrumb>
+				{#if data.pipeline }
+					<ion-breadcrumb disabled={ true }>{ data.pipeline.name }</ion-breadcrumb>
+
+					<ion-breadcrumb href="/pipeline/{ data.pipeline.id }/runs">All Pipeline Runs</ion-breadcrumb>
 				{/if}
 
-				{#if run }
-					<ion-breadcrumb href="/run/{ run.id }">This Run</ion-breadcrumb>
+				{#if data.run }
+					<ion-breadcrumb href="/run/{ data.run.id }">This Run</ion-breadcrumb>
 				{/if}
 			</ion-breadcrumbs>
 		</div>
@@ -153,7 +141,7 @@
 <ion-content>
 	<ion-split-pane
 		content-id="main"
-		disabled={ !(recentRuns && recentRuns.length > 0) }
+		disabled={ !(data.recentRuns && data.recentRuns.length > 0) }
 	>
 		<ion-menu
 			content-id="main"
@@ -163,24 +151,24 @@
 			<ion-content>
 				<ion-list>
 					<ion-item-group class="mobile-only">
-						<ion-item href="#">
+						<ion-item href="/pipelines">
 							<ion-label>All Pipelines</ion-label>
 						</ion-item>
 
-						{#if pipelineId }
-							<ion-item href="/pipeline/{ pipelineId }/runs">
+						{#if data.pipeline?.id }
+							<ion-item href="/pipeline/{ data.pipeline?.id }/runs">
 								<ion-label>All Pipeline Runs</ion-label>
 							</ion-item>
 						{/if}
 					</ion-item-group>
 
-					{#if recentRuns && recentRuns.length > 0 }
+					{#if data.recentRuns && data.recentRuns.length > 0 }
 						<ion-item-group>
 							<ion-item-divider>
 								<ion-label>Recent Runs</ion-label>
 							</ion-item-divider>
 
-							{#each recentRuns as recentRun }
+							{#each data.recentRuns as recentRun }
 								<ion-item href="/run/{ recentRun.id }">
 									<StatusIcon
 										size="small"

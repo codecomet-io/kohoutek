@@ -3,7 +3,7 @@
 	import type { Run } from '../../../../../../../pantry/src/lib/model';
 
 	import { get, getDateString, getTimeString, lapsed } from 'briznads-helpers';
-	import { chevronForwardOutline } from 'ionicons/icons';
+	import { chevronForwardOutline, arrowUpOutline } from 'ionicons/icons';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import Ago from '$lib/components/Ago.svelte';
@@ -17,6 +17,8 @@
 
 
 	export let data : PageData;
+
+	$: sortRuns(data.runs);
 
 	const columns : Column[] = [
 		{
@@ -50,6 +52,53 @@
 		},
 	];
 
+	let activeSort : string = 'started';
+	let sort : 'ascending' | 'descending' = 'descending';
+	let runs : Run[];
+
+	function sortRuns(possibleRuns? : Run[]) : void {
+		const unsortedRuns = possibleRuns ?? runs;
+
+		if (!unsortedRuns) {
+			return;
+		}
+
+		unsortedRuns.sort(doSortRun);
+
+		runs = unsortedRuns;
+	}
+
+	function doSortRun(a : Run, b : Run) : number {
+		const aValue = getSortValue(a);
+		const bValue = getSortValue(b);
+
+		if (aValue > bValue) {
+			return sort === 'ascending'
+				? 1
+				: -1;
+		}
+
+		if (aValue < bValue) {
+			return sort === 'ascending'
+				? -1
+				: 1;
+		}
+
+		return 0;
+	}
+
+	function getSortValue(run : Run) : any {
+		let value = get(run, activeSort.split('.'));
+
+		if (value == undefined) {
+			value = '';
+		} else if (typeof value === 'string') {
+			value = value.toLowerCase();
+		}
+
+		return value;
+	}
+
 	function parseGridTemplateColumns() : string {
 		const percentArr = [];
 
@@ -77,6 +126,17 @@
 
 		return parsedValue;
 	}
+
+	function handleSortClick(name : string) : void {
+		if (activeSort === name) {
+			sort = sort === 'ascending' ? 'descending' : 'ascending';
+		} else {
+			activeSort = name;
+			sort = 'ascending';
+		}
+
+		sortRuns();
+	}
 </script>
 
 
@@ -90,10 +150,63 @@
 		grid-template-columns: var(--grid-template-columns);
 		align-items: center;
 		border-bottom: 0.5px solid #c8c7cc;
+	}
 
-		&.header {
-			margin-top: 20px;
-			font-weight: 700;
+	.header {
+		margin-top: 20px;
+		font-weight: 700;
+
+		.cell {
+			display: flex;
+			align-items: center;
+			padding-right: 0.25em;
+		}
+
+		.label {
+			display: block;
+			line-height: 22px;
+			padding-right: 0.25em;
+			flex-shrink: 1;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+	}
+
+	.sort-button {
+		--padding-start: 0;
+		--padding-end: 0;
+
+		height: 22px;
+		width: 22px;
+		margin: 0;
+		flex-grow: 0;
+		flex-shrink: 0;
+		opacity: 0;
+		max-width: 0;
+		transform-origin: center;
+		transition-property: max-width, transform, opacity;
+		transition-duration: 0ms, 250ms, 250ms;
+		transition-delay: 250ms, 250ms, 0ms;
+		transition-timing-function: linear;
+
+		.cell:hover &,
+		&.active {
+			max-width: 22px;
+			transition-delay: 0ms;
+		}
+
+		.cell:hover &:not(.active) {
+			opacity: 0.5;
+		}
+
+		&.active {
+			opacity: 1;
+		}
+
+		&.descending {
+			transform: rotate(180deg);
+			transition-delay: 0ms;
 		}
 	}
 
@@ -118,6 +231,14 @@
 				opacity: 0.04;
 			}
 		}
+
+		.cell {
+			&.status,
+			&.link {
+				display: flex;
+				justify-content: center;
+			}
+		}
 	}
 
 	.cell {
@@ -136,15 +257,6 @@
 
 		&.invisible {
 			visibility: hidden;
-		}
-
-		&.status,
-		&.link {
-			display: flex;
-		}
-
-		&.status {
-			justify-content: center;
 		}
 	}
 
@@ -168,11 +280,29 @@
 				class="cell { column.name.replace('.', '-') }"
 				class:invisible={ column.showHeader === false }
 				title={ column.name }
-			>{ column.name }</div>
+			>
+				<span class="label">{ column.name }</span>
+
+				<ion-button
+					fill="clear"
+					size="small"
+					color="medium"
+					class="sort-button"
+					class:active={ activeSort === column.name }
+					class:descending={ activeSort === column.name && sort === 'descending' }
+					on:click={ () => handleSortClick(column.name) }
+					on:keydown={ () => handleSortClick(column.name) }
+				>
+					<ion-icon
+						slot="icon-only"
+						icon={ arrowUpOutline }
+					></ion-icon>
+				</ion-button>
+			</div>
 		{/each}
 	</div>
 
-	{#each data.runs ?? [] as run }
+	{#each runs ?? [] as run }
 		<a
 			class="row"
 			href="/run/{ run.id }"

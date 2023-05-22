@@ -1,12 +1,13 @@
 <script lang="ts">
+	import type { AnyMap, QueryOptions } from 'briznads-helpers';
+
 	import type { PageData } from './$types';
 	import type { Run } from '../../../../../../../pantry/src/lib/model';
 
-	import { get, getDateString, getTimeString, lapsed } from 'briznads-helpers';
-	import { chevronForwardOutline, arrowUpOutline } from 'ionicons/icons';
+	import { get, getDateString, getTimeString, lapsed, isEmpty, removeEmptyItems, deepCopy, Query } from 'briznads-helpers';
+	import { chevronForwardOutline, arrowUpOutline, filter, closeCircle } from 'ionicons/icons';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import Ago from '$lib/components/Ago.svelte';
 
 
 	type Column = {
@@ -15,46 +16,91 @@
 		showHeader? : boolean;
 	};
 
+	type AddFilterInfo = {
+		key : string;
+		finiteValues : false | string[];
+		value? : any;
+	};
+
 
 	export let data : PageData;
 
-	$: sortRuns(data.runs);
-
-	const columns : Column[] = [
-		{
-			name : 'status',
+	const columnMap : { [ key : string ] : Column } = {
+		'status' : {
+			name : 'Status',
 			size : 0.5,
 		},
-		{
-			name : 'name',
+		'name' : {
+			name : 'Name',
 			size : 2.5,
 		},
-		{
-			name : 'started',
+		'started' : {
+			name : 'Started',
 		},
-		{
-			name : 'machineTime',
+		'machineTime' : {
+			name : 'Machine Time',
 		},
-		{
-			name : 'actor.name',
+		'actor.name' : {
+			name : 'Actor Name',
 		},
-		{
-			name : 'trigger',
+		'trigger' : {
+			name : 'Trigger',
 		},
-		{
-			name : 'erroredActionName',
+		'erroredActionName' : {
+			name : 'Errored Action',
 			size : 2,
 		},
-		{
-			name : 'link',
+		'link' : {
+			name : 'Link',
 			size : 0.3,
 			showHeader : false,
 		},
-	];
+	};
 
 	let activeSort : string = 'started';
 	let sort : 'ascending' | 'descending' = 'descending';
 	let runs : Run[];
+
+	$: initRuns();
+
+	function initRuns() : void {
+		if (!data.runs) {
+			return;
+		}
+
+		filterRuns(deepCopy(data.runs));
+	}
+
+	function filterRuns(possibleRuns? : Run[]) : void {
+		let unfilteredRuns = possibleRuns ?? runs;
+
+		if (!unfilteredRuns) {
+			return;
+		}
+
+		for (const filter of filters) {
+			const queryOptions : QueryOptions = finiteFilterValuesMap[ filter ]
+				? {
+					matchPartialWords   : false,
+					disregardQueryOrder : false,
+					caseInsensitive     : false,
+				}
+				: {
+					matchPartialWords   : true,
+					disregardQueryOrder : true,
+					caseInsensitive     : true,
+				};
+
+			unfilteredRuns = Query.matchObject(
+				unfilteredRuns,
+				filterMap[ filter ],
+				filter,
+				queryOptions,
+			);
+		}
+
+		sortRuns(unfilteredRuns);
+	}
 
 	function sortRuns(possibleRuns? : Run[]) : void {
 		const unsortedRuns = possibleRuns ?? runs;
@@ -102,9 +148,10 @@
 	function parseGridTemplateColumns() : string {
 		const percentArr = [];
 
-		const totalColumnSpaces = columns.reduce((total, column) => total + (column.size ?? 1), 0);
+		const totalColumnSpaces = Object.values(columnMap)
+			.reduce((total, column) => total + (column.size ?? 1), 0);
 
-		for (const column of columns) {
+		for (const column of Object.values(columnMap)) {
 			const percent = 100 / totalColumnSpaces * (column.size ?? 1);
 
 			percentArr.push(`${ percent }%`);
@@ -113,14 +160,14 @@
 		return percentArr.join(' ');
 	}
 
-	function parseCellTitle(column : Column, value : any) : string {
+	function parseCellTitle(key : string, value : any) : string {
 		let parsedValue = value?.toString();
 
-		if (column.name === 'started') {
+		if (key === 'started') {
 			parsedValue = getDateString(value);
-		} else if (column.name === 'machineTime') {
+		} else if (key === 'machineTime') {
 			parsedValue += ` millisecond${ value === 1 ? '' : 's' }`;
-		} else if (column.name === 'link') {
+		} else if (key === 'link') {
 			parsedValue = 'View Run';
 		}
 
@@ -137,12 +184,122 @@
 
 		sortRuns();
 	}
+
+	let filterMap : AnyMap = {};
+	let filters : string[] = [];
+
+	let addFilterModalElement : HTMLIonModalElement;
+	let addFilterInfo : undefined | AddFilterInfo;
+
+	const finiteFilterValuesMap : { [ key : string ] : false | any[] } = {};
+
+	function handleAddFilter(key : string) : void {
+		addFilterInfo = parseAddFilterInfo(key);
+
+		addFilterModalElement.present();
+	}
+
+	function parseAddFilterInfo(key : string) : AddFilterInfo {
+		const finiteValues = parseFiniteFilterValues(key);
+
+		return {
+			key,
+			finiteValues,
+		};
+	}
+
+	function parseFiniteFilterValues(key : string) : false | string[] {
+		let finiteValuesMap : { [ key : string ] : true } = {};
+
+		for (const run of runs) {
+			const value = get(run, key.split('.'));
+
+			if (value == undefined) {
+				continue;
+			}
+
+			finiteValuesMap[ value ] = true;
+
+			if (Object.keys(finiteValuesMap).length > 10) {
+				finiteValuesMap = {};
+
+				break;
+			}
+		}
+
+		let finiteValues : false | string[] = Object.keys(finiteValuesMap);
+
+		if (finiteValues.length === 0) {
+			finiteValues = false;
+		}
+
+		if (finiteValues) {
+			finiteValues.sort();
+		}
+
+		finiteFilterValuesMap[ key ] = finiteValues;
+
+		return finiteValues;
+	}
+
+	function handleCancelAddFilter() : void {
+		addFilterInfo = undefined;
+
+		addFilterModalElement.dismiss();
+	}
+
+	function handleFilterValueChange(event : any) : void {
+		if (!addFilterInfo) {
+			return;
+		}
+
+		addFilterInfo.value = event?.detail?.value;
+	}
+
+	function handleConfirmAddFilter() : void {
+		if (!addFilterInfo) {
+			return;
+		}
+
+		filterMap[ addFilterInfo.key ] = addFilterInfo.value;
+
+		updateFilters();
+
+		handleCancelAddFilter();
+
+		filterRuns();
+	}
+
+	function updateFilters() : void {
+		filterMap = filterMap;
+
+		filters = removeEmptyItems(Object.keys(filterMap));
+	}
+
+	function handleRemoveFilter(key : string) : void {
+		delete filterMap[ key ];
+
+		updateFilters();
+
+		initRuns();
+	}
 </script>
 
 
 <style lang="scss">
 	.table-container {
 		padding: 20px;
+	}
+
+	.filter-container {
+		display: flex;
+		align-items: center;
+		margin-top: 10px;
+		margin-bottom: 10px;
+
+		:first-child {
+			margin-left: 0;
+		}
 	}
 
 	.row {
@@ -153,7 +310,6 @@
 	}
 
 	.header {
-		margin-top: 20px;
 		font-weight: 700;
 
 		.cell {
@@ -274,10 +430,111 @@
 
 	<ion-card-title>All Pipeline Runs</ion-card-title>
 
+	<div class="filter-container">
+		{#each filters as filterKey }
+			<ion-chip
+				on:click={ () => handleRemoveFilter(filterKey) }
+				on:keydown={ () => handleRemoveFilter(filterKey) }
+			>
+				<ion-label><strong>{ columnMap[ filterKey ].name }:</strong> { filterMap[ filterKey ] }</ion-label>
+
+				<ion-icon
+					icon={ closeCircle }
+					color="dark"
+				></ion-icon>
+			</ion-chip>
+		{/each}
+
+		<ion-button
+			id="add-filter-popover-trigger"
+			color="dark"
+			size="small"
+			fill="outline"
+		>
+			<ion-icon
+				slot="start"
+				size="small"
+				icon={ filter }
+			></ion-icon>
+
+			Add Filter
+		</ion-button>
+
+		<ion-popover
+			trigger="add-filter-popover-trigger"
+			dismiss-on-select={ true }
+		>
+			<ion-content>
+				<ion-list>
+					{#each Object.entries(columnMap) as [ key, column ], index }
+						<ion-item
+							button={ true }
+							detail={ false }
+							lines={ index === Object.keys(columnMap).length - 1 ? 'none' : 'inset' }
+							disabled={ filterMap[ key ] != null }
+							on:click={ () => handleAddFilter(key)}
+							on:keydown={ () => handleAddFilter(key)}
+						>{ column.name }</ion-item>
+					{/each }
+				</ion-list>
+			</ion-content>
+		</ion-popover>
+
+		<ion-modal bind:this={ addFilterModalElement }>
+			{#if addFilterInfo?.key }
+				<ion-header>
+					<ion-toolbar>
+						<ion-buttons slot="start">
+							<ion-button
+								on:click={ handleCancelAddFilter }
+								on:keydown={ handleCancelAddFilter }
+							>Cancel</ion-button>
+						</ion-buttons>
+
+						<ion-title>Add { columnMap[ addFilterInfo.key ].name } Filter</ion-title>
+
+						<ion-buttons slot="end">
+							<ion-button
+								strong={ true }
+								disabled={ isEmpty(addFilterInfo.value, { includeEmptyString : true }) }
+								on:click={ handleConfirmAddFilter }
+								on:keydown={ handleConfirmAddFilter }
+							>Confirm</ion-button>
+						</ion-buttons>
+					</ion-toolbar>
+				</ion-header>
+
+				<ion-content>
+					{#if addFilterInfo.finiteValues }
+						<ion-list>
+							<ion-radio-group on:ionChange={ handleFilterValueChange }>
+								{#each addFilterInfo.finiteValues as value }
+									<ion-item>
+										<ion-radio value={ value }>{ value }</ion-radio>
+									</ion-item>
+								{/each}
+							</ion-radio-group>
+						</ion-list>
+					{:else}
+						<ion-item>
+							<ion-label position="stacked">Filter By Query</ion-label>
+
+							<ion-input
+								aria-label="Filter By Query"
+								placeholder="Enter text"
+								on:ionInput={ handleFilterValueChange }
+							></ion-input>
+						</ion-item>
+					{/if}
+				</ion-content>
+			{/if}
+		</ion-modal>
+	</div>
+
   <div class="row header">
-		{#each columns as column }
+		{#each Object.entries(columnMap) as [ key, column ] }
 			<div
-				class="cell { column.name.replace('.', '-') }"
+				class="cell { key.replace('.', '-') }"
 				class:invisible={ column.showHeader === false }
 				title={ column.name }
 			>
@@ -288,10 +545,10 @@
 					size="small"
 					color="medium"
 					class="sort-button"
-					class:active={ activeSort === column.name }
-					class:descending={ activeSort === column.name && sort === 'descending' }
-					on:click={ () => handleSortClick(column.name) }
-					on:keydown={ () => handleSortClick(column.name) }
+					class:active={ activeSort === key }
+					class:descending={ activeSort === key && sort === 'descending' }
+					on:click={ () => handleSortClick(key) }
+					on:keydown={ () => handleSortClick(key) }
 				>
 					<ion-icon
 						slot="icon-only"
@@ -307,23 +564,23 @@
 			class="row"
 			href="/run/{ run.id }"
 		>
-			{#each columns as column }
-				{@const value = get(run, column.name.split('.')) }
+			{#each Object.entries(columnMap) as [ key, column ] }
+				{@const value = get(run, key.split('.')) }
 
 				<div
-					class="cell { column.name.replace('.', '-') }"
-					title={ parseCellTitle(column, value) }
+					class="cell { key.replace('.', '-') }"
+					title={ parseCellTitle(key, value) }
 				>
-					{#if column.name === 'status' }
+					{#if key === 'status' }
 						<StatusIcon
 							size="small"
-							status={ run[ column.name ] }
+							status={ value }
 						/>
-					{:else if column.name === 'started' }
+					{:else if key === 'started' }
 						{ getTimeString(value) }
-					{:else if column.name === 'machineTime' }
+					{:else if key === 'machineTime' }
 						{ lapsed(value, true) }
-					{:else if column.name === 'link' }
+					{:else if key === 'link' }
 						<ion-icon
 							icon={ chevronForwardOutline }
 							color="medium"

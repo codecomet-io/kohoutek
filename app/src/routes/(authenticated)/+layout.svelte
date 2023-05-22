@@ -11,9 +11,7 @@
 
 	let ionMenu : HTMLIonMenuElement;
 
-	function closeMenu(event : any) {
-		console.debug(event);
-
+	function closeMenu() {
 		ionMenu.close();
 	}
 </script>
@@ -146,17 +144,24 @@
 		<ion-menu
 			content-id="main"
 			bind:this={ ionMenu }
-			on:click={ closeMenu }
 		>
 			<ion-content>
 				<ion-list>
 					<ion-item-group class="mobile-only">
-						<ion-item href="/pipelines">
+						<ion-item
+							href="/pipelines"
+							on:click={ closeMenu }
+							on:keydown={ closeMenu }
+						>
 							<ion-label>All Pipelines</ion-label>
 						</ion-item>
 
 						{#if data.pipeline?.id }
-							<ion-item href="/pipeline/{ data.pipeline?.id }/runs">
+							<ion-item
+								href="/pipeline/{ data.pipeline?.id }/runs"
+								on:click={ closeMenu }
+								on:keydown={ closeMenu }
+							>
 								<ion-label>All Pipeline Runs</ion-label>
 							</ion-item>
 						{/if}
@@ -169,7 +174,11 @@
 							</ion-item-divider>
 
 							{#each data.recentRuns as recentRun }
-								<ion-item href="/run/{ recentRun.id }">
+								<ion-item
+									href="/run/{ recentRun.id }"
+									on:click={ closeMenu }
+									on:keydown={ closeMenu }
+								>
 									<StatusIcon
 										size="small"
 										status={ recentRun.status }
@@ -198,6 +207,8 @@
 							<ion-button
 								size="small"
 								fill="clear"
+								on:click={ closeMenu }
+								on:keydown={ closeMenu }
 							>Sign Out</ion-button>
 						</ion-item>
 					</ion-item-group>

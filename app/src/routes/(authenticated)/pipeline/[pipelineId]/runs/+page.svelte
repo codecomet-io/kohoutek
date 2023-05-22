@@ -287,10 +287,6 @@
 
 
 <style lang="scss">
-	.table-container {
-		padding: 20px;
-	}
-
 	.filter-container {
 		display: flex;
 		align-items: center;
@@ -302,9 +298,25 @@
 		}
 	}
 
+	ion-modal {
+		@media (min-width: 992px) {
+			--width: calc(100% / 3);
+			--height: calc(100% / 3);
+		}
+	}
+
+	.table-wrapper {
+		overflow-x: auto;
+		margin-left: -16px;
+		margin-right: -16px;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
 	.row {
 		display: grid;
 		grid-template-columns: var(--grid-template-columns);
+		min-width: 768px;
 		align-items: center;
 		border-bottom: 0.5px solid #c8c7cc;
 	}
@@ -394,6 +406,18 @@
 				display: flex;
 				justify-content: center;
 			}
+
+			&.status {
+				justify-content: start;
+
+				@media (min-width: 768px) {
+					padding-left: 0.5em;
+				}
+			}
+
+			&.link {
+				justify-content: end;
+			}
 		}
 	}
 
@@ -422,8 +446,9 @@
 </style>
 
 
-<div
-	class="table-container"
+<ion-content
+	class="ion-padding"
+	fullscreen={ true }
 	style='--grid-template-columns:{ parseGridTemplateColumns() };'
 >
 	<ion-card-subtitle>{ data.pipeline?.name ?? '' }</ion-card-subtitle>
@@ -491,7 +516,7 @@
 							>Cancel</ion-button>
 						</ion-buttons>
 
-						<ion-title>Add { columnMap[ addFilterInfo.key ].name } Filter</ion-title>
+						<ion-title>Filter By { columnMap[ addFilterInfo.key ].name }</ion-title>
 
 						<ion-buttons slot="end">
 							<ion-button
@@ -531,65 +556,67 @@
 		</ion-modal>
 	</div>
 
-  <div class="row header">
-		{#each Object.entries(columnMap) as [ key, column ] }
-			<div
-				class="cell { key.replace('.', '-') }"
-				class:invisible={ column.showHeader === false }
-				title={ column.name }
-			>
-				<span class="label">{ column.name }</span>
-
-				<ion-button
-					fill="clear"
-					size="small"
-					color="medium"
-					class="sort-button"
-					class:active={ activeSort === key }
-					class:descending={ activeSort === key && sort === 'descending' }
-					on:click={ () => handleSortClick(key) }
-					on:keydown={ () => handleSortClick(key) }
-				>
-					<ion-icon
-						slot="icon-only"
-						icon={ arrowUpOutline }
-					></ion-icon>
-				</ion-button>
-			</div>
-		{/each}
-	</div>
-
-	{#each runs ?? [] as run }
-		<a
-			class="row"
-			href="/run/{ run.id }"
-		>
+	<div class="table-wrapper">
+		<div class="row header">
 			{#each Object.entries(columnMap) as [ key, column ] }
-				{@const value = get(run, key.split('.')) }
-
 				<div
 					class="cell { key.replace('.', '-') }"
-					title={ parseCellTitle(key, value) }
+					class:invisible={ column.showHeader === false }
+					title={ column.name }
 				>
-					{#if key === 'status' }
-						<StatusIcon
-							size="small"
-							status={ value }
-						/>
-					{:else if key === 'started' }
-						{ getTimeString(value) }
-					{:else if key === 'machineTime' }
-						{ lapsed(value, true) }
-					{:else if key === 'link' }
+					<span class="label">{ column.name }</span>
+
+					<ion-button
+						fill="clear"
+						size="small"
+						color="medium"
+						class="sort-button"
+						class:active={ activeSort === key }
+						class:descending={ activeSort === key && sort === 'descending' }
+						on:click={ () => handleSortClick(key) }
+						on:keydown={ () => handleSortClick(key) }
+					>
 						<ion-icon
-							icon={ chevronForwardOutline }
-							color="medium"
+							slot="icon-only"
+							icon={ arrowUpOutline }
 						></ion-icon>
-					{:else}
-						{ value ?? '' }
-					{/if}
+					</ion-button>
 				</div>
 			{/each}
-		</a>
-	{/each}
-</div>
+		</div>
+
+		{#each runs ?? [] as run }
+			<a
+				class="row"
+				href="/run/{ run.id }"
+			>
+				{#each Object.entries(columnMap) as [ key, column ] }
+					{@const value = get(run, key.split('.')) }
+
+					<div
+						class="cell { key.replace('.', '-') }"
+						title={ parseCellTitle(key, value) }
+					>
+						{#if key === 'status' }
+							<StatusIcon
+								size="small"
+								status={ value }
+							/>
+						{:else if key === 'started' }
+							{ getTimeString(value) }
+						{:else if key === 'machineTime' }
+							{ lapsed(value, true) }
+						{:else if key === 'link' }
+							<ion-icon
+								icon={ chevronForwardOutline }
+								color="medium"
+							></ion-icon>
+						{:else}
+							{ value ?? '' }
+						{/if}
+					</div>
+				{/each}
+			</a>
+		{/each}
+	</div>
+</ion-content>

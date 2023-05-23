@@ -1,6 +1,6 @@
 import type { Action, User } from './model.js';
 
-import { RunStatus, ActionStatus } from './model.js';
+import { RunStatus } from './model.js';
 
 
 export class DataMocker {
@@ -200,12 +200,26 @@ export class DataMocker {
 	constructor() {}
 
 
+	private getRandomFloat() : number {
+		return typeof crypto?.getRandomValues === 'function'
+		 ? this.getRandomCryptoFloat()
+		 : Math.random();
+	}
+
+	private getRandomCryptoFloat() : number {
+		const arr = new Uint32Array(1);
+
+		crypto.getRandomValues(arr);
+
+		return arr[0] / 0x100000000;
+	}
+
 	private getRandomElement(arr : any[]) : any {
-		return arr[ Math.floor(Math.random() * arr.length) ];
+		return arr[ Math.floor(this.getRandomFloat() * arr.length) ];
 	}
 
 	private getRandomIntegerFromInterval(min : number, max : number) : number { // min and max included
-		return Math.floor(Math.random() * (max - min + 1) + min);
+		return Math.floor(this.getRandomFloat() * (max - min + 1) + min);
 	}
 
 	name() : string {

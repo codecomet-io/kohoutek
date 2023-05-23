@@ -87,6 +87,8 @@ app.{$ROOT_DOMAIN} {
 		not path {$HACK}
 		not path /node_modules/*
 		not path /src/*
+		not path /_app/*
+		not path *__data.json
 	}
 
 	route @requireauth {

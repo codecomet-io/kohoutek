@@ -64,7 +64,7 @@ auth.{$ROOT_DOMAIN} {
 
 	authenticate with codecometauthentication
 
-	header Access-Control-Allow-Origin "https://kohoutek.{$ROOT_DOMAIN}"
+	header Access-Control-Allow-Origin "https://app.{$ROOT_DOMAIN}"
 	header Access-Control-Allow-Credentials true
 }
 
@@ -72,7 +72,21 @@ app.{$ROOT_DOMAIN} {
 	tls internal
 
 	@requireauth {
-		not path /login*
+		not path /
+		not path *.js
+		not path *.css
+		not path *.svg
+		not path *.png
+		not path *.jpg
+		not path *.jpeg
+		not path *.gif
+		not path *.webp
+		not path /login/*
+		not path /anonymous-run/*
+		not path /.svelte-kit/*
+		not path {$HACK}
+		not path /node_modules/*
+		not path /src/*
 	}
 
 	route @requireauth {

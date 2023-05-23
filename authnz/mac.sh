@@ -11,6 +11,7 @@ mkdir -p "$_here"/run
 export JWT_SHARED_KEY="$_here/$JWT_SHARED_KEY"
 export RUN_ROOT="$_here"/run
 export WEB_ROOT="$_here"/web
+export HACK="/@*"
 
 kohoutek::install(){
   echo "Requirements check"

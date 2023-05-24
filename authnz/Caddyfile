@@ -72,23 +72,7 @@ app.{$ROOT_DOMAIN} {
 	tls internal
 
 	@requireauth {
-		not path /
-		not path *.js
-		not path *.css
-		not path *.svg
-		not path *.png
-		not path *.jpg
-		not path *.jpeg
-		not path *.gif
-		not path *.webp
-		not path /login/*
-		not path /anonymous-run/*
-		not path /.svelte-kit/*
-		not path {$HACK}
-		not path /node_modules/*
-		not path /src/*
-		not path /_app/*
-		not path *__data.json
+	    path /authenticate-github
 	}
 
 	route @requireauth {
@@ -99,6 +83,6 @@ app.{$ROOT_DOMAIN} {
 	reverse_proxy /* {$VITE_BACKEND}
 
 	# Alternatively, serve static files
-	# root * {$WEB_ROOT}
-	# file_server
+	#root * {$WEB_ROOT}
+	#file_server
 }

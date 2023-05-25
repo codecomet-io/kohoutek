@@ -72,7 +72,7 @@ app.{$ROOT_DOMAIN} {
 	tls internal
 
 	@requireauth {
-	    path /login/*
+	    path /login/github
 	}
 
 	route @requireauth {

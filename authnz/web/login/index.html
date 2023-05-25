@@ -4,8 +4,7 @@
         import * as jose from "https://cdnjs.cloudflare.com/ajax/libs/jose/4.14.4/index.js";
 
 
-        let here = location.host.split(".")
-        let authServer = "https://auth." + here.splice(here.length-2, 2).join(".")
+        const authServer = location.origin.replace(/\/[a-z]+\./i, '/auth.');
 
         var getCookie = function (cname) {
             let name = cname + "=";

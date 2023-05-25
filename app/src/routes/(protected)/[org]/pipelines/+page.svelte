@@ -15,7 +15,7 @@
 >
 	<ion-list>
 		{#each data.pipelines ?? [] as pipeline }
-			<ion-item href="/pipeline/{ pipeline.id }/runs">
+			<ion-item href="/{ data.org }/pipeline/{ pipeline.id }/runs">
 				<ion-label>{ pipeline.name }</ion-label>
 			</ion-item>
 		{/each}

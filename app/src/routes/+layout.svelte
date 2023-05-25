@@ -17,6 +17,7 @@
 
 	import 'ionic-svelte/components/ion-accordion';
 	import 'ionic-svelte/components/ion-accordion-group';
+	import 'ionic-svelte/components/ion-alert';
 	import 'ionic-svelte/components/ion-app';
 	import 'ionic-svelte/components/ion-avatar';
 	import 'ionic-svelte/components/ion-badge';
@@ -46,6 +47,8 @@
 	import 'ionic-svelte/components/ion-radio';
 	import 'ionic-svelte/components/ion-radio-group';
 	import 'ionic-svelte/components/ion-row';
+	import 'ionic-svelte/components/ion-select';
+	import 'ionic-svelte/components/ion-select-option';
 	import 'ionic-svelte/components/ion-split-pane';
 	import 'ionic-svelte/components/ion-title';
 	import 'ionic-svelte/components/ion-toolbar';

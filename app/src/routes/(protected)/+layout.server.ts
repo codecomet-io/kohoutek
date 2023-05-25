@@ -1,48 +1,31 @@
 import type { LayoutServerLoad } from './$types';
-
-import * as jose from 'jose';
+import type { GitHubUser } from '$lib/verify-authentication.server';
 
 import { Octokit } from 'octokit';
 
 import { redirect } from '@sveltejs/kit';
 
+import { VerifyAuthentication } from '$lib/verify-authentication.server';
+
 
 export const load = (async ({ params, cookies, url }) => {
-	const token = cookies.get('access_token');
-
 	const { org, pipelineId, runId } = params;
 
-	if (!(token && org)) {
-		return eject(url.pathname);
-	}
+	const verifyAuthentication = new VerifyAuthentication(cookies, (msg : string) => {
+		console.error(msg);
 
-	let decoded;
+		eject(url.pathname);
+	});
 
-	if (token) {
-		decoded = jose.decodeJwt(token);
-	}
+	const gitHubUser : GitHubUser = verifyAuthentication.getGitHubUser();
 
-	if (!decoded) {
-		return eject(url.pathname);
-	}
-
-	const personalAccessToken = <string>decoded.forwarded_token;
-
-	const gitHubUser = {
-		id : <string>decoded.sub,
-		name : <string>decoded.name,
-		profileImage : <string>decoded.picture,
-		repos : <string[]>(await getRepos(personalAccessToken, org)),
-	};
-
-	const { searchParams } = url;
+	gitHubUser.repos = await getRepos(verifyAuthentication.getPersonalAccessToken(), org as string);
 
 	return {
 		org,
 		pipelineId,
 		runId,
 		gitHubUser,
-		searchParams,
 	};
 }) satisfies LayoutServerLoad;
 

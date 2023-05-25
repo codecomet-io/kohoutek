@@ -7,7 +7,7 @@ import type { Pipeline, Run } from '../../../../pantry/src/lib/model';
 import { Firestore } from '$lib/firestore';
 
 
-export const load = (async ({ data }) => {
+export const load = (async ({ data, url }) => {
 	const firestore = new Firestore();
 
 	const userRepos = data?.gitHubUser?.repos;
@@ -36,6 +36,8 @@ export const load = (async ({ data }) => {
 		pipelines = await getPipelinesForUser(firestore, data.org, userRepos);
 	}
 
+	const { searchParams } = url;
+
 	return {
 		...data,
 		pipelines,
@@ -43,6 +45,7 @@ export const load = (async ({ data }) => {
 		run,
 		runs,
 		recentRuns,
+		searchParams,
 	};
 }) satisfies LayoutLoad;
 

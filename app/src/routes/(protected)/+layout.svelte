@@ -1,13 +1,13 @@
 <script lang="ts">
 	import type { LayoutData } from './$types';
 
-	import type { Run } from '../../../../pantry/src/lib/model';
-
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 
 
 	export let data : LayoutData;
+
+	$: console.debug({ data });
 
 	let ionMenu : HTMLIonMenuElement;
 
@@ -108,16 +108,16 @@
 			<CodeCometLogo />
 
 			<ion-breadcrumbs>
-				<ion-breadcrumb href="/pipelines">All Pipelines</ion-breadcrumb>
+				<ion-breadcrumb href="/{ data.org }/pipelines">All Pipelines</ion-breadcrumb>
 
 				{#if data.pipeline }
 					<ion-breadcrumb disabled={ true }>{ data.pipeline.name }</ion-breadcrumb>
 
-					<ion-breadcrumb href="/pipeline/{ data.pipeline.id }/runs">All Pipeline Runs</ion-breadcrumb>
+					<ion-breadcrumb href="/{ data.org }/pipeline/{ data.pipeline.id }/runs">All Pipeline Runs</ion-breadcrumb>
 				{/if}
 
 				{#if data.run }
-					<ion-breadcrumb href="/run/{ data.run.id }">This Run</ion-breadcrumb>
+					<ion-breadcrumb href="/{ data.org }/run/{ data.run.id }">This Run</ion-breadcrumb>
 				{/if}
 			</ion-breadcrumbs>
 		</div>
@@ -125,10 +125,16 @@
 		<ion-buttons slot="end">
 			<div class="user-wrapper">
 				<ion-avatar>
-					<img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+					<img
+						alt="GitHub profile image for { data.gitHubUser?.name }"
+						src={ data.gitHubUser?.profileImage }
+					/>
 				</ion-avatar>
 
-				<ion-button size="small">
+				<ion-button
+					size="small"
+					href="/logout"
+				>
 					Sign Out
 				</ion-button>
 			</div>
@@ -149,7 +155,7 @@
 				<ion-list>
 					<ion-item-group class="mobile-only">
 						<ion-item
-							href="/pipelines"
+							href="/{ data.org }/pipelines"
 							on:click={ closeMenu }
 							on:keydown={ closeMenu }
 						>
@@ -158,7 +164,7 @@
 
 						{#if data.pipeline?.id }
 							<ion-item
-								href="/pipeline/{ data.pipeline?.id }/runs"
+								href="/{ data.org }/pipeline/{ data.pipeline?.id }/runs"
 								on:click={ closeMenu }
 								on:keydown={ closeMenu }
 							>
@@ -175,7 +181,7 @@
 
 							{#each data.recentRuns as recentRun }
 								<ion-item
-									href="/run/{ recentRun.id }"
+									href="/{ data.org }/run/{ recentRun.id }"
 									on:click={ closeMenu }
 									on:keydown={ closeMenu }
 								>
@@ -198,17 +204,19 @@
 						<ion-item>
 							<ion-chip>
 								<ion-avatar>
-									<img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+									<img
+										alt="GitHub profile image for { data.gitHubUser?.name }"
+										src={ data.gitHubUser?.profileImage }
+									/>
 								</ion-avatar>
 
-								<ion-label>Person</ion-label>
+								<ion-label>{ data.gitHubUser?.name }</ion-label>
 							</ion-chip>
 
 							<ion-button
 								size="small"
 								fill="clear"
-								on:click={ closeMenu }
-								on:keydown={ closeMenu }
+								href="/logout"
 							>Sign Out</ion-button>
 						</ion-item>
 					</ion-item-group>

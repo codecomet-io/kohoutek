@@ -677,7 +677,7 @@
 			{#each runs ?? [] as run }
 				<a
 					class="row"
-					href="/run/{ run.id }"
+					href="/{ data.org }/run/{ run.id }"
 				>
 					{#each Object.entries(columnMap) as [ key, column ] }
 						{@const value = get(run, key.split('.')) }

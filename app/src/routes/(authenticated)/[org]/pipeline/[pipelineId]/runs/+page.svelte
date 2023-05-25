@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { AnyMap, QueryOptions } from 'briznads-helpers';
 
-	import type { PageData } from './$types';
-	import type { Run } from '../../../../../../../pantry/src/lib/model';
+	import type { PageData } from '../../../pipeline/[pipelineId]/runs/$types';
+	import type { Run } from '../../../../../../../../pantry/src/lib/model';
 
 	import { get, getDateString, getTimeString, lapsed, isEmpty, removeEmptyItems, deepCopy, Query } from 'briznads-helpers';
-	import { chevronForwardOutline, arrowUpOutline, filter, closeCircle } from 'ionicons/icons';
+	import { chevronForwardOutline, arrowUpOutline, filter, closeCircle, menu } from 'ionicons/icons';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 
@@ -283,6 +283,44 @@
 
 		initRuns();
 	}
+
+	// let ionSelectColumns : HTMLIonSelectElement;
+
+	// const selectColumnsOptions = {
+	// 	header : 'test header',
+	// 	message : 'test message',
+	// 	id : 'test-id',
+	// };
+
+	async function triggerSelectColumnsAlert() : Promise<void> {
+		console.debug('triggerSelectColumnsAlert');
+
+    const alert = document.createElement('ion-alert');
+
+		console.debug(alert);
+
+		alert.header = 'Alert!';
+
+		alert.buttons = [
+      {
+        text: 'Cancel',
+        role: 'cancel',
+      },
+      {
+        text: 'OK',
+        role: 'confirm',
+        handler: () => {
+          console.debug('OK');
+        },
+      },
+    ];
+
+    document.body.appendChild(alert);
+
+		const anything = await alert.present();
+
+		console.debug(anything);
+  }
 </script>
 
 
@@ -298,6 +336,10 @@
 		}
 	}
 
+	.add-filter-popover-trigger {
+		min-height: 32px;
+	}
+
 	ion-modal {
 		@media (min-width: 992px) {
 			--width: calc(100% / 3);
@@ -305,7 +347,7 @@
 		}
 	}
 
-	.table-wrapper {
+	.table-scroll-container {
 		overflow-x: auto;
 		margin-left: -16px;
 		margin-right: -16px;
@@ -314,15 +356,48 @@
 		padding-bottom: 16px;
 	}
 
+	.table-wrapper {
+		position: relative;
+		width: fit-content;
+	}
+
+	.select-columns-trigger {
+		--padding-top: 0;
+		--padding-end: 0;
+		--padding-bottom: 0;
+		--padding-start: 0;
+
+		width: 40px;
+		height: 40px;
+		position: absolute;
+		top: 4px;
+		right: 0;
+		margin: 0;
+
+		ion-icon {
+			transform: rotate(90deg);
+		}
+	}
+
 	.row {
 		display: grid;
 		grid-template-columns: var(--grid-template-columns);
 		min-width: 768px;
 		align-items: center;
-		border-bottom: 0.5px solid #c8c7cc;
+		border-style: solid;
+		border-color: #c8c7cc;
+		border-width: 0 0.5px 0.5px 0.5px;
+
+		&:last-child {
+			border-bottom-left-radius: 5px;
+			border-bottom-right-radius: 5px;
+		}
 	}
 
 	.header {
+		border-top-width: 0.5px;
+		border-top-left-radius: 5px;
+		border-top-right-radius: 5px;
 		font-weight: 700;
 
 		.cell {
@@ -408,33 +483,18 @@
 				justify-content: center;
 			}
 
-			&.status {
-				justify-content: start;
-
-				@media (min-width: 768px) {
-					padding-left: 0.5em;
-				}
-			}
-
 			&.link {
-				justify-content: end;
+				padding-left: 0;
+				padding-right: 0;
 			}
 		}
 	}
 
 	.cell {
-		padding: 0.5em;
+		padding: 12px 1em;
 		overflow: hidden;
 		white-space: nowrap;
 		text-overflow: ellipsis;
-
-		&:first-child {
-			padding-left: 0;
-		}
-
-		&:last-child {
-			padding-right: 0;
-		}
 
 		&.invisible {
 			visibility: hidden;
@@ -472,7 +532,8 @@
 		{/each}
 
 		<ion-button
-			id="add-filter-popover-trigger"
+			class="add-filter-popover-trigger"
+			id="addFilterPopoverTrigger"
 			color="dark"
 			size="small"
 			fill="outline"
@@ -487,7 +548,7 @@
 		</ion-button>
 
 		<ion-popover
-			trigger="add-filter-popover-trigger"
+			trigger="addFilterPopoverTrigger"
 			dismiss-on-select={ true }
 		>
 			<ion-content>
@@ -557,67 +618,95 @@
 		</ion-modal>
 	</div>
 
-	<div class="table-wrapper">
-		<div class="row header">
-			{#each Object.entries(columnMap) as [ key, column ] }
-				<div
-					class="cell { key.replace('.', '-') }"
-					class:invisible={ column.showHeader === false }
-					title={ column.name }
-				>
-					<span class="label">{ column.name }</span>
-
-					<ion-button
-						fill="clear"
-						size="small"
-						color="medium"
-						class="sort-button"
-						class:active={ activeSort === key }
-						class:descending={ activeSort === key && sort === 'descending' }
-						on:click={ () => handleSortClick(key) }
-						on:keydown={ () => handleSortClick(key) }
-					>
-						<ion-icon
-							slot="icon-only"
-							icon={ arrowUpOutline }
-						></ion-icon>
-					</ion-button>
-				</div>
-			{/each}
-		</div>
-
-		{#each runs ?? [] as run }
-			<a
-				class="row"
-				href="/run/{ run.id }"
+	<div class="table-scroll-container">
+		<div class="table-wrapper">
+			<!-- <ion-select
+				class="visually-hidden"
+				bind:this={ ionSelectColumns }
+				placeholder="Select visible columns"
+				multiple={ true }
+				interface-options={ selectColumnsOptions }
 			>
-				{#each Object.entries(columnMap) as [ key, column ] }
-					{@const value = get(run, key.split('.')) }
+				<ion-select-option value="apples">Apples</ion-select-option>
+				<ion-select-option value="oranges">Oranges</ion-select-option>
+				<ion-select-option value="bananas">Bananas</ion-select-option>
+			</ion-select> -->
 
+			<ion-button
+				class="select-columns-trigger"
+				fill="clear"
+				color="dark"
+				size="small"
+				on:click={ triggerSelectColumnsAlert }
+				on:keydown={ triggerSelectColumnsAlert }
+			>
+				<ion-icon
+					slot="icon-only"
+					icon={ menu }
+				></ion-icon>
+			</ion-button>
+
+			<div class="row header">
+				{#each Object.entries(columnMap) as [ key, column ] }
 					<div
 						class="cell { key.replace('.', '-') }"
-						title={ parseCellTitle(key, value) }
+						class:invisible={ column.showHeader === false }
+						title={ column.name }
 					>
-						{#if key === 'status' }
-							<StatusIcon
-								size="small"
-								status={ value }
-							/>
-						{:else if key === 'started' }
-							{ getTimeString(value) }
-						{:else if key === 'machineTime' }
-							{ lapsed(value, true) }
-						{:else if key === 'link' }
+						<span class="label">{ column.name }</span>
+
+						<ion-button
+							fill="clear"
+							size="small"
+							color="medium"
+							class="sort-button"
+							class:active={ activeSort === key }
+							class:descending={ activeSort === key && sort === 'descending' }
+							on:click={ () => handleSortClick(key) }
+							on:keydown={ () => handleSortClick(key) }
+						>
 							<ion-icon
-								icon={ chevronForwardOutline }
-								color="medium"
+								slot="icon-only"
+								icon={ arrowUpOutline }
 							></ion-icon>
-						{:else}
-							{ value ?? '' }
-						{/if}
+						</ion-button>
 					</div>
 				{/each}
-			</a>
-		{/each}
+			</div>
+
+			{#each runs ?? [] as run }
+				<a
+					class="row"
+					href="/run/{ run.id }"
+				>
+					{#each Object.entries(columnMap) as [ key, column ] }
+						{@const value = get(run, key.split('.')) }
+
+						<div
+							class="cell { key.replace('.', '-') }"
+							title={ parseCellTitle(key, value) }
+						>
+							{#if key === 'status' }
+								<StatusIcon
+									size="small"
+									status={ value }
+								/>
+							{:else if key === 'started' }
+								{ getTimeString(value) }
+							{:else if key === 'machineTime' }
+								{ lapsed(value, true) }
+							{:else if key === 'link' }
+								<ion-icon
+									icon={ chevronForwardOutline }
+									color="medium"
+								></ion-icon>
+							{:else}
+								{ value ?? '' }
+							{/if}
+						</div>
+					{/each}
+				</a>
+			{/each}
+		</div>
 	</div>
 </ion-content>

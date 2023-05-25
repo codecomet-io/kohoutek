@@ -201,15 +201,15 @@ export class DataMocker {
 
 
 	private getRandomFloat() : number {
-		return typeof crypto?.getRandomValues === 'function'
-		 ? this.getRandomCryptoFloat()
-		 : Math.random();
+		return typeof globalThis?.crypto?.getRandomValues === 'function'
+			? this.getRandomCryptoFloat()
+			: Math.random();
 	}
 
 	private getRandomCryptoFloat() : number {
 		const arr = new Uint32Array(1);
 
-		crypto.getRandomValues(arr);
+		globalThis.crypto.getRandomValues(arr);
 
 		return arr[0] / 0x100000000;
 	}

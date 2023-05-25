@@ -2,6 +2,12 @@ export type Pipeline = {
 	// generated nanoid of the pipeline
 	id: string
 
+	// the organization that owns the repo that contains the pipeline file
+	org: string
+
+	// name of the git repo, including org, containing the pipeline file
+	repo: string
+
 	// the fully qualified name of the path to a CodeComet pipeline file within a git repo
 	fqn: string
 

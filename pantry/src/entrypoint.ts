@@ -239,10 +239,8 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 	const buffIngester = new BuffIngester();
 	const buildRun : BuildRun = buffIngester.ingest(trace);
 
-	// Suck up metadata - TODO @spacedub: reincorporate metadata into protobuf pipeline definitions instead of separate entity
-	buildRun.pipeline.fqn = metadata.id;
-	buildRun.pipeline.name = metadata.name;
-	buildRun.pipeline.description = metadata.description;
+	// parse pipeline info
+	buildRun.pipeline = parsePipelineInfo(buildRun.pipeline, metadata);
 
 	buildRun.trigger = metadata.trigger;
 	buildRun.actor = metadata.actor;
@@ -330,6 +328,20 @@ export default async function Pantry(buffer: Buffer, trace: Buffer, meta: string
 		}
 
 		break;
+	}
+
+	function parsePipelineInfo(pipeline : Pipeline, metadata : any) : Pipeline {
+		const fqn : string = metadata.id;
+		const fqnArr = fqn.split('/');
+
+		return {
+			...pipeline,
+			fqn,
+			org         : fqnArr[1],
+			repo        : `${ fqnArr[1] }/${ fqnArr[2] }`,
+			name        : metadata.name,
+			description : metadata.description,
+		};
 	}
 
 	const timingInfo : TimingInfo[] = [];

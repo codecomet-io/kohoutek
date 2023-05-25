@@ -95,4 +95,15 @@ export class Firestore {
 
 		return runs;
 	}
+
+	async getPipelinesByOrg(org : string) : Promise<Pipeline[]> {
+		const collectionRef = collection(this.db, 'pipelines');
+
+		const q = query(collectionRef, where('org', '==', org), orderBy('name'));
+
+		const querySnapshot = await getDocs(q);
+
+		return querySnapshot.docs
+			.map((doc) => doc.data() as Pipeline);
+	}
 }

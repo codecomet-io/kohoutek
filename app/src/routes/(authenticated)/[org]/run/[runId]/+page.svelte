@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import type { Run } from '../../../../../../pantry/src/lib/model';
+	import type { Run } from '../../../../../../../pantry/src/lib/model';
 
 	import RunPage from '$lib/components/RunPage.svelte';
 

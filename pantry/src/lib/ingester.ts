@@ -6,7 +6,7 @@ import {
 	VertexLog,
 } from "codecomet-js/source/buildkit-port/client/graph.js";
 import * as model from "./model.js";
-import { ActionStatus, BuildActionsObject, BuildRun, RunStats } from "./model.js";
+import { ActionStatus, BuildRun } from "./model.js";
 
 import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
@@ -16,10 +16,12 @@ class Build implements BuildRun {
 	id = "abcd1234";
 	name = "user-defined name for this run";
 	pipeline = {
-		id : "1234abcd",
-		fqn : "org/repo/pipeline.go",
-		name : "user-defined name for the pipeline",
-		description : "This is our super test plan, and guess what this description can change at any time",
+		id          : '1234abcd',
+		org         : 'org',
+		repo        : 'org/repo',
+		fqn         : 'org/repo/pipeline.go',
+		name        : 'user-defined name for the pipeline',
+		description : 'This is our super test plan, and guess what this description can change at any time',
 	};
 	started = 0;
 	completed = 0;

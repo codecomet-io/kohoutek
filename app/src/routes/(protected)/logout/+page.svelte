@@ -2,14 +2,9 @@
 	import type { PageData } from './$types';
 
 	import { onMount } from 'svelte';
-	import { redirect } from '@sveltejs/kit';
 
 
 	export let data : PageData;
-
-	// setTimeout(() => {
-
-	// }, 3000);
 
 	onMount(() => {
 		if (!data.loggedOut) {
@@ -20,7 +15,7 @@
 
 		window.localStorage.removeItem(localStorageKey);
 
-		throw redirect(303, '/');
+		window.location.replace('/');
 	});
 </script>
 
@@ -32,5 +27,5 @@
 	class="ion-padding"
 	fullscreen={ true }
 >
-	Logout
+	Logging Out…
 </ion-content>

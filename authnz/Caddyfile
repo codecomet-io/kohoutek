@@ -73,6 +73,7 @@ app.{$ROOT_DOMAIN} {
 
 	@requireauth {
 	    path /login/github
+			path /login/gitlab
 	}
 
 	route @requireauth {

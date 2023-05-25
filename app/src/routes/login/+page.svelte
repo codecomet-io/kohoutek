@@ -1,8 +1,16 @@
 <script lang="ts">
+	import type { PageData } from './$types';
+
 	import { logoGithub, logoGitlab } from 'ionicons/icons';
 
 
 	export let data : PageData;
+
+	function parseReturnValue() : string {
+		return data.return_to
+			? `?return_to=${ encodeURIComponent(data.return_to) }`
+			: '';
+	}
 </script>
 
 
@@ -23,7 +31,7 @@
 	<div>
 		<ion-button
 			color="dark"
-			href="/login/github?return_to={ data.return_to ?? '' }"
+			href="/login/github{ parseReturnValue() }"
 			rel="external"
 		>
 			<ion-icon
@@ -39,7 +47,7 @@
 	<div>
 		<ion-button
 			class="gitlab-button"
-			href="/login/gitlab?return_to={ data.return_to ?? '' }"
+			href="/login/gitlab{ parseReturnValue() }"
 			rel="external"
 			disabled={ true }
 		>

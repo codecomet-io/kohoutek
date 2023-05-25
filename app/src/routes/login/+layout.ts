@@ -7,7 +7,7 @@ export const load = (async ({ data, url }) => {
 	const return_to = url?.searchParams?.get('return_to');
 
 	if (data.isAuthenticated) {
-		throw redirect(303, return_to ?? '/');
+		throw redirect(303, return_to || '/');
 	}
 
 	return {

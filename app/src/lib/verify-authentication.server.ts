@@ -4,10 +4,11 @@ import * as jose from 'jose';
 
 
 export type GitHubUser = {
-	id           : string;
-	name         : string;
-	profileImage : string;
-	repos?       : string[];
+	id                  : string;
+	name                : string;
+	profileImage        : string;
+	personalAccessToken : string;
+	repos?              : string[];
 };
 
 
@@ -63,13 +64,10 @@ export class VerifyAuthentication {
 
 	public getGitHubUser() : GitHubUser {
 		return {
-			id           : this.decodedToken.sub as string,
-			name         : this.decodedToken.name as string,
-			profileImage : this.decodedToken.picture as string,
+			id                  : this.decodedToken.sub as string,
+			name                : this.decodedToken.name as string,
+			profileImage        : this.decodedToken.picture as string,
+			personalAccessToken : this.decodedToken.forwarded_token as string,
 		};
-	}
-
-	public getPersonalAccessToken() : string {
-		return this.decodedToken.forwarded_token as string;
 	}
 }

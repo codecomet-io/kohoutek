@@ -1,11 +1,23 @@
 <script lang="ts">
 	import type { LayoutData } from './$types';
 
+	import { onMount } from 'svelte';
+
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 
 
 	export let data : LayoutData;
+
+	onMount(() => {
+		const localStorageKey = 'gitHubUser.repos';
+
+		const storedRepos = window.localStorage.getItem(localStorageKey);
+
+		if (storedRepos) {
+			window.localStorage.setItem(localStorageKey, JSON.stringify(data.gitHubUser.repos));
+		}
+	});
 
 	$: console.debug({ data });
 
@@ -134,6 +146,7 @@
 				<ion-button
 					size="small"
 					href="/logout"
+					rel="external"
 				>
 					Sign Out
 				</ion-button>
@@ -217,6 +230,7 @@
 								size="small"
 								fill="clear"
 								href="/logout"
+								rel="external"
 							>Sign Out</ion-button>
 						</ion-item>
 					</ion-item-group>

@@ -1,45 +1,50 @@
 import type { LayoutLoad } from './$types';
-
-import { error } from '@sveltejs/kit';
-
 import type { Pipeline, Run } from '../../../../pantry/src/lib/model';
 
+import { Octokit } from 'octokit';
+import { error } from '@sveltejs/kit';
+
+import { browser } from '$app/environment';
 import { Firestore } from '$lib/firestore';
 
 
-export const load = (async ({ data, url }) => {
+export const load = (async ({ params, data, url }) => {
+	const { org, pipelineId, runId } = params;
+
+	data.gitHubUser.repos = await getRepos(data.gitHubUser.personalAccessToken, org as string);
+
 	const firestore = new Firestore();
 
-	const userRepos = data?.gitHubUser?.repos;
-
-	// let pipelines : undefined | Pipeline[];
 	let pipelines : undefined | Pipeline[];
 	let pipeline : undefined | Pipeline;
 	let run : undefined | Run;
 	let runs : undefined | Run[];
 	let recentRuns : undefined | Run[];
 
-	if (data.pipelineId) {
-		pipeline = await getPipelineForUser(firestore, data.pipelineId, userRepos);
+	if (pipelineId) {
+		pipeline = await getPipelineForUser(firestore, pipelineId, data.gitHubUser.repos);
 
-		runs = await firestore.getRunsByPipelineId(data.pipelineId);
-	} else if (data.runId) {
-		run = (await firestore.getRun(data.runId)) as Run;
+		runs = await firestore.getRunsByPipelineId(pipelineId);
+	} else if (runId) {
+		run = (await firestore.getRun(runId)) as Run;
 
 		const pipelineId = run?.pipeline?.id;
 
-		pipeline = await getPipelineForUser(firestore, pipelineId, userRepos);
+		pipeline = await getPipelineForUser(firestore, pipelineId, data.gitHubUser.repos);
 
-		recentRuns = await firestore.getRunsByPipelineId(pipelineId, true, 3, data.runId);
-	} else if (data.org) {
+		recentRuns = await firestore.getRunsByPipelineId(pipelineId, true, 3, runId);
+	} else if (org) {
 		// if pipelineId and runId are both undefined, then we're on the all pipelines page
-		pipelines = await getPipelinesForUser(firestore, data.org, userRepos);
+		pipelines = await getPipelinesForUser(firestore, org, data.gitHubUser.repos);
 	}
 
 	const { searchParams } = url;
 
 	return {
 		...data,
+		org,
+		pipelineId,
+		runId,
 		pipelines,
 		pipeline,
 		run,
@@ -48,6 +53,75 @@ export const load = (async ({ data, url }) => {
 		searchParams,
 	};
 }) satisfies LayoutLoad;
+
+async function getRepos(personalAccessToken : string, org : string) : Promise<string[]> {
+	const localStorageKey = 'gitHubUser.repos';
+
+	if (browser) {
+		const storedString = window.localStorage.getItem(localStorageKey);
+
+		if (storedString) {
+			return JSON.parse(storedString);
+		}
+	}
+
+	const repos = await getReposFromGitHub(personalAccessToken, org);
+
+	if (browser) {
+		window.localStorage.setItem(localStorageKey, JSON.stringify(repos));
+	}
+
+	return repos;
+}
+
+async function getReposFromGitHub(
+	personalAccessToken : string,
+	org                 : string,
+	per_page            : number = 100,
+	page                : number = 1,
+	octokit?            : Octokit,
+) : Promise<string[]> {
+	if (!octokit) {
+		octokit = new Octokit({ auth : personalAccessToken });
+	}
+
+	const params = {
+		per_page,
+		page,
+	};
+
+	const paramsString = Object.entries(params)
+		.map((param : [ string, number ]) => param.join('='))
+		.join('&');
+
+	let response;
+
+	try {
+		response = await octokit.request(`GET /orgs/${ org }/repos?${ paramsString }`, {
+			headers : {
+				'X-GitHub-Api-Version' : '2022-11-28',
+			},
+		});
+	} catch (error : any) {
+		if (error?.response) {
+			console.error(`Error! Status: ${ error.response.status }. Message: ${ error.response.data.message }`);
+		}
+
+		console.error(error);
+	}
+
+	let repos = (response?.data ?? [])
+		.map((repo : any) => repo.full_name);
+
+	if (response?.data?.length === per_page) {
+		repos = [
+			...repos,
+			...(await getReposFromGitHub(personalAccessToken, org, per_page, page + 1, octokit)),
+		];
+	}
+
+	return repos;
+}
 
 async function getPipelineForUser(firestore : Firestore, pipelineId : string, repos? : string[]) : Promise<Pipeline> {
 	const pipeline = (await firestore.getPipeline(pipelineId)) as Pipeline;

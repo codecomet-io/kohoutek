@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { AnyMap, QueryOptions } from 'briznads-helpers';
 
-	import type { PageData } from '../../../pipeline/[pipelineId]/runs/$types';
+	import type { PageData } from './$types';
 	import type { Run } from '../../../../../../../../pantry/src/lib/model';
 
 	import { get, getDateString, getTimeString, lapsed, isEmpty, removeEmptyItems, deepCopy, Query } from 'briznads-helpers';

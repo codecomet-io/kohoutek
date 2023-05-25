@@ -15,11 +15,11 @@ export class VerifyAuthentication {
 	private decodedToken! : jose.JWTPayload;
 
 
-	constructor(cookies : Cookies, failureCallback : (msg : string) => void) {
+	constructor(cookies : Cookies, failureCallback : (msg : string) => void = () => {}) {
 		const token = cookies.get('access_token');
 
 		if (!token) {
-			failureCallback('access token not found');
+			this.authFailed('access token not found', failureCallback);
 
 			return;
 		}
@@ -31,18 +31,24 @@ export class VerifyAuthentication {
 		}
 
 		if (!decoded) {
-			failureCallback('unable to decode access token');
+			this.authFailed('unable to decode access token', failureCallback);
 
 			return;
 		}
 
 		if (this.hasTokenExpired(decoded)) {
-			failureCallback('access token has expired');
+			this.authFailed('access token has expired', failureCallback);
 
 			return;
 		}
 
 		this.decodedToken = decoded;
+	}
+
+	private authFailed(message : string, callback : (msg : string) => void) {
+		console.error(message);
+
+		callback(message);
 	}
 
 	private hasTokenExpired(decoded : jose.JWTPayload) : boolean {

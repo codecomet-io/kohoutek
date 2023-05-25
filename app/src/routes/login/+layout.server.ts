@@ -4,9 +4,7 @@ import { VerifyAuthentication } from '$lib/verify-authentication.server';
 
 
 export const load = (async ({ cookies }) => {
-	const verifyAuthentication = new VerifyAuthentication(cookies, (msg : string) => {
-		console.error(msg);
-	});
+	const verifyAuthentication = new VerifyAuthentication(cookies);
 
 	const isAuthenticated : boolean = verifyAuthentication.isAuthenticated();
 

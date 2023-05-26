@@ -29,7 +29,7 @@
 
 		authentication portal codecometauthentication {
 			crypto default token lifetime {env.TOKEN_LIFETIME}
-			crypto key sign-verify {env.JWT_SHARED_KEY}
+			crypto key sign-verify from file {env.JWT_SHARED_KEY}
 			cookie domain {env.ROOT_DOMAIN}
 			cookie insecure on
 			enable identity provider github
@@ -48,7 +48,7 @@
 
 		authorization policy codecometauthorization {
 			set auth url https://auth.{$ROOT_DOMAIN}/auth/oauth2/github/authorization-code-callback
-			crypto key verify {env.JWT_SHARED_KEY}
+			crypto key verify from file {env.JWT_SHARED_KEY}
 			allow roles authp/admin authp/user
 			validate bearer header
 			inject headers with claims

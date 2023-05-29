@@ -168,7 +168,9 @@
 <style lang="scss">
 	.filter-container {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
+		gap: 8px;
 		margin-top: 20px;
 		margin-bottom: 20px;
 
@@ -178,8 +180,7 @@
 
 		ion-button,
 		ion-chip {
-			margin-top: 0;
-			margin-bottom: 0;
+			margin: 0;
 		}
 	}
 

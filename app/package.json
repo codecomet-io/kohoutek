@@ -34,7 +34,11 @@
 	},
 	"dependencies": {
 		"@ionic/core": "^7.0.9",
-		"briznads-helpers": "^1.2.1",
+		"briznads-helpers": "^1.4.0",
+		"d3": "^5.14.2",
+		"d3-array": "^3.2.3",
+		"d3-scale": "^4.0.2",
+		"d3-shape": "^3.2.0",
 		"firebase": "^9.21.0",
 		"ionic-svelte": "^0.5.81",
 		"ionicons": "^6.1.3",

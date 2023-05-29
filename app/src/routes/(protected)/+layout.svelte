@@ -12,11 +12,7 @@
 	onMount(() => {
 		const localStorageKey = 'gitHubUser.repos';
 
-		const storedRepos = window.localStorage.getItem(localStorageKey);
-
-		if (storedRepos) {
-			window.localStorage.setItem(localStorageKey, JSON.stringify(data.gitHubUser.repos));
-		}
+		window.localStorage.setItem(localStorageKey, JSON.stringify(data.gitHubUser.repos));
 	});
 
 	$: console.debug({ data });

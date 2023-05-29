@@ -1,7 +1,9 @@
 <script lang="ts">
 	import type { Run } from '../../../../pantry/src/lib/model';
 
-	import { activeAccordion, activeModal, highlightLine } from '$lib/stores';
+	import { active as activeAccordion } from '$lib/stores/accordion';
+	import { active as activeModal } from '$lib/stores/modal';
+	import { highlight } from '$lib/stores/log-line';
 
 	import RunHeader from '$lib/components/RunHeader.svelte';
 	import IconKey from '$lib/components/IconKey.svelte';
@@ -22,7 +24,7 @@
 
 		activeAccordion.set(active_accordion);
 		activeModal.set(active_modal);
-		highlightLine.active.set(highlight_line);
+		highlight.set(highlight_line);
 
 		scrollTo(active_accordion);
 	}

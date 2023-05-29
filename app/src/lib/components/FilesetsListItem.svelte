@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { FilesetAction } from '../../../../pantry/src/lib/model';
 
-	import { highlightAccordion } from '$lib/stores';
+	import { highlight as highlightAccordion } from '$lib/stores/accordion';
 
 	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
 	import FilesetSpecialFields from '$lib/components/FilesetSpecialFields.svelte';

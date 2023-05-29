@@ -6,7 +6,7 @@
 
 	import { gotoSearchString } from '$lib/helper';
 
-	import { activeAccordion } from '$lib/stores';
+	import { active as activeAccordion } from '$lib/stores/accordion';
 
 	import FilesetsListItem from '$lib/components/FilesetsListItem.svelte';
 	import ActionsListItem from '$lib/components/ActionsListItem.svelte';
@@ -15,8 +15,10 @@
 	export let filesets : FilesetAction[] | undefined = undefined;
 	export let actions : Action[] | undefined = undefined;
 
-	function handleValueChange(id : string, activeAccordion : string) : void {
-		if (id === activeAccordion) {
+	function handleValueChange(event : any) : void {
+		const id = event.detail.value;
+
+		if (id === $activeAccordion) {
 			return;
 		}
 
@@ -32,7 +34,7 @@
 	<ion-accordion-group
 		expand="inset"
 		value={ $activeAccordion }
-		on:ionChange={ (event) => handleValueChange(event.detail.value, $activeAccordion) }
+		on:ionChange={ handleValueChange }
 	>
 		{#if filesets && isListPopulated(filesets) }
 			{#each filesets as fileset }

@@ -1,44 +1,37 @@
 <script lang="ts">
-	import type { AnyMap, QueryOptions } from 'briznads-helpers';
-
 	import type { PageData } from './$types';
-	import type { Run } from '../../../../../../../../pantry/src/lib/model';
+	import type { ColumnMap } from '$lib/types/runs-table';
 
-	import { get, getDateString, getTimeString, lapsed, isEmpty, removeEmptyItems, deepCopy, Query } from 'briznads-helpers';
-	import { chevronForwardOutline, arrowUpOutline, filter, closeCircle, menu } from 'ionicons/icons';
+	import { onMount, onDestroy } from 'svelte';
+	import { get, getDateString, parseDate, getTimeString, lapsed } from 'briznads-helpers';
+	import { chevronForwardOutline, arrowUpOutline, menu } from 'ionicons/icons';
+	import { HEK } from '$lib/helper';
+	import { runsTable } from '$lib/stores/runs-table';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
-
-
-	type Column = {
-		name : string;
-		size? : number;
-		showHeader? : boolean;
-	};
-
-	type AddFilterInfo = {
-		key : string;
-		finiteValues : false | string[];
-		value? : any;
-	};
+	import DataTableFilters from '$lib/components/DataTableFilters.svelte';
+	import DataTableAggregatedData from '$lib/components/DataTableAggregatedData.svelte';
+	import DataTableColumnChooser from '$lib/components/DataTableColumnChooser.svelte';
 
 
 	export let data : PageData;
 
-	const columnMap : { [ key : string ] : Column } = {
+	const initColumnMap : ColumnMap = {
 		'status' : {
 			name : 'Status',
 			size : 0.5,
 		},
 		'name' : {
-			name : 'Name',
-			size : 2.5,
+			name         : 'Name',
+			size         : 2.5,
+			unfilterable : true,
 		},
 		'started' : {
-			name : 'Started',
+			name         : 'Started',
+			unfilterable : true,
 		},
 		'machineTime' : {
-			name : 'Machine Time',
+			name : 'Duration',
 		},
 		'actor.name' : {
 			name : 'Actor Name',
@@ -47,115 +40,76 @@
 			name : 'Trigger',
 		},
 		'erroredActionName' : {
-			name : 'Errored Action',
-			size : 2,
+			name            : 'Errored Action',
+			size            : 2,
+			initiallyHidden : true,
 		},
 		'link' : {
-			name : 'Link',
-			size : 0.3,
-			showHeader : false,
+			name         : 'Link',
+			size         : 0.3,
+			hiddenHeader : true,
+			unfilterable : true,
+			unhideable   : true,
 		},
 	};
 
-	let activeSort : string = 'started';
-	let sort : 'ascending' | 'descending' = 'descending';
-	let runs : Run[];
+	$: if (data.runs) {
+		if (!runsTable.isInitialized) {
+			runsTable.init(initColumnMap, data.runs);
+		}
+	}
 
-	$: initRuns();
+	const {
+		columnMap,
+		selectedColumns,
+		activeSort,
+		selectableColumns,
+		visibleColumns,
+		runs,
+	} = runsTable;
 
-	function initRuns() : void {
-		if (!data.runs) {
+	const localStorageKey = 'pipelineRunsColumns';
+
+	let storedColumnsStr : string | null;
+
+	function initStoredColumns() : void {
+		storedColumnsStr = window.localStorage.getItem(localStorageKey);
+
+		runsTable.initStoredColumns(storedColumnsStr);
+	}
+
+	onMount(initStoredColumns);
+
+	const unsubscribeSelectedColumns = selectedColumns.subscribe(columns => {
+		console.debug('selectedColumns store sub', columns);
+
+		if (storedColumnsStr === undefined || columns.length === 0) {
 			return;
 		}
 
-		filterRuns(deepCopy(data.runs));
+		window.localStorage.setItem(localStorageKey, JSON.stringify(columns));
+	});
+
+	function test(columns : string[]) : void {
+		console.debug('selectedColumns store lazy sub', columns);
 	}
 
-	function filterRuns(possibleRuns? : Run[]) : void {
-		let unfilteredRuns = possibleRuns ?? runs;
+	$: test($selectedColumns);
 
-		if (!unfilteredRuns) {
-			return;
-		}
+	onDestroy(unsubscribeSelectedColumns);
 
-		for (const filter of filters) {
-			const queryOptions : QueryOptions = finiteFilterValuesMap[ filter ]
-				? {
-					matchPartialWords   : false,
-					disregardQueryOrder : false,
-					caseInsensitive     : false,
-				}
-				: {
-					matchPartialWords   : true,
-					disregardQueryOrder : true,
-					caseInsensitive     : true,
-				};
+	function parseGridTemplateColumns(visibleColumns : string[]) : string {
+		const totalColumnSpaces = visibleColumns
+			.reduce((sum : number, key : string) => sum + ($columnMap?.[ key ].size ?? 1), 0);
 
-			unfilteredRuns = Query.matchObject(
-				unfilteredRuns,
-				filterMap[ filter ],
-				filter,
-				queryOptions,
-			);
-		}
+		const percentArr = visibleColumns
+			.reduce((sum : string[], key : string) => {
+				const percent = 100 / totalColumnSpaces * ($columnMap?.[ key ].size ?? 1);
 
-		sortRuns(unfilteredRuns);
-	}
+				sum.push(`${ percent }%`);
 
-	function sortRuns(possibleRuns? : Run[]) : void {
-		const unsortedRuns = possibleRuns ?? runs;
-
-		if (!unsortedRuns) {
-			return;
-		}
-
-		unsortedRuns.sort(doSortRun);
-
-		runs = unsortedRuns;
-	}
-
-	function doSortRun(a : Run, b : Run) : number {
-		const aValue = getSortValue(a);
-		const bValue = getSortValue(b);
-
-		if (aValue > bValue) {
-			return sort === 'ascending'
-				? 1
-				: -1;
-		}
-
-		if (aValue < bValue) {
-			return sort === 'ascending'
-				? -1
-				: 1;
-		}
-
-		return 0;
-	}
-
-	function getSortValue(run : Run) : any {
-		let value = get(run, activeSort.split('.'));
-
-		if (value == undefined) {
-			value = '';
-		} else if (typeof value === 'string') {
-			value = value.toLowerCase();
-		}
-
-		return value;
-	}
-
-	function parseGridTemplateColumns() : string {
-		const percentArr = [];
-
-		const totalColumnSpaces = Object.values(columnMap)
-			.reduce((total, column) => total + (column.size ?? 1), 0);
-
-		for (const column of Object.values(columnMap)) {
-			const percent = 100 / totalColumnSpaces * (column.size ?? 1);
-
-			percentArr.push(`${ percent }%`);
-		}
+				return sum;
+			}, []);
 
 		return percentArr.join(' ');
 	}
@@ -174,179 +128,19 @@
 		return parsedValue;
 	}
 
-	function handleSortClick(name : string) : void {
-		if (activeSort === name) {
-			sort = sort === 'ascending' ? 'descending' : 'ascending';
-		} else {
-			activeSort = name;
-			sort = 'ascending';
-		}
+	function parseStartedValue(value : number) : string {
+		const dateObj = parseDate(value);
+		const ago = Date.now() - value;
 
-		sortRuns();
+		// if more than a day ago, show date and time
+		return ago > 86400000
+			? dateObj.toLocaleString(undefined, { dateStyle:'short', timeStyle:'short'})
+			: getTimeString(dateObj);
 	}
-
-	let filterMap : AnyMap = {};
-	let filters : string[] = [];
-
-	let addFilterModalElement : HTMLIonModalElement;
-	let addFilterInfo : undefined | AddFilterInfo;
-
-	const finiteFilterValuesMap : { [ key : string ] : false | any[] } = {};
-
-	function handleAddFilter(key : string) : void {
-		addFilterInfo = parseAddFilterInfo(key);
-
-		addFilterModalElement.present();
-	}
-
-	function parseAddFilterInfo(key : string) : AddFilterInfo {
-		const finiteValues = parseFiniteFilterValues(key);
-
-		return {
-			key,
-			finiteValues,
-		};
-	}
-
-	function parseFiniteFilterValues(key : string) : false | string[] {
-		let finiteValuesMap : { [ key : string ] : true } = {};
-
-		for (const run of runs) {
-			const value = get(run, key.split('.'));
-
-			if (value == undefined) {
-				continue;
-			}
-
-			finiteValuesMap[ value ] = true;
-
-			if (Object.keys(finiteValuesMap).length > 10) {
-				finiteValuesMap = {};
-
-				break;
-			}
-		}
-
-		let finiteValues : false | string[] = Object.keys(finiteValuesMap);
-
-		if (finiteValues.length === 0) {
-			finiteValues = false;
-		}
-
-		if (finiteValues) {
-			finiteValues.sort();
-		}
-
-		finiteFilterValuesMap[ key ] = finiteValues;
-
-		return finiteValues;
-	}
-
-	function handleCancelAddFilter() : void {
-		addFilterInfo = undefined;
-
-		addFilterModalElement.dismiss();
-	}
-
-	function handleFilterValueChange(event : any) : void {
-		if (!addFilterInfo) {
-			return;
-		}
-
-		addFilterInfo.value = event?.detail?.value;
-	}
-
-	function handleConfirmAddFilter() : void {
-		if (!addFilterInfo) {
-			return;
-		}
-
-		filterMap[ addFilterInfo.key ] = addFilterInfo.value;
-
-		updateFilters();
-
-		handleCancelAddFilter();
-
-		filterRuns();
-	}
-
-	function updateFilters() : void {
-		filterMap = filterMap;
-
-		filters = removeEmptyItems(Object.keys(filterMap));
-	}
-
-	function handleRemoveFilter(key : string) : void {
-		delete filterMap[ key ];
-
-		updateFilters();
-
-		initRuns();
-	}
-
-	// let ionSelectColumns : HTMLIonSelectElement;
-
-	// const selectColumnsOptions = {
-	// 	header : 'test header',
-	// 	message : 'test message',
-	// 	id : 'test-id',
-	// };
-
-	async function triggerSelectColumnsAlert() : Promise<void> {
-		console.debug('triggerSelectColumnsAlert');
-
-    const alert = document.createElement('ion-alert');
-
-		console.debug(alert);
-
-		alert.header = 'Alert!';
-
-		alert.buttons = [
-      {
-        text: 'Cancel',
-        role: 'cancel',
-      },
-      {
-        text: 'OK',
-        role: 'confirm',
-        handler: () => {
-          console.debug('OK');
-        },
-      },
-    ];
-
-    document.body.appendChild(alert);
-
-		const anything = await alert.present();
-
-		console.debug(anything);
-  }
 </script>
 
 
 <style lang="scss">
-	.filter-container {
-		display: flex;
-		align-items: center;
-		margin-top: 10px;
-		margin-bottom: 10px;
-
-		:first-child {
-			margin-left: 0;
-		}
-	}
-
-	.add-filter-popover-trigger {
-		min-height: 32px;
-	}
-
-	ion-modal {
-		@media (min-width: 992px) {
-			--width: calc(100% / 3);
-			--height: calc(100% / 3);
-		}
-	}
-
 	.table-scroll-container {
 		overflow-x: auto;
 		margin-left: -16px;
@@ -359,30 +153,16 @@
 	.table-wrapper {
 		position: relative;
 		width: fit-content;
-	}
 
-	.select-columns-trigger {
-		--padding-top: 0;
-		--padding-end: 0;
-		--padding-bottom: 0;
-		--padding-start: 0;
-
-		width: 40px;
-		height: 40px;
-		position: absolute;
-		top: 4px;
-		right: 0;
-		margin: 0;
-
-		ion-icon {
-			transform: rotate(90deg);
+		@media (min-width: 768px) {
+			width: 100%;
 		}
 	}
 
 	.row {
 		display: grid;
 		grid-template-columns: var(--grid-template-columns);
-		min-width: 768px;
+		min-width: calc(768px - (16px * 2));
 		align-items: center;
 		border-style: solid;
 		border-color: #c8c7cc;
@@ -480,12 +260,12 @@
 			&.status,
 			&.link {
 				display: flex;
-				justify-content: center;
 			}
 
 			&.link {
 				padding-left: 0;
-				padding-right: 0;
+				padding-right: 0.333em;
+				justify-content: end;
 			}
 		}
 	}
@@ -495,10 +275,6 @@
 		overflow: hidden;
 		white-space: nowrap;
 		text-overflow: ellipsis;
-
-		&.invisible {
-			visibility: hidden;
-		}
 	}
 
 	ion-icon {
@@ -510,176 +286,58 @@
 <ion-content
 	class="ion-padding"
 	fullscreen={ true }
-	style='--grid-template-columns:{ parseGridTemplateColumns() };'
+	style='--grid-template-columns:{ parseGridTemplateColumns($visibleColumns) };'
 >
 	<ion-card-subtitle>{ data.pipeline?.name ?? '' }</ion-card-subtitle>
 
 	<ion-card-title>All Pipeline Runs</ion-card-title>
 
-	<div class="filter-container">
-		{#each filters as filterKey }
-			<ion-chip
-				on:click={ () => handleRemoveFilter(filterKey) }
-				on:keydown={ () => handleRemoveFilter(filterKey) }
-			>
-				<ion-label><strong>{ columnMap[ filterKey ].name }:</strong> { filterMap[ filterKey ] }</ion-label>
+	<DataTableFilters />
 
-				<ion-icon
-					icon={ closeCircle }
-					color="dark"
-				></ion-icon>
-			</ion-chip>
-		{/each}
-
-		<ion-button
-			class="add-filter-popover-trigger"
-			id="addFilterPopoverTrigger"
-			color="dark"
-			size="small"
-			fill="outline"
-		>
-			<ion-icon
-				slot="start"
-				size="small"
-				icon={ filter }
-			></ion-icon>
-
-			Add Filter
-		</ion-button>
-
-		<ion-popover
-			trigger="addFilterPopoverTrigger"
-			dismiss-on-select={ true }
-		>
-			<ion-content>
-				<ion-list>
-					{#each Object.entries(columnMap) as [ key, column ], index }
-						<ion-item
-							button={ true }
-							detail={ false }
-							lines={ index === Object.keys(columnMap).length - 1 ? 'none' : 'inset' }
-							disabled={ filterMap[ key ] != null }
-							on:click={ () => handleAddFilter(key)}
-							on:keydown={ () => handleAddFilter(key)}
-						>{ column.name }</ion-item>
-					{/each }
-				</ion-list>
-			</ion-content>
-		</ion-popover>
-
-		<ion-modal bind:this={ addFilterModalElement }>
-			{#if addFilterInfo?.key }
-				<ion-header>
-					<ion-toolbar>
-						<ion-buttons slot="start">
-							<ion-button
-								on:click={ handleCancelAddFilter }
-								on:keydown={ handleCancelAddFilter }
-							>Cancel</ion-button>
-						</ion-buttons>
-
-						<ion-title>Filter By { columnMap[ addFilterInfo.key ].name }</ion-title>
-
-						<ion-buttons slot="end">
-							<ion-button
-								strong={ true }
-								disabled={ isEmpty(addFilterInfo.value, { includeEmptyString : true }) }
-								on:click={ handleConfirmAddFilter }
-								on:keydown={ handleConfirmAddFilter }
-							>Confirm</ion-button>
-						</ion-buttons>
-					</ion-toolbar>
-				</ion-header>
-
-				<ion-content>
-					{#if addFilterInfo.finiteValues }
-						<ion-list>
-							<ion-radio-group on:ionChange={ handleFilterValueChange }>
-								{#each addFilterInfo.finiteValues as value }
-									<ion-item>
-										<ion-radio value={ value }>{ value }</ion-radio>
-									</ion-item>
-								{/each}
-							</ion-radio-group>
-						</ion-list>
-					{:else}
-						<ion-item>
-							<ion-label position="stacked">Filter By Query</ion-label>
-
-							<ion-input
-								aria-label="Filter By Query"
-								placeholder="Enter text"
-								on:ionInput={ handleFilterValueChange }
-							></ion-input>
-						</ion-item>
-					{/if}
-				</ion-content>
-			{/if}
-		</ion-modal>
-	</div>
+	<DataTableAggregatedData />
 
 	<div class="table-scroll-container">
 		<div class="table-wrapper">
-			<!-- <ion-select
-				class="visually-hidden"
-				bind:this={ ionSelectColumns }
-				placeholder="Select visible columns"
-				multiple={ true }
-				interface-options={ selectColumnsOptions }
-			>
-				<ion-select-option value="apples">Apples</ion-select-option>
-				<ion-select-option value="oranges">Oranges</ion-select-option>
-				<ion-select-option value="bananas">Bananas</ion-select-option>
-			</ion-select> -->
-
-			<ion-button
-				class="select-columns-trigger"
-				fill="clear"
-				color="dark"
-				size="small"
-				on:click={ triggerSelectColumnsAlert }
-				on:keydown={ triggerSelectColumnsAlert }
-			>
-				<ion-icon
-					slot="icon-only"
-					icon={ menu }
-				></ion-icon>
-			</ion-button>
+			<DataTableColumnChooser />
 
 			<div class="row header">
-				{#each Object.entries(columnMap) as [ key, column ] }
+				{#each $visibleColumns as key }
+					{@const column = $columnMap?.[ key ] }
+
 					<div
 						class="cell { key.replace('.', '-') }"
-						class:invisible={ column.showHeader === false }
-						title={ column.name }
+						class:visually-hidden={ column?.hiddenHeader === true }
+						title={ column?.name }
 					>
-						<span class="label">{ column.name }</span>
+						<span class="label">{ column?.name }</span>
 
-						<ion-button
-							fill="clear"
-							size="small"
-							color="medium"
-							class="sort-button"
-							class:active={ activeSort === key }
-							class:descending={ activeSort === key && sort === 'descending' }
-							on:click={ () => handleSortClick(key) }
-							on:keydown={ () => handleSortClick(key) }
-						>
-							<ion-icon
-								slot="icon-only"
-								icon={ arrowUpOutline }
-							></ion-icon>
-						</ion-button>
+						{#if column?.hiddenHeader !== true }
+							<ion-button
+								fill="clear"
+								size="small"
+								color="medium"
+								class="sort-button"
+								class:active={ $activeSort.key === key }
+								class:descending={ $activeSort.key === key && $activeSort.direction === 'descending' }
+								on:click={ () => runsTable.updateActiveSort(key) }
+								on:keydown={ (e) => HEK(e, () => runsTable.updateActiveSort(key)) }
+							>
+								<ion-icon
+									slot="icon-only"
+									icon={ arrowUpOutline }
+								></ion-icon>
+							</ion-button>
+						{/if}
 					</div>
 				{/each}
 			</div>
 
-			{#each runs ?? [] as run }
+			{#each $runs as run }
 				<a
 					class="row"
 					href="/{ data.org }/run/{ run.id }"
 				>
-					{#each Object.entries(columnMap) as [ key, column ] }
+					{#each $visibleColumns as key }
 						{@const value = get(run, key.split('.')) }
 
 						<div
@@ -692,7 +350,7 @@
 									status={ value }
 								/>
 							{:else if key === 'started' }
-								{ getTimeString(value) }
+								{ parseStartedValue(value) }
 							{:else if key === 'machineTime' }
 								{ lapsed(value, true) }
 							{:else if key === 'link' }

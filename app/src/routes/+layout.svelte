@@ -25,6 +25,9 @@
 	import 'ionic-svelte/components/ion-breadcrumbs';
 	import 'ionic-svelte/components/ion-button';
 	import 'ionic-svelte/components/ion-buttons';
+	import 'ionic-svelte/components/ion-card';
+	import 'ionic-svelte/components/ion-card-content';
+	import 'ionic-svelte/components/ion-card-header';
 	import 'ionic-svelte/components/ion-card-subtitle';
 	import 'ionic-svelte/components/ion-card-title';
 	import 'ionic-svelte/components/ion-chip';
@@ -45,6 +48,7 @@
 	import 'ionic-svelte/components/ion-modal';
 	import 'ionic-svelte/components/ion-popover';
 	import 'ionic-svelte/components/ion-radio';
+	import 'ionic-svelte/components/ion-range';
 	import 'ionic-svelte/components/ion-radio-group';
 	import 'ionic-svelte/components/ion-row';
 	import 'ionic-svelte/components/ion-select';
@@ -73,6 +77,7 @@
 	/* Call Ionic's setup routine */
 	setupIonicBase({
 		mode : 'ios',
+		innerHTMLTemplatesEnabled : true,
 	});
 </script>
 

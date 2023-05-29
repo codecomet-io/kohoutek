@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { HighlightLineBounds } from '$lib/stores';
+	import type { HighlightLogLineBounds } from '$lib/types/log-line';
 
 	import { get } from 'svelte/store';
 
@@ -10,7 +10,7 @@
 
 	import { gotoSearchString } from '$lib/helper';
 
-	import { highlightLine } from '$lib/stores';
+	import { highlight, bounds } from '$lib/stores/log-line';
 
 	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
 
@@ -23,27 +23,27 @@
 
 	$: lineCount = lineNumber.toString();
 
-	const { active, bounds } = highlightLine;
-
-	function isHighlighted(bounds : HighlightLineBounds) : boolean {
-		if (!bounds) {
+	function isHighlighted() : boolean {
+		if (!$bounds) {
 			return false;
 		}
 
-		return lineNumber >= bounds[0] && lineNumber <= bounds[1];
+		const [ lower, upper ] = $bounds;
+
+		return lineNumber >= lower && lineNumber <= upper;
 	}
 
-	function handleHighlightLineClick(event : MouseEvent, activeLine : string, bounds : HighlightLineBounds) : void {
+	function handleHighlightLogLineClick(event : MouseEvent) : void {
 		let value : string | undefined = undefined;
 
-		if (activeLine !== lineCount) {
-			if (activeLine && event.shiftKey) {
-				if (lineNumber === bounds[0] || lineNumber === bounds[1]) {
+		if ($highlight !== lineCount) {
+			if ($highlight && event.shiftKey) {
+				if (lineNumber === $bounds[0] || lineNumber === $bounds[1]) {
 					return;
-				} else if (lineNumber < bounds[0]) {
-					value = `${ lineNumber }-${ bounds[1] }`;
+				} else if (lineNumber < $bounds[0]) {
+					value = `${ lineNumber }-${ $bounds[1] }`;
 				} else {
-					value = `${ bounds[0] }-${ lineNumber }`;
+					value = `${ $bounds[0] }-${ lineNumber }`;
 				}
 			} else {
 				value = lineCount;
@@ -63,10 +63,8 @@
 			return;
 		}
 
-		const highlightBounds = get(bounds);
-
-		const startBeforeNode = container.querySelector(`a[data-line="${ highlightBounds[0] }"] + code + pre`);
-		const endAfterNode = container.querySelector(`a[data-line="${ highlightBounds[1] }"] + code + pre`);
+		const startBeforeNode = container.querySelector(`a[data-line="${ $bounds[0] }"] + code + pre`);
+		const endAfterNode = container.querySelector(`a[data-line="${ $bounds[1] }"] + code + pre`);
 
 		if (!(startBeforeNode && endAfterNode)) {
 			return;
@@ -175,12 +173,12 @@
 <a
 	class="line-link"
 	aria-label="highlight line { lineNumber }"
-	class:highlight={ isHighlighted($bounds) }
+	class:highlight={ isHighlighted() }
 	class:stderr={ isStderr }
 	href="#{ lineNumber }"
 	data-line={ lineNumber }
 	title={ getDateString(timestamp) }
-	on:click|preventDefault={ (event) => handleHighlightLineClick(event, $active, $bounds) }
+	on:click|preventDefault={ (event) => handleHighlightLogLineClick(event) }
 >
 	<ChunkyLabel>
 		<span

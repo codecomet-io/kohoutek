@@ -3,7 +3,7 @@
 
 	import { gotoSearchString } from '$lib/helper';
 
-	import { highlightAccordion } from '$lib/stores';
+	import { highlight as highlightAccordion } from '$lib/stores/accordion';
 
 	import { timingChartTooltipHelper } from '$lib/actions/timing-chart-tooltip-helper';
 

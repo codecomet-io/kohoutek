@@ -3,7 +3,7 @@
 
 	import { gotoSearchString } from '$lib/helper';
 
-	import { activeModal } from '$lib/stores';
+	import { active as activeModal } from '$lib/stores/modal';
 
 	import ViewLogsButton from '$lib/components/ViewLogsButton.svelte';
 	import ModalHeader from '$lib/components/ModalHeader.svelte';
@@ -23,19 +23,26 @@
 	}
 
 	function setModalHeight(modalElement : HTMLElement, scrollWrapper : HTMLElement) : void {
-		if (modalElement.style.getPropertyValue('--height')) {
+		console.debug({ modalElement, scrollWrapper });
+
+		if (modalElement.style.getPropertyValue('--height') || !(modalElement && scrollWrapper)) {
 			return;
 		}
 
 		const scrollWrapperHeight = (scrollWrapper.offsetHeight - scrollWrapper.clientHeight + scrollWrapper.scrollHeight) || 0;
 
 		const header = modalElement.querySelector('ion-header') as HTMLElement;
+
+		console.debug({ header });
+
 		const headerHeight = header?.offsetHeight ?? 0;
 
 		modalElement.style.setProperty('--height', `${ headerHeight + scrollWrapperHeight }px`);
 	}
 
 	function checkTooltipPosition(scrollWrapper : HTMLElement) : void {
+		console.debug({ scrollWrapper });
+
 		const tooltipWrappers : NodeListOf<Element> = scrollWrapper.querySelectorAll('.tooltip-wrapper');
 
 		if (!(tooltipWrappers && tooltipWrappers.length)) {
@@ -50,6 +57,8 @@
 			if (!tooltip) {
 				return;
 			}
+
+			console.debug({ tooltipWrapper, tooltip, scrollWrapper });
 
 			const bottomOfTooltip
 				= tooltipWrapper.offsetTop

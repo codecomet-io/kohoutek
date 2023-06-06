@@ -2,10 +2,13 @@
 	import { objectEntries } from '$lib/helper';
 	import { runsTable } from '$lib/stores/runs-table';
 
-	import LineGraph from '$lib/components/LineGraph.svelte';
+	// import LineGraph from '$lib/components/LineGraph.svelte';
+	import LineGraph2 from '$lib/components/LineGraph2.svelte';
 
 
 	const { aggregatedDataMap } = runsTable;
+
+	$: console.debug('aggregatedDataMap', objectEntries($aggregatedDataMap).map(item => item[1]	));
 </script>
 
 
@@ -22,27 +25,33 @@
 		}
 	}
 
-	ion-card-header {
-		height: 100%;
-		justify-content: space-between;
+	ion-card:not(.has-graph) {
+		height: min-content;
+
+		ion-card-header {
+			height: 100%;
+			justify-content: space-between;
+		}
 	}
 </style>
 
 
 <div class="aggregate-data-container">
 	{#each objectEntries($aggregatedDataMap) as [ key, data ] }
-		<ion-card>
-			<ion-card-header>
-				<ion-card-title>{ data.value }</ion-card-title>
+		{#if data.chartCoordinates != null }
+			<ion-card class:has-graph={ data.chartCoordinates != null }>
+				<ion-card-header>
+					<ion-card-title>{ data.value }</ion-card-title>
 
-				<ion-card-subtitle>{ data.name }</ion-card-subtitle>
-			</ion-card-header>
+					<ion-card-subtitle>{ data.name }</ion-card-subtitle>
+				</ion-card-header>
 
-			{#if data.chartCoordinates != null && false }
-				<ion-card-content>
-					<LineGraph data={ data.chartCoordinates } />
-				</ion-card-content>
-			{/if}
-		</ion-card>
+				{#if data.chartCoordinates != null }
+					<ion-card-content>
+						<LineGraph2 dataset={ data.chartCoordinates } />
+					</ion-card-content>
+				{/if}
+			</ion-card>
+		{/if}
 	{/each}
 </div>

@@ -80,23 +80,15 @@
 
 	onMount(initStoredColumns);
 
-	const unsubscribeSelectedColumns = selectedColumns.subscribe(columns => {
-		console.debug('selectedColumns store sub', columns);
-
+	function updateStoredColumns(columns : string[]) : void {
 		if (storedColumnsStr === undefined || columns.length === 0) {
 			return;
 		}
 
 		window.localStorage.setItem(localStorageKey, JSON.stringify(columns));
-	});
-
-	function test(columns : string[]) : void {
-		console.debug('selectedColumns store lazy sub', columns);
 	}
 
-	$: test($selectedColumns);
-
-	onDestroy(unsubscribeSelectedColumns);
+	$: updateStoredColumns($selectedColumns);
 
 	function parseGridTemplateColumns(visibleColumns : string[]) : string {
 		const totalColumnSpaces = visibleColumns

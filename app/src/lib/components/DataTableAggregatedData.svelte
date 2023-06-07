@@ -2,9 +2,7 @@
 	import { objectEntries } from '$lib/helper';
 	import { runsTable } from '$lib/stores/runs-table';
 
-	// import LineGraph from '$lib/components/LineGraph.svelte';
-	// import LineGraph from '$lib/components/LineGraph2.svelte';
-	import LineGraph from '$lib/components/LineGraph3.svelte';
+	import LineGraph from '$lib/components/LineGraph.svelte';
 
 
 	const { aggregatedDataMap } = runsTable;

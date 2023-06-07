@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { lapsed, parseDate } from 'briznads-helpers';
+	import { lapsed, parseDate, objectEntries } from 'briznads-helpers';
 
-	import { objectEntries } from '$lib/helper';
-	import { runsTable } from '$lib/stores/runs-table';
+	import { aggregatedDataRuns } from '$lib/stores/aggregated-data-runs';
 
 	import LineGraph from '$lib/components/LineGraph.svelte';
 
 
-	const { aggregatedDataMap } = runsTable;
+	const { aggregatedDataMap } = aggregatedDataRuns;
 
 	function formatXTicks(tick : number, ticks : number[]) : string {
 		const options : any = {
@@ -30,6 +29,9 @@
 	const formatYTicksMap : any = {
 		machineTime : (tick : number) => lapsed(tick, true),
 		cachedRate  : (tick : number) => `${ tick }%`,
+		runsPerDay  : (tick : number) => tick % 1 === 0
+			? tick
+			: '',
 	};
 </script>
 
@@ -69,6 +71,10 @@
 			justify-content: space-between;
 		}
 	}
+
+	.no-value {
+		visibility: hidden;
+	}
 </style>
 
 
@@ -76,21 +82,19 @@
 	{#each objectEntries($aggregatedDataMap) as [ key, data ] }
 		<ion-card class:has-graph={ data.chartCoordinates != null }>
 			<ion-card-header>
-				<ion-card-title>{ data.value }</ion-card-title>
+				<ion-card-title class:no-value={ data.value === '' }>{ data.value === '' ? 'no value' : data.value }</ion-card-title>
 
 				<ion-card-subtitle>{ data.name }</ion-card-subtitle>
 			</ion-card-header>
 
-			{#if data.chartCoordinates != null }
-				<ion-card-content>
-					<LineGraph
-						coordinates={ data.chartCoordinates }
-						{ formatXTicks }
-						formatYTicks={ formatYTicksMap[ key ] }
-						hideYTicks={ key === 'errorRate' }
-					/>
-				</ion-card-content>
-			{/if}
+			<ion-card-content>
+				<LineGraph
+					coordinates={ data.chartCoordinates }
+					{ formatXTicks }
+					formatYTicks={ formatYTicksMap[ key ] }
+					hideYTicks={ key === 'erroredRate' }
+				/>
+			</ion-card-content>
 		</ion-card>
 	{/each}
 </div>

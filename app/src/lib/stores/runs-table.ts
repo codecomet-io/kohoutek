@@ -1,12 +1,12 @@
 import type { Writable, Readable } from 'svelte/store';
-import type { QueryOptions, AnyMap } from 'briznads-helpers';
+import type { QueryOptions, AnyMap, NumberMap } from 'briznads-helpers';
 
 import type { Run } from '../../../../pantry/src/lib/model';
 
-import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AggregatedDataMap, AggregatedData, AddFilterInfo } from '$lib/types/runs-table';
+import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AggregatedDataMap, AggregatedData, AddFilterInfo, Coordinate } from '$lib/types/runs-table';
 
 import { writable, derived, get } from 'svelte/store';
-import { get as getValue, Query, lapsed, smartSort, smartSortFunction, roundToDecimals } from 'briznads-helpers';
+import { get as getValue, Query, lapsed, smartSort, smartSortFunction, roundToDecimals, parseDate } from 'briznads-helpers';
 
 import { objectEntries, getEndpoints } from '$lib/helper';
 
@@ -238,16 +238,16 @@ class RunsTable {
 				$runs,
 			]) : AggregatedDataMap => {
 				return {
-					avgMachineTime : this.parseAvgMachineTime($runs),
-					avgRunsPerDay  : this.parseAvgRunsPerDay($runs),
-					errorRate      : this.parseErrorRate($runs),
-					avgCachedRate  : this.parseAvgCachedRate($runs),
+					machineTime : this.parseMachineTime($runs),
+					runsPerDay  : this.parseRunsPerDay($runs),
+					errorRate   : this.parseErrorRate($runs),
+					cachedRate  : this.parseCachedRate($runs),
 				};
 			},
 		);
 	}
 
-	private parseAvgMachineTime(runs : Run[]) : AggregatedData {
+	private parseMachineTime(runs : Run[]) : AggregatedData {
 		const name = 'Average Duration';
 
 		const chartCoordinates = runs.map((run : Run) => ({
@@ -255,7 +255,9 @@ class RunsTable {
 			y : run.machineTime,
 		}));
 
-		const totalMachineTime = chartCoordinates.reduce((sum, data) => sum + data.y, 0);
+		smartSort(chartCoordinates, undefined, undefined, 'x');
+
+		const totalMachineTime = chartCoordinates.reduce((sum, coord : Coordinate) => sum + coord.y, 0);
 
 		const value = lapsed(Math.floor(totalMachineTime / chartCoordinates.length), true);
 
@@ -266,51 +268,117 @@ class RunsTable {
 		};
 	}
 
-	private parseAvgRunsPerDay(runs : Run[]) : AggregatedData {
+	private parseRunsPerDay(runs : Run[]) : AggregatedData {
 		const name = 'Average Runs Per Day';
 
-		const { lower, upper } = getEndpoints(runs, 'started', true);
+		const runsByStarted : number[] = runs.map((run : Run) => run.started);
+
+		const { lower, upper } = getEndpoints(runsByStarted);
 
 		// calculate the time difference of two dates
     const difference = upper - lower;
 
-		// calculate the no. of days between two dates
-		const differenceInDays = difference / (1000 * 3600 * 24);
+		// calculate the no. of days between two dates, inclusive
+		const daySpread = Math.round(difference / (1000 * 3600 * 24)) + 1;
 
-		const value = roundToDecimals(runs.length / differenceInDays);
+		const value = roundToDecimals(runsByStarted.length / daySpread);
+
+		const runsPerDayMap : NumberMap = {};
+
+		for (const started of runsByStarted) {
+			const dateString = this.getDateString(started);
+
+			if (!runsPerDayMap[ dateString ]) {
+				runsPerDayMap[ dateString ] = 0;
+			}
+
+			runsPerDayMap[ dateString ]++;
+		}
+
+		// const { lower, upper } = getEndpoints(runsByStarted);
+
+		// const upperDateString = this.getDateString(upper);
+		// const lowerDateString = this.getDateString(lower);
+
+		// const iterableDate = new Date(lowerDateString);
+
+		// while (true) {
+		// 	iterableDate.setDate(iterableDate.getDate() + 1);
+
+		// 	const dateString = this.getDateString(iterableDate);
+
+		// 	if (dateString === upperDateString) {
+		// 		break;
+		// 	} else if (dateString in runsPerDayMap) {
+		// 		continue;
+		// 	}
+
+		// 	runsPerDayMap[ dateString ] = 0;
+		// }
+
+		const chartCoordinates = objectEntries(runsPerDayMap)
+			.map(([ dateString, count ]) => ({
+				x : new Date(dateString as string).getTime(),
+				y : count,
+			}));
+
+		smartSort(chartCoordinates, undefined, undefined, 'x');
+
+		// const value = roundToDecimals(runsByStarted.length / chartCoordinates.length);
 
 		return {
 			name,
 			value,
+			chartCoordinates,
 		};
+	}
+
+	private getDateString(date : number | Date) : string {
+		return parseDate(date).toLocaleString(undefined, { dateStyle : 'medium' });
 	}
 
 	private parseErrorRate(runs : Run[]) : AggregatedData {
-		const name = 'Error Rate';
+		const name = 'Average Error Rate';
 
-		const erroredRuns : number = runs
-			.filter((run : Run) => run.status === 'errored')
+		const chartCoordinates = runs.map((run : Run) => ({
+			x : run.started,
+			y : run.status === 'errored' ? 1 : 0,
+		}));
+
+		smartSort(chartCoordinates, undefined, undefined, 'x');
+
+		const erroredRuns : number = chartCoordinates
+			.filter((coord : Coordinate) => coord.y)
 			.length;
 
-		const value = `${ roundToDecimals(erroredRuns / runs.length * 100) }%`;
+		const value = `${ roundToDecimals(erroredRuns / chartCoordinates.length * 100) }%`;
 
 		return {
 			name,
 			value,
+			chartCoordinates,
 		};
 	}
 
-	private parseAvgCachedRate(runs : Run[]) : AggregatedData {
+	private parseCachedRate(runs : Run[]) : AggregatedData {
 		const name = 'Average Caching Rate';
 
-		const totalCachedPercent : number = runs
-			.reduce((sum : number, run : Run) => sum + run.stats.cachedPercent ?? 0, 0);
+		const chartCoordinates = runs.map((run : Run) => ({
+			x : run.started,
+			y : run.stats?.cachedPercent ?? 0,
+		}));
 
-		const value = `${ roundToDecimals(totalCachedPercent / runs.length * 100) }%`;
+		smartSort(chartCoordinates, undefined, undefined, 'x');
+
+		const totalCachedPercent : number = chartCoordinates
+			.reduce((sum : number, coord : Coordinate) => sum + coord.y, 0);
+
+		const value = `${ roundToDecimals(totalCachedPercent / chartCoordinates.length * 100) }%`;
 
 		return {
 			name,
 			value,
+			chartCoordinates,
 		};
 	}
 

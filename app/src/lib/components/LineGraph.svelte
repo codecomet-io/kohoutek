@@ -2,30 +2,51 @@
 	import type { Coordinate } from '$lib/types/runs-table';
 
 	import { onMount } from 'svelte';
+	import { fade, draw } from 'svelte/transition';
+	import { sineOut, sineInOut } from 'svelte/easing';
 	import { scaleLinear } from 'd3-scale';
-	import { fade, draw, fly } from 'svelte/transition';
-	import { linear, sineOut, sineInOut } from 'svelte/easing';
+	import { extent } from 'd3-array';
+	import { line, area, curveMonotoneX } from 'd3-shape';
+	import { roundToDecimals } from 'briznads-helpers';
 
-	import { getEndpoints } from '$lib/helper';
 
-
-	type KeyPoints = {
-		x : Bounds;
-		y : Bounds;
-	};
-
-	type Bounds = {
-		upper : number;
-		lower : number;
-	};
+	type FormatTicksFunction = (tick : number, ticks : number[]) => string;
 
 
 	export let coordinates : Coordinate[];
 
-	const padding = { top: 20, right: 15, bottom: 20, left: 25 };
+	export let formatXTicks : undefined | FormatTicksFunction = undefined;
+	export let formatYTicks : undefined | FormatTicksFunction = undefined;
 
-	const width = 1000;
-	const height = 250;
+	export let hideYTicks : boolean = false;
+
+	const padding = {
+		top    : 20,
+		right  : 0,
+		bottom : 20,
+		left   : 32.5,
+	};
+
+	$: if (hideYTicks) {
+		padding.left = 0;
+	}
+
+	const width = 300;
+	const height = width / 3;
+
+	const inDraw = {
+		duration : 1000,
+		easing   : sineOut,
+	};
+
+	const inFade = {
+		...inDraw,
+		easing : sineInOut,
+		delay  : 150,
+	};
+
+	let xEndpoints : [ number, number ];
+	let yEndpoints : [ number, number ];
 
 	let xTicks : number[];
 	let yTicks : number[];
@@ -33,51 +54,65 @@
 	let xScale : any;
 	let yScale : any;
 
-	const keyPoints : KeyPoints = {
-		x : {
-			upper  : 0,
-			lower  : 0,
-		},
-		y : {
-			upper  : 0,
-			lower  : 0,
-		},
-	};
-
-	let path : string;
-	let area : string;
-
 	function initGraph(coordinates : Coordinate[]) {
-		keyPoints.x = getEndpoints(coordinates, 'x', true);
-		keyPoints.y = getEndpoints(coordinates, 'y', true);
+		if (coordinatesAreUnchanged(coordinates)) {
+			return;
+		}
 
-		xTicks = parseTicks(Object.values(keyPoints.x) as [ number, number ]);
-		yTicks = parseTicks(Object.values(keyPoints.y) as [ number, number ]);
+		xEndpoints = extent(coordinates, (coord : Coordinate) => coord.x) as [ number, number ];
+		yEndpoints = extent(coordinates, (coord : Coordinate) => coord.y) as [ number, number ];
+
+		testYEndpoints(yEndpoints);
+
+		xTicks = parseTicks(xEndpoints);
+		yTicks = parseTicks(yEndpoints);
 
 		xScale = scaleLinear()
-			.domain([ keyPoints.x.lower, keyPoints.x.upper ])
-			.range([ padding.left, width - padding.right ]);
+			.domain(xEndpoints)
+			.rangeRound([ padding.left, width - padding.right ]);
 
 		yScale = scaleLinear()
-			.domain([ keyPoints.y.lower, keyPoints.y.upper ])
-			.range([ height - padding.bottom, padding.top ]);
-
-		path = `M${ coordinates.map(p => `${ xScale(p.x) },${ yScale(p.y) }`).join('L') }`;
-
-		area = `${ path }L${ xScale(keyPoints.x.upper) },${ yScale(0) }L${ xScale(keyPoints.x.lower) },${ yScale(0) }Z`;
+			.domain(yEndpoints)
+			.rangeRound([ height - padding.bottom, padding.top ]);
 
 		setVisible();
 	}
 
 	$: initGraph(coordinates);
 
-	function parseTicks([ upper, lower ] : [ number, number ]) : [ number, number, number ] {
-		const average = Math.round((upper + lower) / 2);
+	let cachedCoordStr : string;
+
+	function coordinatesAreUnchanged(coordinates : Coordinate[]) : boolean {
+		const coordStr = JSON.stringify(coordinates);
+
+		const unchanged = coordStr === cachedCoordStr;
+
+		if (!unchanged) {
+			cachedCoordStr = coordStr;
+		}
+
+		return unchanged;
+	}
+
+	function testYEndpoints(yEndpoints : [ number, number ]) : void {
+		if (yEndpoints[0] === yEndpoints[1]) {
+			if (yEndpoints[0] === 0) {
+				yEndpoints[0] = 0;
+				yEndpoints[1] = 100;
+			} else {
+				yEndpoints[1] = yEndpoints[0] * 2;
+				yEndpoints[0] = 0;
+			}
+		}
+	}
+
+	function parseTicks([ lower, upper ] : [ number, number ]) : [ number, number, number ] {
+		const average = roundToDecimals((lower + upper) / 2, 1);
 
 		return [
-			upper,
-			average,
 			lower,
+			average,
+			upper,
 		];
 	}
 
@@ -90,22 +125,60 @@
 	}
 
 	onMount(setVisible);
+
+	function getLine(coordinates : Coordinate[]) : string {
+		const lineFunc = line()
+			.x((coord : Coordinate) => xScale(coord.x))
+			.y((coord : Coordinate) => yScale(coord.y))
+			.curve(curveMonotoneX);
+
+		return lineFunc(coordinates);
+	}
+
+	function getArea(coordinates : Coordinate[]) : string {
+		const areaFunc = area()
+			.x((coord : Coordinate) => xScale(coord.x))
+      .y0(() => yScale(0))
+      .y1((coord : Coordinate) => yScale(coord.y))
+      .curve(curveMonotoneX);
+
+		return areaFunc(coordinates);
+	}
 </script>
 
 
 <style lang="scss">
 	svg {
-		position: relative;
 		width: 100%;
 		height: auto;
 		overflow: visible;
 	}
 
+	.x-axis {
+		.tick {
+			text {
+				text-anchor: middle;
+			}
+
+			&:first-child {
+				text {
+					text-anchor: start;
+				}
+			}
+
+			&:last-child {
+				text {
+					text-anchor: end;
+				}
+			}
+		}
+	}
+
 	.tick {
-		font-size: .725em;
+		font-size: 0.725em;
 		font-weight: 200;
 
-		&.tick-0 {
+		&:first-child {
 			line {
 				stroke-dasharray: 0;
 			}
@@ -119,10 +192,6 @@
 		text {
 			fill: #666;
 			text-anchor: start;
-
-			.x-axis & {
-				text-anchor: middle;
-			}
 		}
 	}
 
@@ -139,7 +208,7 @@
 <div class="chart">
 	<svg viewBox="0 0 { width } { height }">
 		<!-- y axis -->
-		<g class="axis y-axis" transform="translate(0, {padding.top})">
+		<g class="axis y-axis" transform="translate(0, { padding.top })">
 			{#each yTicks as tick, index }
 				<g
 					class="tick tick-{ index }"
@@ -147,17 +216,19 @@
 				>
 					<line x2="100%"></line>
 
-					<text y="-4">{ tick } { index === 8 ? ' million sq km' : '' }</text>
+					{#if !hideYTicks }
+						<text y="-4">{ formatYTicks ? formatYTicks(tick, yTicks) : tick }</text>
+					{/if}
 				</g>
 			{/each}
 		</g>
 
 		<!-- x axis -->
 		<g class="axis x-axis">
-			{#each xTicks as tick, index}
+			{#each xTicks as tick, index }
 				<g
 					class="tick tick-{ index }"
-					transform="translate({xScale(tick)},{height})"
+					transform="translate({ xScale(tick) },{ height })"
 				>
 					<line
 						y1="-{ height }"
@@ -166,7 +237,10 @@
 						x2="0"
 					></line>
 
-					<text y="-2">{ tick }</text>
+					<text
+						y="-2"
+						transform="translate(-{ index === 0 ? padding.left : 0 }, 0)"
+					>{ formatXTicks ? formatXTicks(tick, xTicks) : tick }</text>
 				</g>
 			{/each}
 		</g>
@@ -180,14 +254,14 @@
 			<!-- data -->
 			<path
 				class="path-line"
-				d={ path }
-				in:draw={ { duration: 1250, easing : sineOut } }
+				d={ getLine(coordinates) }
+				in:draw={ inDraw }
 			></path>
 
 			<path
-				d={ area }
+				d={ getArea(coordinates) }
 				fill="url('#pathAreaBgGradient')"
-				in:fade={ { duration: 1250, easing: sineInOut } }
+				in:fade={ inFade }
 			></path>
 		{/if}
 	</svg>

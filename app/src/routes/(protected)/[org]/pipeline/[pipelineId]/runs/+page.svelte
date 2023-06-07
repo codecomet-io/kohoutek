@@ -4,7 +4,7 @@
 
 	import { onMount, onDestroy } from 'svelte';
 	import { get, getDateString, parseDate, getTimeString, lapsed } from 'briznads-helpers';
-	import { chevronForwardOutline, arrowUpOutline, menu } from 'ionicons/icons';
+	import { chevronForwardOutline, arrowUpOutline } from 'ionicons/icons';
 	import { HEK } from '$lib/helper';
 	import { runsTable } from '$lib/stores/runs-table';
 

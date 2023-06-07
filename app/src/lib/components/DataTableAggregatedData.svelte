@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { lapsed, parseDate } from 'briznads-helpers';
+
 	import { objectEntries } from '$lib/helper';
 	import { runsTable } from '$lib/stores/runs-table';
 
@@ -7,7 +9,28 @@
 
 	const { aggregatedDataMap } = runsTable;
 
-	$: console.debug('aggregatedDataMap', objectEntries($aggregatedDataMap).map(item => item[1]	));
+	function formatXTicks(tick : number, ticks : number[]) : string {
+		const options : any = {
+			month : 'short',
+			day   : 'numeric',
+		};
+
+		const getYear = (tick : number) => parseDate(tick).getFullYear();
+
+		const upper = ticks[ 0 ];
+		const lower = ticks[ ticks.length - 1 ];
+
+		if (getYear(upper) !== getYear(lower)) {
+			options.year = 'numeric';
+		}
+
+		return parseDate(tick).toLocaleString(undefined, options);
+	}
+
+	const formatYTicksMap : any = {
+		machineTime : (tick : number) => lapsed(tick, true),
+		cachedRate  : (tick : number) => `${ tick }%`,
+	};
 </script>
 
 
@@ -37,20 +60,23 @@
 
 <div class="aggregate-data-container">
 	{#each objectEntries($aggregatedDataMap) as [ key, data ] }
-		{#if data.chartCoordinates != null }
-			<ion-card class:has-graph={ data.chartCoordinates != null }>
-				<ion-card-header>
-					<ion-card-title>{ data.value }</ion-card-title>
+		<ion-card class:has-graph={ data.chartCoordinates != null }>
+			<ion-card-header>
+				<ion-card-title>{ data.value }</ion-card-title>
 
-					<ion-card-subtitle>{ data.name }</ion-card-subtitle>
-				</ion-card-header>
+				<ion-card-subtitle>{ data.name }</ion-card-subtitle>
+			</ion-card-header>
 
-				{#if data.chartCoordinates != null }
-					<ion-card-content>
-						<LineGraph coordinates={ data.chartCoordinates } />
-					</ion-card-content>
-				{/if}
-			</ion-card>
-		{/if}
+			{#if data.chartCoordinates != null }
+				<ion-card-content>
+					<LineGraph
+						coordinates={ data.chartCoordinates }
+						{ formatXTicks }
+						formatYTicks={ formatYTicksMap[ key ] }
+						hideYTicks={ key === 'errorRate' }
+					/>
+				</ion-card-content>
+			{/if}
+		</ion-card>
 	{/each}
 </div>

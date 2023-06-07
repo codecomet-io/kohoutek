@@ -20,6 +20,9 @@
 	"devDependencies": {
 		"@sveltejs/adapter-netlify": "^2.0.7",
 		"@sveltejs/kit": "^1.18.0",
+		"@types/d3-array": "^3.0.5",
+		"@types/d3-scale": "^4.0.3",
+		"@types/d3-shape": "^3.1.1",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"eslint": "^8.28.0",
@@ -35,7 +38,9 @@
 	"dependencies": {
 		"@ionic/core": "^7.0.9",
 		"briznads-helpers": "^1.4.0",
+		"d3-array": "^3.2.4",
 		"d3-scale": "^4.0.2",
+		"d3-shape": "^3.2.0",
 		"firebase": "^9.21.0",
 		"ionic-svelte": "^0.5.81",
 		"ionicons": "^6.1.3",

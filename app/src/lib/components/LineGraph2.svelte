@@ -10,7 +10,7 @@
 		curveNatural,
 		timeFormat,
 	} from 'd3';
-	import { fly } from 'svelte/transition';
+	import { draw, fly } from 'svelte/transition';
 	import { parseDate } from 'briznads-helpers';
 
 	import LineGraph2Axis from '$lib/components/LineGraph2Axis.svelte';
@@ -23,62 +23,78 @@
 
 	export let dataset : Coordinate[] = [];
 	export let isTimestampXAxis : boolean = true;
+	export let xLabel : undefined | string = undefined;
+	export let yLabel : undefined | string = undefined;
+
+	const width : number = 1000;
+	const height : number = 250;
+
+	const margin = {
+		top    : 0,
+		right  : 0,
+		bottom : 50,
+		left   : 50,
+	};
+
+	const innerHeight : number = height - ( margin.top + margin.bottom );
+
+	const innerWidth : number = width - ( margin.left + margin.right );
 
 	let parsedDataset : TimestampCoordinate[] = [];
 
-	$: parsedDataset = isTimestampXAxis
-		? dataset.map((coordinate : Coordinate) => ({
-			...coordinate,
-			timestamp: parseDate(coordinate.x),
-		}))
-		: dataset;
+	let xScale : any;
+	let yScale : any;
 
-	const margin = { top: 15, bottom: 50, left: 50, right: 20 };
+	let generatedLine : string;
 
-	const width = 900;
+	function initGraph(dataset : Coordinate[], isTimestampXAxis : boolean) {
+		parsedDataset = isTimestampXAxis
+			? dataset.map((coordinate : Coordinate) => ({
+				...coordinate,
+				timestamp: parseDate(coordinate.x),
+			}))
+			: dataset;
 
-	const height = 600;
+		xScale = scaleTime()
+			.domain(extent(parsedDataset, (coord : TimestampCoordinate) => coord.timestamp))
+			.range([0, innerWidth])
+			.nice();
 
-	const innerHeight = height - margin.top - margin.bottom;
+		yScale = scaleLinear()
+			.domain(extent(parsedDataset, (coord : TimestampCoordinate) => coord.y))
+			.range([innerHeight, 0])
+			.nice();
 
-	const innerWidth = width - margin.left - margin.right;
+		generatedLine = line()
+			.curve(curveNatural)
+			.x((coord : TimestampCoordinate) => xScale(coord.timestamp))
+			.y((coord : TimestampCoordinate) => yScale(coord.y))(parsedDataset);
+	}
 
-	// const tickFormat = (value) => timeFormat("%a")(value);
-
-	$: xScale = scaleTime()
-		.domain(extent(parsedDataset, (coord : TimestampCoordinate) => coord.timestamp))
-		.range([0, innerWidth])
-		.nice();
-
-	$: yScale = scaleLinear()
-		.domain(extent(parsedDataset, (coord : TimestampCoordinate) => coord.y))
-		.range([innerHeight, 0])
-		.nice();
-
-	$: line_gen = line()
-		.curve(curveNatural)
-		.x((coord : TimestampCoordinate) => xScale(coord.timestamp))
-		.y((coord : TimestampCoordinate) => yScale(coord.y))(parsedDataset);
+	$: initGraph(dataset, isTimestampXAxis);
 </script>
 
 
 <style lang="scss">
 	circle {
-		fill: #137880;
+		fill: #239de2;
 	}
+
 	path {
 		fill: transparent;
-		stroke: rgb(18, 153, 90);
+		stroke: rgba(35, 157, 226, 0.5);
 		stroke-width: 2.5;
-		stroke-linejoin: round;
-		stroke-dasharray: 4400;
-		stroke-dashoffset: 0;
-		animation: draw 8.5s ease;
+		// stroke-linejoin: round;
+		// stroke-dasharray: 4400;
+		// stroke-dashoffset: 0;
+		// animation: draw 3s linear;
 	}
+
 	@keyframes draw {
 		from {
 			stroke-dashoffset: 4400;
 		}
+
 		to {
 			stroke-dashoffset: 0;
 		}
@@ -86,26 +102,36 @@
 </style>
 
 
-<main>
-	<svg {width} {height}>
-		<g transform={`translate(${margin.left},${margin.top})`}>
-			<LineGraph2Axis {innerHeight} {margin} scale={xScale} position="bottom" />
+<svg viewBox="0 0 1000 250">
+	<g transform="translate({ margin.left }, { margin.top })">
+		<LineGraph2Axis
+			{ innerWidth }
+			{ innerHeight }
+			scale={ yScale }
+			position="left"
+			label={ yLabel }
+		/>
 
-			<LineGraph2Axis {innerHeight} {margin} scale={yScale} position="left" />
+		<LineGraph2Axis
+			{ innerWidth }
+			{ innerHeight }
+			scale={ xScale }
+			position="bottom"
+			label={ xLabel }
+		/>
 
-			<text transform={`translate(${-30},${innerHeight / 2}) rotate(-90)`}>Temperature</text>
+		<path
+			d={ generatedLine }
+			in:draw={ { duration : 1000 } }
+		/>
 
-			<path d={line_gen} />
-
-			{#each parsedDataset as data, i}
-				<circle
-					cx={xScale(data.timestamp)}
-					cy={yScale(data.y)}
-					r="3"
-					in:fly={{ duration: 5000, delay : i * 15 }}
-				/>
-			{/each}
-			<text x={innerWidth / 2} y={innerHeight + 35}>Timestamp</text>
-		</g>
-	</svg>
-</main>
+		{#each parsedDataset as data, i }
+			<circle
+				cx={ xScale(data.timestamp) }
+				cy={ yScale(data.y) }
+				r="4"
+				in:fly={{ duration: 5000, delay : i * 15 }}
+			/>
+		{/each}
+	</g>
+</svg>

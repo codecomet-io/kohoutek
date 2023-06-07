@@ -1,6 +1,6 @@
 import { goto } from '$app/navigation';
 
-import { smartSort, get } from 'briznads-helpers';
+import { smartSort, get, deepCopy } from 'briznads-helpers';
 
 
 export function getUrlSearchParams(searchString? : string) : URLSearchParams {
@@ -56,18 +56,29 @@ export function objectEntries<T extends object>(obj : T) : Entries<T> {
 	return Object.entries(obj) as Entries<T>;
 }
 
-export function getEndpoints(arr : any[], nestedValuePath? : string, returnNestedValue : boolean = false) : { lower : any; upper : any } {
+export function getEndpoints(arr : any[], nestedValuePath? : string, returnNestedValue : boolean = false, includeMedian : boolean = false) : { lower : any, median? : any, upper : any } {
 	const sortArr = nestedValuePath && returnNestedValue
 		? arr.map(item => get(item, nestedValuePath.split('.')))
 		: arr;
 
-	const rangeArr = smartSort(sortArr, null, false, nestedValuePath && !returnNestedValue ? nestedValuePath : null);
+	const rangeArr = smartSort(sortArr, undefined, false, nestedValuePath && !returnNestedValue ? nestedValuePath : undefined);
+
+	let median : any;
+
+	if (includeMedian) {
+		median = deepCopy(rangeArr[ Math.round((rangeArr.length - 1) / 2) ]);
+	}
 
 	const upper = rangeArr.pop();
 	const lower = rangeArr.shift();
 
-	return {
-		upper,
-		lower,
-	};
+	return includeMedian
+		? {
+			upper,
+			median,
+			lower,
+		} : {
+			upper,
+			lower,
+		};
 }

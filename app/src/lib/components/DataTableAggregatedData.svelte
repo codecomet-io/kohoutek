@@ -3,7 +3,8 @@
 	import { runsTable } from '$lib/stores/runs-table';
 
 	// import LineGraph from '$lib/components/LineGraph.svelte';
-	import LineGraph2 from '$lib/components/LineGraph2.svelte';
+	// import LineGraph from '$lib/components/LineGraph2.svelte';
+	import LineGraph from '$lib/components/LineGraph3.svelte';
 
 
 	const { aggregatedDataMap } = runsTable;
@@ -48,7 +49,7 @@
 
 				{#if data.chartCoordinates != null }
 					<ion-card-content>
-						<LineGraph2 dataset={ data.chartCoordinates } />
+						<LineGraph coordinates={ data.chartCoordinates } />
 					</ion-card-content>
 				{/if}
 			</ion-card>

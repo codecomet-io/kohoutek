@@ -47,15 +47,6 @@ export function handleEnterKey(event : any, callback : () => void) : void {
 
 export const HEK = handleEnterKey;
 
-// https://stackoverflow.com/questions/60141960/typescript-key-value-relation-preserving-object-entries-type/75337277#75337277
-type ValueOf<T> = T[keyof T]
-type Entries<T> = [keyof T, ValueOf<T>][]
-
-// Same as `Object.entries()` but with type inference
-export function objectEntries<T extends object>(obj : T) : Entries<T> {
-	return Object.entries(obj) as Entries<T>;
-}
-
 export function getEndpoints(arr : any[], nestedValuePath? : string, returnNestedValue : boolean = false, includeMedian : boolean = false) : { lower : any, median? : any, upper : any } {
 	const sortArr = nestedValuePath && returnNestedValue
 		? arr.map(item => get(item, nestedValuePath.split('.')))

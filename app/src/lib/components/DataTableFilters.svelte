@@ -2,9 +2,9 @@
 	import type { AlertInput } from '@ionic/core';
 
 	import { onMount } from 'svelte';
-	import { lapsed } from 'briznads-helpers';
+	import { lapsed, objectEntries } from 'briznads-helpers';
 	import { filter as filterIcon, closeCircle } from 'ionicons/icons';
-	import { HEK, objectEntries, getEndpoints } from '$lib/helper';
+	import { HEK, getEndpoints } from '$lib/helper';
 	import { runsTable } from '$lib/stores/runs-table';
 
 

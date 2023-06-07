@@ -69,11 +69,13 @@
 
 		xScale = scaleLinear()
 			.domain(xEndpoints)
-			.rangeRound([ padding.left, width - padding.right ]);
+			.rangeRound([ padding.left, width - padding.right ])
+			.clamp(true);
 
 		yScale = scaleLinear()
 			.domain(yEndpoints)
-			.rangeRound([ height - padding.bottom, padding.top ]);
+			.rangeRound([ height - padding.bottom, padding.top ])
+			.clamp(true);
 
 		setVisible();
 	}

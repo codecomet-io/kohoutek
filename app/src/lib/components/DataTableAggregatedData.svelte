@@ -37,13 +37,27 @@
 <style lang="scss">
 	.aggregate-data-container {
 		display: flex;
+		flex-wrap: wrap;
 		gap: 1em;
 		margin-bottom: 24px;
 
+		@media (min-width: 992px) {
+			flex-wrap: nowrap;
+		}
+
 		ion-card {
 			flex: 1;
+			min-width: 80%;
 			margin: 0;
 			border: 0.5px solid #c8c7cc;
+
+			@media (min-width: 576px) {
+				min-width: 40%;
+			}
+
+			@media (min-width: 992px) {
+				min-width: auto;
+			}
 		}
 	}
 

@@ -72,7 +72,7 @@
 		}
 	}
 
-	.no-value {
+	.no-title {
 		visibility: hidden;
 	}
 </style>
@@ -80,21 +80,25 @@
 
 <div class="aggregate-data-container">
 	{#each objectEntries($aggregatedDataMap) as [ key, data ] }
-		<ion-card class:has-graph={ data.chartCoordinates != null }>
+		<ion-card class:has-graph={ data.chartCoordinates?.length > 0 }>
 			<ion-card-header>
-				<ion-card-title class:no-value={ data.value === '' }>{ data.value === '' ? 'no value' : data.value }</ion-card-title>
+				<ion-card-title class:no-title={ data.title === '' }>{ data.title === '' ? 'no value' : data.title }</ion-card-title>
 
-				<ion-card-subtitle>{ data.name }</ion-card-subtitle>
+				<ion-card-subtitle>{ data.subtitle }</ion-card-subtitle>
 			</ion-card-header>
 
-			<ion-card-content>
-				<LineGraph
-					coordinates={ data.chartCoordinates }
-					{ formatXTicks }
-					formatYTicks={ formatYTicksMap[ key ] }
-					hideYTicks={ key === 'erroredRate' }
-				/>
-			</ion-card-content>
+			{#if data.chartCoordinates?.length > 0 }
+				<ion-card-content>
+					<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
+
+					<LineGraph
+						coordinates={ data.chartCoordinates }
+						{ formatXTicks }
+						formatYTicks={ formatYTicksMap[ key ] }
+						hideYTicks={ key === 'erroredRate' }
+					/>
+				</ion-card-content>
+			{/if}
 		</ion-card>
 	{/each}
 </div>

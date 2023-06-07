@@ -35,8 +35,9 @@ export type AggregatedDataMap = {
 };
 
 export type AggregatedData = {
-	name              : string;
-	value             : number | string;
+	subtitle          : string;
+	title             : number | string;
+	chartLabel?       : string;
 	chartCoordinates? : Coordinate[];
 };
 

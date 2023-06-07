@@ -13,6 +13,9 @@ import { getEndpoints } from '$lib/helper';
 import { runsTable } from '$lib/stores/runs-table';
 
 
+type PartialAggregatedData = Omit<AggregatedData, 'subtitle'>;
+
+
 class AggregatedDataRuns {
 	public aggregatedDataMap : Readable<AggregatedDataMap>;
 
@@ -28,7 +31,7 @@ class AggregatedDataRuns {
 
 
 	private getDefaultAggregatedDataMap() : AggregatedDataMap {
-		const value = '';
+		const title = '';
 		const y = 0;
 
 		const now = Date.now();
@@ -50,24 +53,28 @@ class AggregatedDataRuns {
 
 		return {
 			machineTime : {
-				value,
+				title,
 				chartCoordinates,
-				name : 'Average Duration',
+				subtitle   : 'Average Duration',
+				chartLabel : 'All Durations',
 			},
 			runsPerDay : {
-				value,
+				title,
 				chartCoordinates,
-				name : 'Average Runs Per Day',
+				subtitle   : 'Average Runs Per Day',
+				chartLabel : 'All Runs Per Day',
 			},
 			erroredRate : {
-				value,
+				title,
 				chartCoordinates,
-				name : 'Average Errored Rate',
+				subtitle   : 'Average Errored Rate',
+				chartLabel : 'All Errored Rates',
 			},
 			cachedRate : {
-				value,
+				title,
 				chartCoordinates,
-				name : 'Average Cached Rate',
+				subtitle   : 'Average Cached Rate',
+				chartLabel : 'All Cached Rates',
 			},
 		};
 	}
@@ -107,23 +114,26 @@ class AggregatedDataRuns {
 	}
 
 	private async setAggregateDataMap(runs : Run[], set : (value : any) => void) : Promise<void> {
-		// await sleep(1);
+		await sleep(1);
 
 		const aggregatedDataMap = get(this.aggregatedDataMap);
 
 		for (const [ key, value ] of objectEntries(aggregatedDataMap)) {
 			// @briznad: there doesn't appear to be a current solution to make this error go away
 			// https://github.com/microsoft/TypeScript/issues/13543
-			this[ key ](value.name, runs)
-				.then((aggregatedData : AggregatedData) => {
-					aggregatedDataMap[ key ] = aggregatedData;
+			this[ key ](runs)
+				.then((partialAggregatedData : PartialAggregatedData) => {
+					aggregatedDataMap[ key ] = {
+						...aggregatedDataMap[ key ],
+						...partialAggregatedData,
+					};
 
 					set(aggregatedDataMap);
 				});
 		}
 	}
 
-	private async machineTime(name : string, runs : Run[]) : Promise<AggregatedData> {
+	private async machineTime(runs : Run[]) : Promise<PartialAggregatedData> {
 		const chartCoordinates = runs.map((run : Run) => ({
 			x : run.started,
 			y : run.machineTime,
@@ -133,17 +143,16 @@ class AggregatedDataRuns {
 
 		const totalMachineTime = chartCoordinates.reduce((sum, coord : Coordinate) => sum + coord.y, 0);
 
-		const value = lapsed(Math.floor(totalMachineTime / chartCoordinates.length), true);
+		const title = lapsed(Math.floor(totalMachineTime / chartCoordinates.length), true);
 
 		return {
-			name,
-			value,
+			title,
 			chartCoordinates,
 		};
 	}
 
-	private async runsPerDay(name : string, runs : Run[]) : Promise<AggregatedData> {
-		await sleep(1);
+	private async runsPerDay(runs : Run[]) : Promise<PartialAggregatedData> {
+		// await sleep(1);
 
 		const runsByStarted : number[] = runs.map((run : Run) => run.started);
 
@@ -155,7 +164,7 @@ class AggregatedDataRuns {
 		// calculate the no. of days between two dates, inclusive
 		// const daySpread = Math.round(difference / (1000 * 3600 * 24)) + 1;
 
-		// const value = roundToDecimals(runsByStarted.length / daySpread);
+		// const title = roundToDecimals(runsByStarted.length / daySpread);
 
 		const runsPerDayMap : NumberMap = {};
 
@@ -198,11 +207,10 @@ class AggregatedDataRuns {
 
 		smartSort(chartCoordinates, undefined, undefined, 'x');
 
-		const value = roundToDecimals(runsByStarted.length / chartCoordinates.length);
+		const title = roundToDecimals(runsByStarted.length / chartCoordinates.length);
 
 		return {
-			name,
-			value,
+			title,
 			chartCoordinates,
 		};
 	}
@@ -211,7 +219,7 @@ class AggregatedDataRuns {
 		return parseDate(date).toLocaleString(undefined, { dateStyle : 'medium' });
 	}
 
-	private async erroredRate(name : string, runs : Run[]) : Promise<AggregatedData> {
+	private async erroredRate(runs : Run[]) : Promise<PartialAggregatedData> {
 		const chartCoordinates = runs.map((run : Run) => ({
 			x : run.started,
 			y : run.status === 'errored' ? 1 : 0,
@@ -223,16 +231,15 @@ class AggregatedDataRuns {
 			.filter((coord : Coordinate) => coord.y)
 			.length;
 
-		const value = `${ roundToDecimals(erroredRuns / chartCoordinates.length * 100) }%`;
+		const title = `${ roundToDecimals(erroredRuns / chartCoordinates.length * 100) }%`;
 
 		return {
-			name,
-			value,
+			title,
 			chartCoordinates,
 		};
 	}
 
-	private async cachedRate(name : string, runs : Run[]) : Promise<AggregatedData> {
+	private async cachedRate(runs : Run[]) : Promise<PartialAggregatedData> {
 		const chartCoordinates = runs.map((run : Run) => ({
 			x : run.started,
 			y : run.stats?.cachedPercent ?? 0,
@@ -243,11 +250,10 @@ class AggregatedDataRuns {
 		const totalCachedPercent : number = chartCoordinates
 			.reduce((sum : number, coord : Coordinate) => sum + coord.y, 0);
 
-		const value = `${ roundToDecimals(totalCachedPercent / chartCoordinates.length * 100) }%`;
+		const title = `${ roundToDecimals(totalCachedPercent / chartCoordinates.length * 100) }%`;
 
 		return {
-			name,
-			value,
+			title,
 			chartCoordinates,
 		};
 	}

@@ -287,8 +287,12 @@ class RunsTable {
 		this.selectedColumns.set(visibleColumns);
 	}
 
-	public updateFilterMap(key : string, values? : any[]) : void {
+	public updateFilterMap(key : string | FilterMap, values? : any[]) : void {
 		this.filterMap.update(item => {
+			if (typeof key === 'object') {
+				return key;
+			}
+
 			if (values == null) {
 				delete item[ key ];
 			} else {

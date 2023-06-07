@@ -1,12 +1,18 @@
 <script lang="ts">
 	import type { AlertInput } from '@ionic/core';
+	import type { BooleanMap } from 'briznads-helpers';
+
+	import type { FilterMap } from '$lib/types/runs-table';
 
 	import { onMount } from 'svelte';
+	import { snakeCase, camelCase } from 'lodash';
 	import { lapsed, objectEntries } from 'briznads-helpers';
 	import { filter as filterIcon, closeCircle } from 'ionicons/icons';
-	import { HEK, getEndpoints } from '$lib/helper';
+	import { HEK, getEndpoints, gotoSearchString } from '$lib/helper';
 	import { runsTable } from '$lib/stores/runs-table';
 
+
+	export let searchParams : URLSearchParams;
 
 	const {
 		columnMap,
@@ -16,6 +22,29 @@
 		finiteFilterValuesMap,
 		filterableColumns,
 	} = runsTable;
+
+	const filterParamRegex = /^filter__/;
+
+	function updateFromParams(searchParams : URLSearchParams) : void {
+		const filterParams : FilterMap = {};
+
+		for (const [ key, value ] of searchParams) {
+			if (!filterParamRegex.test(key)) {
+				continue;
+			}
+
+			const parsedKey = camelCase(key.replace(filterParamRegex, ''));
+			const parsedValues = JSON.parse(value);
+
+			filterParams[ parsedKey ] = parsedValues;
+		}
+
+		runsTable.updateFilterMap(filterParams);
+
+		chipClickedMap = {};
+	}
+
+	$: updateFromParams(searchParams);
 
 	let addFilterAlertElement : HTMLIonAlertElement;
 
@@ -160,7 +189,27 @@
 			return;
 		}
 
-		runsTable.updateFilterMap(key, values);
+		updateFilter(key, values);
+	}
+
+	function updateFilter(key : string, values? : any[]) : void {
+		const paramKey = `filter__${ snakeCase(key) }`;
+
+		let paramValues : undefined | string = undefined;
+
+		if (values) {
+			paramValues = JSON.stringify(values);
+		}
+
+		gotoSearchString(paramKey, paramValues);
+	}
+
+	let chipClickedMap : BooleanMap = {};
+
+	function handleChipClick(key : string) : void {
+		chipClickedMap[ key ] = true;
+
+		updateFilter(key);
 	}
 </script>
 
@@ -193,8 +242,9 @@
 <div class="filter-container">
 	{#each objectEntries($filterMap) as [ key, values ] }
 		<ion-chip
-			on:click={ () => runsTable.updateFilterMap(key) }
-			on:keydown={ (e) => HEK(e, () => runsTable.updateFilterMap(key)) }
+			on:click={ () => handleChipClick(key) }
+			on:keydown={ (e) => HEK(e, () => handleChipClick(key)) }
+			disabled={ chipClickedMap[ key ] }
 		>
 			<ion-label><strong>{ $columnMap?.[ key ].name }:</strong> { getFilterChipValue(key, values) }</ion-label>
 

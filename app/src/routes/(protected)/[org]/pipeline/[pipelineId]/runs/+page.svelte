@@ -284,7 +284,7 @@
 
 	<ion-card-title>All Pipeline Runs</ion-card-title>
 
-	<DataTableFilters />
+	<DataTableFilters searchParams={ data.searchParams } />
 
 	<DataTableAggregatedData />
 

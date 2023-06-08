@@ -49,8 +49,8 @@
 		height: auto;
 		contain: none;
 		border-style: solid;
-		border-color: #c8c7cc;
-		border-width: 0.5px 0.5px 0 0.5px;
+		border-color: var(--border-color);
+		border-width: var(--outer-border-width);
 		border-top-left-radius: var(--rounded-corner-radius);
 		border-top-right-radius: var(--rounded-corner-radius);
 

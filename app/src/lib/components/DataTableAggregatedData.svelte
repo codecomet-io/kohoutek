@@ -51,7 +51,7 @@
 			flex: 1;
 			min-width: 80%;
 			margin: 0;
-			border: 0.5px solid #c8c7cc;
+			border: 1px solid #c8c7cc;
 
 			@media (min-width: 576px) {
 				min-width: 40%;

@@ -143,6 +143,11 @@
 
 <style lang="scss">
 	.table-scroll-container {
+		--border-color: #c8c7cc;
+
+		--outer-border-width: 1px;
+		--inner-border-width: 0.5px;
+
 		--rounded-corner-radius: 8px;
 
 		overflow-x: auto;
@@ -168,17 +173,18 @@
 		min-width: calc(768px - (16px * 2));
 		align-items: center;
 		border-style: solid;
-		border-color: #c8c7cc;
-		border-width: 0 0.5px 0.5px 0.5px;
+		border-color: var(--border-color);
+		border-width: 0 var(--outer-border-width) var(--inner-border-width) var(--outer-border-width);
 
 		&:last-child {
+			border-bottom-width: var(--outer-border-width);
 			border-bottom-left-radius: var(--rounded-corner-radius);
 			border-bottom-right-radius: var(--rounded-corner-radius);
 		}
 	}
 
 	.header {
-		border-top-width: 0.5px;
+		border-bottom-width: var(--outer-border-width);
 		font-weight: 700;
 
 		.cell {

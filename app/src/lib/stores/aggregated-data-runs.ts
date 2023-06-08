@@ -188,15 +188,7 @@ class AggregatedDataRuns {
 		const safetyLimit : number = 1000000;
 		let safetyCounter : number = 0;
 
-		while (true) {
-			safetyCounter++;
-
-			if (safetyCounter > safetyLimit) {
-				console.error('loop exceeded iteration limit of ${ safetyLimit }');
-
-				break;
-			}
-
+		while (safetyCounter <= safetyLimit) {
 			iterableDate.setDate(iterableDate.getDate() + 1);
 
 			const dateString = this.getDateString(iterableDate);
@@ -208,6 +200,12 @@ class AggregatedDataRuns {
 			}
 
 			runsPerDayMap[ dateString ] = 0;
+
+			safetyCounter++;
+
+			if (safetyCounter > safetyLimit) {
+				console.error('loop exceeded iteration limit of ${ safetyLimit }');
+			}
 		}
 
 		const chartCoordinates = objectEntries(runsPerDayMap)

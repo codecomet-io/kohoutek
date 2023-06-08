@@ -185,13 +185,14 @@ class AggregatedDataRuns {
 
 		const iterableDate = new Date(lowerDateString);
 
+		const safetyLimit : number = 1000000;
 		let safetyCounter : number = 0;
 
 		while (true) {
 			safetyCounter++;
 
-			if (safetyCounter > 100000) {
-				console.error('safetyCounter exceeded 100,000');
+			if (safetyCounter > safetyLimit) {
+				console.error('loop exceeded iteration limit of ${ safetyLimit }');
 
 				break;
 			}

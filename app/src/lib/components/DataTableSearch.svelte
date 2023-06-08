@@ -36,8 +36,6 @@
 			setTimeout(() => {
 				ionSearchbar.setFocus();
 			}, 10);
-		} else {
-			stolenFocus = false;
 		}
 	}
 </script>

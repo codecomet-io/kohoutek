@@ -82,7 +82,7 @@ class AggregatedDataRuns {
 	private initAggregatedDataMap() : Readable<AggregatedDataMap> {
 		return derived(
 			[
-				runsTable.runs,
+				runsTable.queriedRuns,
 			],
 			([
 				$runs,

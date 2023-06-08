@@ -16,11 +16,14 @@ class RunsTable {
 	public unmodifiedRuns  : Writable<Run[]>;
 	public selectedColumns : Writable<string[]>;
 	public filterMap       : Writable<FilterMap>;
+	public activeSearch    : Writable<string>;
 	public activeSort      : Writable<ActiveSort>;
 	public addFilterInfo   : Writable<AddFilterInfo>;
 
 	public selectableColumns     : Readable<string[]>;
 	public visibleColumns        : Readable<string[]>;
+	public filteredRuns          : Readable<Run[]>;
+	public queriedRuns           : Readable<Run[]>;
 	public runs                  : Readable<Run[]>;
 	public finiteFilterValuesMap : Readable<FiniteFilterValuesMap>;
 	public filterableColumns     : Readable<string[]>;
@@ -32,6 +35,7 @@ class RunsTable {
 		this.unmodifiedRuns  = writable([]);
 		this.selectedColumns = writable([]);
 		this.filterMap       = writable({});
+		this.activeSearch    = writable('');
 		this.activeSort      = writable({
 			key       : 'started',
 			direction : 'descending',
@@ -44,6 +48,8 @@ class RunsTable {
 		// setup derived stores
 		this.selectableColumns     = this.initSelectableColumns();
 		this.visibleColumns        = this.initVisibleColumns();
+		this.filteredRuns          = this.initFilteredRuns();
+		this.queriedRuns           = this.initQueriedRuns();
 		this.runs                  = this.initRuns();
 		this.finiteFilterValuesMap = this.initFiniteFilterValuesMap();
 		this.filterableColumns     = this.initFilterableColumns();
@@ -88,24 +94,16 @@ class RunsTable {
 		);
 	}
 
-	private initRuns() : Readable<Run[]> {
+	private initFilteredRuns() : Readable<Run[]> {
 		return derived(
 			[
 				this.unmodifiedRuns,
-				this.activeSort,
 				this.filterMap,
 			],
 			([
 				$unmodifiedRuns,
-				$activeSort,
 				$filterMap,
-			]) : Run[] => {
-				let runs = this.filterRuns($unmodifiedRuns ?? [], $filterMap);
-
-				runs = smartSort(runs, $activeSort.direction, true, $activeSort.key);
-
-				return runs;
-			},
+			]) : Run[] => this.filterRuns($unmodifiedRuns ?? [], $filterMap),
 		);
 	}
 
@@ -163,6 +161,51 @@ class RunsTable {
 
 			return withinLowerBound && withinUpperBound;
 		});
+	}
+
+	private initQueriedRuns() : Readable<Run[]> {
+		return derived(
+			[
+				this.filteredRuns,
+				this.selectedColumns,
+				this.activeSearch,
+			],
+			([
+				$filteredRuns,
+				$selectedColumns,
+				$activeSearch,
+			]) : Run[] => this.searchRuns($filteredRuns, $activeSearch, $selectedColumns),
+		);
+	}
+
+	private searchRuns(runs : Run[], search : string, selectedColumns : string[]) : Run[] {
+		if (!this.isInitialized) {
+			return [];
+		}
+
+		return Query.matchObject(
+			runs,
+			search,
+			selectedColumns,
+			{
+				matchPartialWords   : true,
+				disregardQueryOrder : true,
+				caseInsensitive     : true,
+			},
+		);
+	}
+
+	private initRuns() : Readable<Run[]> {
+		return derived(
+			[
+				this.queriedRuns,
+				this.activeSort,
+			],
+			([
+				$queriedRuns,
+				$activeSort,
+			]) : Run[] => smartSort($queriedRuns, $activeSort.direction, false, $activeSort.key),
+		);
 	}
 
 	private initFiniteFilterValuesMap() : Readable<FiniteFilterValuesMap> {

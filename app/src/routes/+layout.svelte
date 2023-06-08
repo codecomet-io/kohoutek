@@ -51,6 +51,7 @@
 	import 'ionic-svelte/components/ion-range';
 	import 'ionic-svelte/components/ion-radio-group';
 	import 'ionic-svelte/components/ion-row';
+	import 'ionic-svelte/components/ion-searchbar';
 	import 'ionic-svelte/components/ion-select';
 	import 'ionic-svelte/components/ion-select-option';
 	import 'ionic-svelte/components/ion-split-pane';

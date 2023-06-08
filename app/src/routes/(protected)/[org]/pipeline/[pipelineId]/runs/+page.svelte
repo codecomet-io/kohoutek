@@ -12,6 +12,7 @@
 	import DataTableFilters from '$lib/components/DataTableFilters.svelte';
 	import DataTableAggregatedData from '$lib/components/DataTableAggregatedData.svelte';
 	import DataTableColumnChooser from '$lib/components/DataTableColumnChooser.svelte';
+	import DataTableSearch from '$lib/components/DataTableSearch.svelte';
 
 
 	export let data : PageData;
@@ -134,6 +135,8 @@
 
 <style lang="scss">
 	.table-scroll-container {
+		--rounded-corner-radius: 8px;
+
 		overflow-x: auto;
 		margin-left: -16px;
 		margin-right: -16px;
@@ -161,15 +164,13 @@
 		border-width: 0 0.5px 0.5px 0.5px;
 
 		&:last-child {
-			border-bottom-left-radius: 5px;
-			border-bottom-right-radius: 5px;
+			border-bottom-left-radius: var(--rounded-corner-radius);
+			border-bottom-right-radius: var(--rounded-corner-radius);
 		}
 	}
 
 	.header {
 		border-top-width: 0.5px;
-		border-top-left-radius: 5px;
-		border-top-right-radius: 5px;
 		font-weight: 700;
 
 		.cell {
@@ -289,6 +290,8 @@
 	<DataTableAggregatedData />
 
 	<div class="table-scroll-container">
+		<DataTableSearch searchParams={ data.searchParams } />
+
 		<div class="table-wrapper">
 			<DataTableColumnChooser />
 

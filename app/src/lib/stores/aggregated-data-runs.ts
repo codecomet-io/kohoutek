@@ -5,23 +5,21 @@ import type { Run } from '../../../../pantry/src/lib/model';
 
 import type { AggregatedDataMap, AggregatedData, Coordinate } from '$lib/types/runs-table';
 
-import { derived, get } from 'svelte/store';
-import { lapsed, smartSort, roundToDecimals, parseDate, objectEntries, sleep } from 'briznads-helpers';
+import { derived } from 'svelte/store';
+import { lapsed, smartSort, roundToDecimals, parseDate, objectEntries, sleep, deepCopy } from 'briznads-helpers';
 
 import { getEndpoints } from '$lib/helper';
 
 import { runsTable } from '$lib/stores/runs-table';
 
 
-type PartialAggregatedData = Omit<AggregatedData, 'subtitle'>;
+type PartialAggregatedData = Partial<AggregatedData>;
 
 
 class AggregatedDataRuns {
 	public aggregatedDataMap : Readable<AggregatedDataMap>;
 
-	private cachedRunsStr : string = '';
-
-	private readonly defaultAggregatedDataMap : AggregatedDataMap = this.getDefaultAggregatedDataMap();
+	private updateValues : boolean = false;
 
 
 	constructor() {
@@ -32,97 +30,69 @@ class AggregatedDataRuns {
 
 	private getDefaultAggregatedDataMap() : AggregatedDataMap {
 		const title = '';
-		const y = 0;
 
-		const now = Date.now();
-
-		const chartCoordinates : Coordinate[] = [
-			{
-				y,
-				x : now - 1,
-			},
-			{
-				y,
-				x : now,
-			},
-			{
-				y,
-				x : now + 1,
-			},
-		];
-
-		return {
+		const aggregatedDataMap : AggregatedDataMap = {
 			machineTime : {
 				title,
-				chartCoordinates,
 				subtitle   : 'Average Duration',
 				chartLabel : 'All Durations',
 			},
 			runsPerDay : {
 				title,
-				chartCoordinates,
 				subtitle   : 'Average Runs Per Day',
 				chartLabel : 'All Runs Per Day',
 			},
 			erroredRate : {
 				title,
-				chartCoordinates,
 				subtitle   : 'Average Errored Rate',
 				chartLabel : 'All Errored Rates',
 			},
 			cachedRate : {
 				title,
-				chartCoordinates,
 				subtitle   : 'Average Cached Rate',
 				chartLabel : 'All Cached Rates',
 			},
 		};
+
+		return deepCopy(aggregatedDataMap);
 	}
 
 	private initAggregatedDataMap() : Readable<AggregatedDataMap> {
 		return derived(
-			[
-				runsTable.queriedRuns,
-			],
-			([
-				$runs,
-			], set) : void => {
-				if (this.runsAreUnchanged($runs)) {
-					return;
+			runsTable.queriedRuns,
+			(
+				$runs : Run[],
+				set  : (value : any) => void,
+			) : void => {
+				if ($runs?.length) {
+					this.updateValues = true;
+
+					this.setAggregateDataMap($runs, set);
+				} else {
+					this.updateValues = false;
+
+					set(this.getDefaultAggregatedDataMap());
 				}
-
-				this.setAggregateDataMap($runs, set);
 			},
-			this.defaultAggregatedDataMap,
+			this.getDefaultAggregatedDataMap(),
 		);
-	}
-
-	private runsAreUnchanged(runs : Run[]) : boolean {
-		const runsArr = runs.map((run : Run) => run.id);
-
-		smartSort(runsArr);
-
-		const runsStr = runsArr.join('');
-
-		const unchanged = runsStr === this.cachedRunsStr;
-
-		if (!unchanged) {
-			this.cachedRunsStr = runsStr;
-		}
-
-		return unchanged;
 	}
 
 	private async setAggregateDataMap(runs : Run[], set : (value : any) => void) : Promise<void> {
 		await sleep(1);
 
-		const aggregatedDataMap = get(this.aggregatedDataMap);
+		const aggregatedDataMap = this.getDefaultAggregatedDataMap();
 
 		for (const [ key, value ] of objectEntries(aggregatedDataMap)) {
 			// @briznad: there doesn't appear to be a current solution to make this error go away
 			// https://github.com/microsoft/TypeScript/issues/13543
 			this[ key ](runs)
 				.then((partialAggregatedData : PartialAggregatedData) => {
+					// insure that the data is still relevant
+					if (!this.updateValues) {
+						return;
+					}
+
 					aggregatedDataMap[ key ] = {
 						...aggregatedDataMap[ key ],
 						...partialAggregatedData,
@@ -156,16 +126,6 @@ class AggregatedDataRuns {
 
 		const runsByStarted : number[] = runs.map((run : Run) => run.started);
 
-		// const { lower, upper } = getEndpoints(runsByStarted);
-
-		// calculate the time difference of two dates
-    // const difference = upper - lower;
-
-		// calculate the no. of days between two dates, inclusive
-		// const daySpread = Math.round(difference / (1000 * 3600 * 24)) + 1;
-
-		// const title = roundToDecimals(runsByStarted.length / daySpread);
-
 		const runsPerDayMap : NumberMap = {};
 
 		for (const started of runsByStarted) {
@@ -180,32 +140,8 @@ class AggregatedDataRuns {
 
 		const { lower, upper } = getEndpoints(runsByStarted);
 
-		const upperDateString = this.getDateString(upper);
-		const lowerDateString = this.getDateString(lower);
-
-		const iterableDate = new Date(lowerDateString);
-
-		const safetyLimit : number = 1000000;
-		let safetyCounter : number = 0;
-
-		while (safetyCounter <= safetyLimit) {
-			iterableDate.setDate(iterableDate.getDate() + 1);
-
-			const dateString = this.getDateString(iterableDate);
-
-			if (dateString === upperDateString) {
-				break;
-			} else if (dateString in runsPerDayMap) {
-				continue;
-			}
-
-			runsPerDayMap[ dateString ] = 0;
-
-			safetyCounter++;
-
-			if (safetyCounter > safetyLimit) {
-				console.error('loop exceeded iteration limit of ${ safetyLimit }');
-			}
+		if (lower !== upper) {
+			this.populateMissingDays(runsPerDayMap, lower, upper);
 		}
 
 		const chartCoordinates = objectEntries(runsPerDayMap)
@@ -226,6 +162,36 @@ class AggregatedDataRuns {
 
 	private getDateString(date : number | Date) : string {
 		return parseDate(date).toLocaleString(undefined, { dateStyle : 'medium' });
+	}
+
+	private populateMissingDays(runsPerDayMap : NumberMap, lower : number, upper : number) : void {
+		const upperDateString = this.getDateString(upper);
+		const lowerDateString = this.getDateString(lower);
+
+		const iterableDate = new Date(lowerDateString);
+
+		const safetyLimit : number = 100000;
+		let safetyCounter : number = 0;
+
+		while (safetyCounter <= safetyLimit) {
+			safetyCounter++;
+
+			if (safetyCounter > safetyLimit) {
+				console.error(`loop exceeded iteration limit of ${ safetyLimit }`);
+			}
+
+			iterableDate.setDate(iterableDate.getDate() + 1);
+
+			const dateString = this.getDateString(iterableDate);
+
+			if (dateString === upperDateString) {
+				break;
+			} else if (dateString in runsPerDayMap) {
+				continue;
+			}
+
+			runsPerDayMap[ dateString ] = 0;
+		}
 	}
 
 	private async erroredRate(runs : Run[]) : Promise<PartialAggregatedData> {

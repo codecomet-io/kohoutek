@@ -96,14 +96,12 @@
 		return unchanged;
 	}
 
-	function testYEndpoints(yEndpoints : [ number, number ]) : void {
-		if (yEndpoints[0] === yEndpoints[1]) {
-			if (yEndpoints[0] === 0) {
-				yEndpoints[0] = 0;
-				yEndpoints[1] = 100;
+	function testYEndpoints(endpoints : [ number, number ]) : void {
+		if (endpoints[0] === endpoints[1]) {
+			if (endpoints[0] === 0) {
+				endpoints[1] = 100;
 			} else {
-				yEndpoints[1] = yEndpoints[0] * 2;
-				yEndpoints[0] = 0;
+				endpoints[0] = 0;
 			}
 		}
 	}
@@ -140,7 +138,7 @@
 	function getArea(coordinates : Coordinate[]) : string {
 		const areaFunc = area()
 			.x((coord : Coordinate) => xScale(coord.x))
-      .y0(() => yScale(0))
+      .y0(() => yScale(yEndpoints[0]))
       .y1((coord : Coordinate) => yScale(coord.y))
       .curve(curveMonotoneX);
 

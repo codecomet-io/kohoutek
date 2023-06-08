@@ -60,8 +60,8 @@ export function getEndpoints(arr : any[], nestedValuePath? : string, returnNeste
 		median = deepCopy(rangeArr[ Math.round((rangeArr.length - 1) / 2) ]);
 	}
 
-	const upper = rangeArr.pop();
-	const lower = rangeArr.shift();
+	const lower = deepCopy(rangeArr[ 0 ]);
+	const upper = deepCopy(rangeArr[ rangeArr.length - 1 ]);
 
 	return includeMedian
 		? {

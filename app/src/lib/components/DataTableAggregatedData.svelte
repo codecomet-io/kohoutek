@@ -79,15 +79,15 @@
 
 
 <div class="aggregate-data-container">
-	{#each objectEntries($aggregatedDataMap) as [ key, data ] }
-		<ion-card class:has-graph={ data.chartCoordinates?.length > 0 }>
+	{#each objectEntries($aggregatedDataMap ?? {}) as [ key, data ] }
+		<ion-card class:has-graph={ data.chartCoordinates?.length > 1 }>
 			<ion-card-header>
 				<ion-card-title class:no-title={ data.title === '' }>{ data.title === '' ? 'no value' : data.title }</ion-card-title>
 
 				<ion-card-subtitle>{ data.subtitle }</ion-card-subtitle>
 			</ion-card-header>
 
-			{#if data.chartCoordinates?.length > 0 }
+			{#if data.chartCoordinates?.length > 1 }
 				<ion-card-content>
 					<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
 

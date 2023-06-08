@@ -5,6 +5,8 @@
 
 	export let searchParams : URLSearchParams;
 
+	let stolenFocus : boolean;
+
 	const {
 		activeSearch,
 	} = runsTable;
@@ -13,12 +15,30 @@
 		const search = searchParams.get('search') ?? '';
 
 		activeSearch.set(search);
+
+		stolenFocus = true;
 	}
 
 	$: updateFromParams(searchParams);
 
-	function handleSearchInput(event : any) : void {
+	let ionSearchbar : HTMLIonSearchbarElement;
+
+	function handleInput(event : any) : void {
 		gotoSearchString('search', event.detail?.value);
+	}
+
+	function handleFocus(event : any) : void {
+		stolenFocus = false;
+	}
+
+	async function handleBlur(event : any) : Promise<void> {
+		if (stolenFocus) {
+			setTimeout(() => {
+				ionSearchbar.setFocus();
+			}, 10);
+		} else {
+			stolenFocus = false;
+		}
 	}
 </script>
 
@@ -58,6 +78,9 @@
 
 
 <ion-searchbar
+	bind:this={ ionSearchbar }
 	value={ $activeSearch }
-	on:ionInput={ handleSearchInput }
+	on:ionInput={ handleInput }
+	on:ionFocus={ handleFocus }
+	on:ionBlur={ handleBlur }
 ></ion-searchbar>

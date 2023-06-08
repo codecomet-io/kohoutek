@@ -48,8 +48,10 @@
 
 
 <style lang="scss">
-	@media (min-width: 1280px) {
-		.max-width-wrapper {
+	.max-width-wrapper {
+		margin-bottom: 70px;
+
+		@media (min-width: 1280px) {
 			max-width: 1280px;
 			margin-left: auto;
 			margin-right: auto;

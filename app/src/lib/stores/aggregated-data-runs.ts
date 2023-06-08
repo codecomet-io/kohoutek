@@ -185,7 +185,17 @@ class AggregatedDataRuns {
 
 		const iterableDate = new Date(lowerDateString);
 
+		let safetyCounter : number = 0;
+
 		while (true) {
+			safetyCounter++;
+
+			if (safetyCounter > 100000) {
+				console.error('safetyCounter exceeded 100,000');
+
+				break;
+			}
+
 			iterableDate.setDate(iterableDate.getDate() + 1);
 
 			const dateString = this.getDateString(iterableDate);

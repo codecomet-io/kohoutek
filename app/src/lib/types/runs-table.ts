@@ -41,7 +41,4 @@ export type AggregatedData = {
 	chartCoordinates? : Coordinate[];
 };
 
-export type Coordinate = {
-	x : number;
-	y : number;
-};
+export type Coordinate = [ number, number ];

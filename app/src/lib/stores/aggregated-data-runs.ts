@@ -104,14 +104,15 @@ class AggregatedDataRuns {
 	}
 
 	private async machineTime(runs : Run[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = runs.map((run : Run) => ({
-			x : run.started,
-			y : run.machineTime,
-		}));
+		const chartCoordinates = runs
+			.map((run : Run) : Coordinate => [
+				run.started,
+				run.machineTime,
+			]);
 
-		smartSort(chartCoordinates, undefined, undefined, 'x');
+		smartSort(chartCoordinates, undefined, undefined, '0');
 
-		const totalMachineTime = chartCoordinates.reduce((sum, coord : Coordinate) => sum + coord.y, 0);
+		const totalMachineTime = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
 		const title = lapsed(Math.floor(totalMachineTime / chartCoordinates.length), true);
 
@@ -145,12 +146,12 @@ class AggregatedDataRuns {
 		}
 
 		const chartCoordinates = objectEntries(runsPerDayMap)
-			.map(([ dateString, count ]) => ({
-				x : new Date(dateString as string).getTime(),
-				y : count,
-			}));
+			.map(([ dateString, count ]) : Coordinate => [
+				new Date(dateString as string).getTime(),
+				count,
+			]);
 
-		smartSort(chartCoordinates, undefined, undefined, 'x');
+		smartSort(chartCoordinates, undefined, undefined, '0');
 
 		const title = roundToDecimals(runsByStarted.length / chartCoordinates.length);
 
@@ -195,15 +196,17 @@ class AggregatedDataRuns {
 	}
 
 	private async erroredRate(runs : Run[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = runs.map((run : Run) => ({
-			x : run.started,
-			y : run.status === 'errored' ? 1 : 0,
-		}));
+		const chartCoordinates = runs.map((run : Run) : Coordinate => [
+			run.started,
+			run.status === 'errored'
+				? 1
+				: 0,
+		]);
 
-		smartSort(chartCoordinates, undefined, undefined, 'x');
+		smartSort(chartCoordinates, undefined, undefined, '0');
 
 		const erroredRuns : number = chartCoordinates
-			.filter((coord : Coordinate) => coord.y)
+			.filter(([ x, y ] : Coordinate) => y)
 			.length;
 
 		const title = `${ roundToDecimals(erroredRuns / chartCoordinates.length * 100) }%`;
@@ -215,15 +218,15 @@ class AggregatedDataRuns {
 	}
 
 	private async cachedRate(runs : Run[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = runs.map((run : Run) => ({
-			x : run.started,
-			y : run.stats?.cachedPercent ?? 0,
-		}));
+		const chartCoordinates = runs.map((run : Run) : Coordinate => [
+			run.started,
+			run.stats?.cachedPercent ?? 0,
+		]);
 
-		smartSort(chartCoordinates, undefined, undefined, 'x');
+		smartSort(chartCoordinates, undefined, undefined, '0');
 
 		const totalCachedPercent : number = chartCoordinates
-			.reduce((sum : number, coord : Coordinate) => sum + coord.y, 0);
+			.reduce((sum : number, [ x, y ] : Coordinate) => sum + y, 0);
 
 		const title = `${ roundToDecimals(totalCachedPercent / chartCoordinates.length * 100) }%`;
 

@@ -8,7 +8,7 @@
 
 	const { aggregatedDataMap } = aggregatedDataRuns;
 
-	function formatXTicks(tick : number, ticks : number[]) : string {
+	function formatXValue(tick : number, ticks : number[] = []) : string {
 		const options : any = {
 			month : 'short',
 			day   : 'numeric',
@@ -26,7 +26,7 @@
 		return parseDate(tick).toLocaleString(undefined, options);
 	}
 
-	const formatYTicksMap : any = {
+	const formatYValueMap : any = {
 		machineTime : (tick : number) => lapsed(tick, true),
 		cachedRate  : (tick : number) => `${ tick }%`,
 		runsPerDay  : (tick : number) => tick % 1 === 0
@@ -80,22 +80,23 @@
 
 <div class="aggregate-data-container">
 	{#each objectEntries($aggregatedDataMap ?? {}) as [ key, data ] }
-		<ion-card class:has-graph={ data.chartCoordinates?.length > 1 }>
+		<ion-card class:has-graph={ data.chartCoordinates && data.chartCoordinates.length > 1 }>
 			<ion-card-header>
 				<ion-card-title class:no-title={ data.title === '' }>{ data.title === '' ? 'no value' : data.title }</ion-card-title>
 
 				<ion-card-subtitle>{ data.subtitle }</ion-card-subtitle>
 			</ion-card-header>
 
-			{#if data.chartCoordinates?.length > 1 }
+			{#if data.chartCoordinates && data.chartCoordinates.length > 1 }
 				<ion-card-content>
 					<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
 
 					<LineGraph
 						coordinates={ data.chartCoordinates }
-						{ formatXTicks }
-						formatYTicks={ formatYTicksMap[ key ] }
+						{ formatXValue }
+						formatYValue={ formatYValueMap[ key ] ?? ((item) => item.toString()) }
 						hideYTicks={ key === 'erroredRate' }
+						showTooltips={ key === 'machineTime' }
 					/>
 				</ion-card-content>
 			{/if}

@@ -50,7 +50,7 @@
 		contain: none;
 		border-style: solid;
 		border-color: var(--border-color);
-		border-width: var(--outer-border-width);
+		border-width: var(--outer-border-width) var(--outer-border-width) 0 var(--outer-border-width);
 		border-top-left-radius: var(--rounded-corner-radius);
 		border-top-right-radius: var(--rounded-corner-radius);
 

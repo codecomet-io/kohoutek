@@ -161,6 +161,10 @@
 	.table-wrapper {
 		position: relative;
 		width: fit-content;
+		box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 16px;
+		border-bottom-left-radius: var(--rounded-corner-radius);
+		border-bottom-right-radius: var(--rounded-corner-radius);
+		border: var(--outer-border-width) solid var(--border-color);
 
 		@media (min-width: 768px) {
 			width: 100%;
@@ -172,20 +176,19 @@
 		grid-template-columns: var(--grid-template-columns);
 		min-width: calc(768px - (16px * 2));
 		align-items: center;
-		border-style: solid;
-		border-color: var(--border-color);
-		border-width: 0 var(--outer-border-width) var(--inner-border-width) var(--outer-border-width);
 
-		&:last-child {
-			border-bottom-width: var(--outer-border-width);
-			border-bottom-left-radius: var(--rounded-corner-radius);
-			border-bottom-right-radius: var(--rounded-corner-radius);
+		&:not(:last-child) {
+			border-bottom: var(--inner-border-width) solid var(--border-color);
 		}
 	}
 
 	.header {
-		border-bottom-width: var(--outer-border-width);
 		font-weight: 700;
+
+		// increased specificity to override upstream style
+		&.row {
+			border-bottom-width: var(--outer-border-width);
+		}
 
 		.cell {
 			display: flex;

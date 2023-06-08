@@ -230,11 +230,13 @@
 		ion-button,
 		ion-chip {
 			margin: 0;
+			box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 16px;
 		}
 	}
 
 	.add-filter-popover-trigger {
 		min-height: 32px;
+		border-radius: 6px;
 	}
 </style>
 

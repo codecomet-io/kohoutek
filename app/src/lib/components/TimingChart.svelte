@@ -65,11 +65,15 @@
 	}
 
 	ol {
+		--border-radius: 11px;
+
 		display: flex;
 		margin-bottom: 0;
 		padding: 0;
 		list-style: none;
 		position: relative;
+		box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 16px;
+		border-radius: var(--border-radius);
 	}
 
 	li {
@@ -85,15 +89,15 @@
 
 		&:first-child {
 			a {
-				border-top-left-radius: 11px;
-				border-bottom-left-radius: 11px;
+				border-top-left-radius: var(--border-radius);
+				border-bottom-left-radius: var(--border-radius);
 			}
 		}
 
 		&:last-child {
 			a {
-				border-top-right-radius: 11px;
-				border-bottom-right-radius: 11px;
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
 			}
 		}
 

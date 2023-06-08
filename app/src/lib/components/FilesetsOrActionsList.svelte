@@ -27,7 +27,12 @@
 </script>
 
 
-<style lang="scss"></style>
+<style lang="scss">
+	ion-accordion-group {
+		box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 16px;
+		border-radius: 8px;
+	}
+</style>
 
 
 {#if isListPopulated(filesets) || isListPopulated(actions) }

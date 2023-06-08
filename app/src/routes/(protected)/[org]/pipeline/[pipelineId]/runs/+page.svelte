@@ -2,10 +2,9 @@
 	import type { PageData } from './$types';
 	import type { ColumnMap } from '$lib/types/runs-table';
 
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { get, getDateString, parseDate, getTimeString, lapsed } from 'briznads-helpers';
-	import { chevronForwardOutline, arrowUpOutline } from 'ionicons/icons';
-	import { HEK } from '$lib/helper';
+	import { chevronForwardOutline } from 'ionicons/icons';
 	import { runsTable } from '$lib/stores/runs-table';
 
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
@@ -13,9 +12,33 @@
 	import DataTableAggregatedData from '$lib/components/DataTableAggregatedData.svelte';
 	import DataTableColumnChooser from '$lib/components/DataTableColumnChooser.svelte';
 	import DataTableSearch from '$lib/components/DataTableSearch.svelte';
+	import DataTableSort from '$lib/components/DataTableSort.svelte';
 
 
 	export let data : PageData;
+
+	$: if (data.runs) {
+		if (!runsTable.isInitialized) {
+			runsTable.init(initColumnMap, data.runs);
+		}
+	}
+
+	const {
+		columnMap,
+		selectedColumns,
+		activeSort,
+		visibleColumns,
+		runs,
+	} = runsTable;
+
+	function updateFromParams(searchParams : URLSearchParams) : void {
+		const key = searchParams.get('sort');
+		const direction = searchParams.get('direction') as 'ascending' | 'descending';
+
+		runsTable.updateActiveSort(key ?? undefined, direction ?? undefined);
+	}
+
+	$: updateFromParams(data.searchParams);
 
 	const initColumnMap : ColumnMap = {
 		'status' : {
@@ -53,21 +76,6 @@
 			unhideable   : true,
 		},
 	};
-
-	$: if (data.runs) {
-		if (!runsTable.isInitialized) {
-			runsTable.init(initColumnMap, data.runs);
-		}
-	}
-
-	const {
-		columnMap,
-		selectedColumns,
-		activeSort,
-		selectableColumns,
-		visibleColumns,
-		runs,
-	} = runsTable;
 
 	const localStorageKey = 'pipelineRunsColumns';
 
@@ -190,43 +198,6 @@
 		}
 	}
 
-	.sort-button {
-		--padding-start: 0;
-		--padding-end: 0;
-
-		height: 22px;
-		width: 22px;
-		margin: 0;
-		flex-grow: 0;
-		flex-shrink: 0;
-		opacity: 0;
-		max-width: 0;
-		transform-origin: center;
-		transition-property: max-width, transform, opacity;
-		transition-duration: 0ms, 250ms, 250ms;
-		transition-delay: 250ms, 250ms, 0ms;
-		transition-timing-function: linear;
-
-		.cell:hover &,
-		&.active {
-			max-width: 22px;
-			transition-delay: 0ms;
-		}
-
-		.cell:hover &:not(.active) {
-			opacity: 0.5;
-		}
-
-		&.active {
-			opacity: 1;
-		}
-
-		&.descending {
-			transform: rotate(180deg);
-			transition-delay: 0ms;
-		}
-	}
-
 	a.row {
 		position: relative;
 		text-decoration: none;
@@ -268,6 +239,26 @@
 		overflow: hidden;
 		white-space: nowrap;
 		text-overflow: ellipsis;
+
+		&:hover,
+		&.active-sort {
+			:global(.sort-button) {
+				max-width: 22px;
+				transition-delay: 0ms;
+			}
+		}
+
+		&:hover:not(.active-sort) {
+			:global(.sort-button) {
+				opacity: 0.5;
+			}
+		}
+
+		&.active-sort {
+			:global(.sort-button) {
+				opacity: 1;
+			}
+		}
 	}
 
 	ion-icon {
@@ -302,26 +293,13 @@
 					<div
 						class="cell { key.replace('.', '-') }"
 						class:visually-hidden={ column?.hiddenHeader === true }
+						class:active-sort={ $activeSort.key === key }
 						title={ column?.name }
 					>
 						<span class="label">{ column?.name }</span>
 
 						{#if column?.hiddenHeader !== true }
-							<ion-button
-								fill="clear"
-								size="small"
-								color="medium"
-								class="sort-button"
-								class:active={ $activeSort.key === key }
-								class:descending={ $activeSort.key === key && $activeSort.direction === 'descending' }
-								on:click={ () => runsTable.updateActiveSort(key) }
-								on:keydown={ (e) => HEK(e, () => runsTable.updateActiveSort(key)) }
-							>
-								<ion-icon
-									slot="icon-only"
-									icon={ arrowUpOutline }
-								></ion-icon>
-							</ion-button>
+							<DataTableSort { key } />
 						{/if}
 					</div>
 				{/each}

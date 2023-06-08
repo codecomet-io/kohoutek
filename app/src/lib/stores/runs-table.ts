@@ -346,18 +346,10 @@ class RunsTable {
 		});
 	}
 
-	public updateActiveSort(key : string) : void {
-		this.activeSort.update((item : ActiveSort) => {
-			if (item.key === key) {
-				item.direction = item.direction === 'ascending'
-					? 'descending'
-					: 'ascending';
-			} else {
-				item.key = key;
-				item.direction = 'ascending';
-			}
-
-			return item;
+	public updateActiveSort(key : string = 'started', direction : 'ascending' | 'descending' = 'descending') : void {
+		this.activeSort.set({
+			key,
+			direction,
 		});
 	}
 }

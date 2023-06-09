@@ -39,8 +39,13 @@
 			filterParams[ parsedKey ] = parsedValues;
 		}
 
+		// if no time filter is set, default to last 30 days
 		if (!filterParams.started) {
-			filterParams.started = [ 'last 30 days' ];
+			const defaultTimeFilter : [ StartedFilterValue ] = [ 'last 30 days' ];
+
+			filterParams.started = defaultTimeFilter;
+
+			updateFilter('started', defaultTimeFilter);
 		}
 
 		runsTable.updateFilterMap(filterParams);
@@ -228,8 +233,8 @@
 		'last 90 days',
 	];
 
-	function handleAddStartedFilter(option : StartedFilterValue) : void {
-		console.debug('handleAddStartedFilter', option);
+	function handleUpdateStartedFilter(option : StartedFilterValue) : void {
+		updateFilter('started', [ option ]);
 	}
 </script>
 
@@ -287,8 +292,8 @@
 							detail={ false }
 							disabled={ $filterMap.started?.[0] === option }
 							lines={ index === startedFilterOptions.length - 1 ? 'none' : 'inset' }
-							on:click={ () => handleAddStartedFilter(option)}
-							on:keydown={ (e) => HEK(e, () => handleAddStartedFilter(option)) }
+							on:click={ () => handleUpdateStartedFilter(option)}
+							on:keydown={ (e) => HEK(e, () => handleUpdateStartedFilter(option)) }
 						>{ option }</ion-item>
 					{/each }
 				</ion-list>

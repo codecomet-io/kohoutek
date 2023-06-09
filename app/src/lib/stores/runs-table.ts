@@ -3,7 +3,7 @@ import type { QueryOptions, AnyMap } from 'briznads-helpers';
 
 import type { Run } from '../../../../pantry/src/lib/model';
 
-import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AggregatedDataMap, AddFilterInfo } from '$lib/types/runs-table';
+import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, StartedFilterValue } from '$lib/types/runs-table';
 
 import { writable, derived, get } from 'svelte/store';
 import { get as getValue, Query, smartSort, smartSortFunction, objectEntries } from 'briznads-helpers';
@@ -34,7 +34,9 @@ class RunsTable {
 		this.columnMap       = writable({});
 		this.unmodifiedRuns  = writable([]);
 		this.selectedColumns = writable([]);
-		this.filterMap       = writable({});
+		this.filterMap       = writable({
+			started : [ 'last 30 days' ],
+		});
 		this.activeSearch    = writable('');
 		this.activeSort      = writable({
 			key       : 'started',
@@ -151,12 +153,11 @@ class RunsTable {
 	}
 
 	private filterNumericalRange(runs : Run[], key : 'machineTime' | 'started', values : [ number, number ]) : Run[] {
-		// DEV TEMP
-		if (key === 'started') {
-			return runs;
-		}
+		let [ lower, upper ] = values;
 
-		const [ lower, upper ] = values;
+		if (key === 'started' && typeof lower === 'string') {
+			[ lower, upper ] = this.parseStartedValues(lower);
+		}
 
 		return runs.filter((run : Run) => {
 			const numericalValue : number = getValue(run, key.split('.'));
@@ -166,6 +167,22 @@ class RunsTable {
 
 			return withinLowerBound && withinUpperBound;
 		});
+	}
+
+	private parseStartedValues(value : StartedFilterValue) : [ number, number ] {
+		let numericValue : number = parseInt(value.replace(/[^0-9]/g, ''), 10);
+
+		if (isNaN(numericValue)) {
+			return [ 0, 0 ];
+		} else if (numericValue !== 24) {
+			numericValue *= 24;
+		}
+
+		numericValue *= 60 * 60 * 1000;
+
+		const now : number = Date.now();
+
+		return [ now - numericValue, now ];
 	}
 
 	private initQueriedRuns() : Readable<Run[]> {

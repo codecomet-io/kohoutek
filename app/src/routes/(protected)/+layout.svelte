@@ -261,6 +261,7 @@
 								fill="clear"
 								href="/logout"
 								rel="external"
+								color="dark"
 							>Sign Out</ion-button>
 						</ion-item>
 					</ion-item-group>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { RunStatus, ActionStatus } from '../../../../pantry/src/lib/model';
 
-	import { checkmarkCircle, alertCircle } from 'ionicons/icons';
+	import { alertCircle, checkmarkCircle, warning } from 'ionicons/icons';
 
 
 	type ColorMap = {
@@ -25,6 +25,16 @@
 		ignored   : 'medium',
 		cached    : 'tertiary',
 	};
+
+	function getIcon(status : RunStatus | ActionStatus) : string {
+		if (successStatus.includes(status)) {
+			return checkmarkCircle;
+		} else if (status === 'cancelled') {
+			return alertCircle;
+		} else {
+			return warning;
+		}
+	}
 </script>
 
 
@@ -33,7 +43,7 @@
 
 <ion-icon
 	class="status-icon"
-	icon={ successStatus.includes(status) ? checkmarkCircle : alertCircle }
+	icon={ getIcon(status) }
 	color={ statusColorMap[status] ?? 'medium' }
 	size={ size }
 ></ion-icon>

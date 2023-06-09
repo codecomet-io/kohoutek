@@ -292,9 +292,9 @@
 			</ion-list>
 		</ion-content>
 	</ion-popover>
-
-	<ion-alert
-		bind:this={ addFilterAlertElement }
-		on:didDismiss={ handleDismissAddFilterAlert }
-	></ion-alert>
 </div>
+
+<ion-alert
+	bind:this={ addFilterAlertElement }
+	on:didDismiss={ handleDismissAddFilterAlert }
+></ion-alert>

@@ -87,7 +87,7 @@
 		<text
 			text-anchor="middle"
 			fill="hsl(0, 0%, 10%)"
-			y="-7"
+			y="-10"
 		>{ formatYValue( activeTooltip[1] ) }</text>
 
 		<path

@@ -2,6 +2,7 @@
 	import type { LayoutData } from './$types';
 
 	import { onMount } from 'svelte';
+	import { caretDown } from 'ionicons/icons';
 
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
@@ -78,7 +79,18 @@
 		height: 28px;
 	}
 
+	[id="profilePopoverTrigger"] {
+		margin: 0;
+		font-weight: bold;
 
+		ion-avatar {
+			margin-inline-end: 0.4em;
+		}
+
+		ion-icon {
+			margin-inline-start: 1.5px;
+		}
+	}
 
 	.mobile-only {
 		@media (min-width: 992px) {
@@ -132,20 +144,42 @@
 
 		<ion-buttons slot="end">
 			<div class="user-wrapper">
-				<ion-avatar>
-					<img
-						alt="GitHub profile image for { data.gitHubUser?.name }"
-						src={ data.gitHubUser?.profileImage }
-					/>
-				</ion-avatar>
-
 				<ion-button
+					id="profilePopoverTrigger"
 					size="small"
-					href="/logout"
-					rel="external"
+					color="dark"
 				>
-					Sign Out
+					<ion-avatar slot="start">
+						<img
+							alt="GitHub profile image for { data.gitHubUser?.name }"
+							src={ data.gitHubUser?.profileImage }
+						/>
+					</ion-avatar>
+
+					{ data.gitHubUser?.name }
+
+					<ion-icon
+						slot="end"
+						icon={ caretDown }
+						color="medium"
+						size="small"
+					></ion-icon>
 				</ion-button>
+
+				<ion-popover
+					trigger="profilePopoverTrigger"
+					dismiss-on-select={ true }
+				>
+					<ion-content>
+						<ion-list>
+							<ion-item
+								href="/logout"
+								rel="external"
+								lines="none"
+							>Sign Out</ion-item>
+						</ion-list>
+					</ion-content>
+				</ion-popover>
 			</div>
 		</ion-buttons>
 	</ion-toolbar>

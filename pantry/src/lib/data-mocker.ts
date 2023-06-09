@@ -235,9 +235,8 @@ export class DataMocker {
 	}
 
 	started() : number {
-		// 157766400000 = 1975
 		// 1577836800000 = 2020
-		return this.getRandomIntegerFromInterval(157766400000, 1577836800000);
+		return this.getRandomIntegerFromInterval(1577836800000, Date.now());
 	}
 
 	machineTime() : number {

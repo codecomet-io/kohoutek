@@ -235,7 +235,7 @@ export class DataMocker {
 	}
 
 	started() : number {
-		// 1577836800000 = 2020
+		// 1672560000000 = Jan 1 2023
 		return this.getRandomIntegerFromInterval(1577836800000, Date.now());
 	}
 

@@ -135,7 +135,7 @@ class RunsTable {
 				const queryResults = Query.matchObject(
 					runs,
 					value,
-					key,
+					typeof key === 'number' ? key.toString() : key,
 					queryOptions,
 				);
 
@@ -151,6 +151,11 @@ class RunsTable {
 	}
 
 	private filterNumericalRange(runs : Run[], key : 'machineTime' | 'started', values : [ number, number ]) : Run[] {
+		// DEV TEMP
+		if (key === 'started') {
+			return runs;
+		}
+
 		const [ lower, upper ] = values;
 
 		return runs.filter((run : Run) => {

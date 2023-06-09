@@ -22,9 +22,21 @@ export type AddFilterInfo = {
 	value?			 : any[];
 };
 
-export type FilterMap = {
-	[ key in string ] : any[];
+type GenericFilterMap = {
+	[ key in string ]? : any[];
 };
+
+export interface FilterMap extends GenericFilterMap {
+	started? : [ StartedFilterValue ] | [ number, number ];
+}
+
+export type StartedFilterValue =
+	| 'last 24 hours'
+	| 'last 3 days'
+	| 'last 7 days'
+	| 'last 30 days'
+	| 'last 90 days'
+	;
 
 export type FiniteFilterValuesMap = {
 	[ key in string ] : false | any[];

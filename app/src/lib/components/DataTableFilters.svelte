@@ -1,13 +1,13 @@
 <script lang="ts">
 	import type { AlertInput } from '@ionic/core';
-	import type { BooleanMap } from 'briznads-helpers';
+	import type { BooleanMap, ValueOf } from 'briznads-helpers';
 
-	import type { FilterMap } from '$lib/types/runs-table';
+	import type { FilterMap, StartedFilterValue } from '$lib/types/runs-table';
 
 	import { onMount } from 'svelte';
 	import { snakeCase, camelCase } from 'lodash';
 	import { lapsed, objectEntries } from 'briznads-helpers';
-	import { filter as filterIcon, closeCircle } from 'ionicons/icons';
+	import { filter as filterIcon, closeCircle, chevronDown } from 'ionicons/icons';
 	import { HEK, getEndpoints, gotoSearchString } from '$lib/helper';
 	import { runsTable } from '$lib/stores/runs-table';
 
@@ -37,6 +37,10 @@
 			const parsedValues = JSON.parse(value);
 
 			filterParams[ parsedKey ] = parsedValues;
+		}
+
+		if (!filterParams.started) {
+			filterParams.started = [ 'last 30 days' ];
 		}
 
 		runsTable.updateFilterMap(filterParams);
@@ -121,7 +125,11 @@
 		});
 	}
 
-	function getFilterChipValue(key : string, values : any[]) : string {
+	function getFilterChipValue(key : keyof FilterMap, values : ValueOf<FilterMap>) : string {
+		if (values == null) {
+			values = [];
+		}
+
 		return key === 'machineTime'
 			? `${ parseMachineTime(values[0]) } - ${ parseMachineTime(values[1]) }`
 			: values.join(', ');
@@ -192,7 +200,7 @@
 		updateFilter(key, values);
 	}
 
-	function updateFilter(key : string, values? : any[]) : void {
+	function updateFilter(key : keyof FilterMap, values? : any[]) : void {
 		const paramKey = `filter__${ snakeCase(key) }`;
 
 		let paramValues : undefined | string = undefined;
@@ -206,10 +214,22 @@
 
 	let chipClickedMap : BooleanMap = {};
 
-	function handleChipClick(key : string) : void {
+	function handleChipClick(key : keyof FilterMap) : void {
 		chipClickedMap[ key ] = true;
 
 		updateFilter(key);
+	}
+
+	const startedFilterOptions : StartedFilterValue[] = [
+		'last 24 hours',
+		'last 3 days',
+		'last 7 days',
+		'last 30 days',
+		'last 90 days',
+	];
+
+	function handleAddStartedFilter(option : StartedFilterValue) : void {
+		console.debug('handleAddStartedFilter', option);
 	}
 </script>
 
@@ -242,19 +262,55 @@
 
 
 <div class="filter-container">
-	{#each objectEntries($filterMap) as [ key, values ] }
+	{#if $filterMap.started }
 		<ion-chip
-			on:click={ () => handleChipClick(key) }
-			on:keydown={ (e) => HEK(e, () => handleChipClick(key)) }
-			disabled={ chipClickedMap[ key ] }
+			id="startedPopoverTrigger"
+			disabled={ chipClickedMap.started }
 		>
-			<ion-label><strong>{ $columnMap?.[ key ].name }:</strong> { getFilterChipValue(key, values) }</ion-label>
+			<ion-label><strong>{ $columnMap?.started.name }:</strong> { getFilterChipValue('started', $filterMap.started) }</ion-label>
 
 			<ion-icon
-				icon={ closeCircle }
+				icon={ chevronDown }
 				color="dark"
 			></ion-icon>
 		</ion-chip>
+
+		<ion-popover
+			trigger="startedPopoverTrigger"
+			dismiss-on-select={ true }
+		>
+			<ion-content>
+				<ion-list>
+					{#each startedFilterOptions as option, index }
+						<ion-item
+							button={ true }
+							detail={ false }
+							disabled={ $filterMap.started?.[0] === option }
+							lines={ index === startedFilterOptions.length - 1 ? 'none' : 'inset' }
+							on:click={ () => handleAddStartedFilter(option)}
+							on:keydown={ (e) => HEK(e, () => handleAddStartedFilter(option)) }
+						>{ option }</ion-item>
+					{/each }
+				</ion-list>
+			</ion-content>
+		</ion-popover>
+	{/if }
+
+	{#each objectEntries($filterMap) as [ key, values ] }
+		{#if key !== 'started' }
+			<ion-chip
+				on:click={ () => handleChipClick(key) }
+				on:keydown={ (e) => HEK(e, () => handleChipClick(key)) }
+				disabled={ chipClickedMap[ key ] }
+			>
+				<ion-label><strong>{ $columnMap?.[ key ].name }:</strong> { getFilterChipValue(key, values) }</ion-label>
+
+				<ion-icon
+					icon={ closeCircle }
+					color="dark"
+				></ion-icon>
+			</ion-chip>
+		{/if }
 	{/each}
 
 	<ion-button

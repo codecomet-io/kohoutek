@@ -2,7 +2,7 @@
 	import type { LayoutData } from './$types';
 
 	import { onMount } from 'svelte';
-	import { caretDown } from 'ionicons/icons';
+	import { chevronDown } from 'ionicons/icons';
 
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
@@ -160,7 +160,7 @@
 
 					<ion-icon
 						slot="end"
-						icon={ caretDown }
+						icon={ chevronDown }
 						color="medium"
 						size="small"
 					></ion-icon>

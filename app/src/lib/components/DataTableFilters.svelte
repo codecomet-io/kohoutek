@@ -259,6 +259,10 @@
 		}
 	}
 
+	ion-chip {
+		border: 0.5px solid #c8c7cc;
+	}
+
 	.add-filter-popover-trigger {
 		min-height: 32px;
 		border-radius: 6px;

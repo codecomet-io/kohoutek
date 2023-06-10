@@ -29,7 +29,7 @@
 	}
 
 	img {
-		height: 2rem;
+		height: 2em;
 		transition: transform 125ms ease-in-out;
 	}
 

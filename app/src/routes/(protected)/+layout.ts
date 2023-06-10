@@ -24,15 +24,13 @@ export const load = (async ({ params, data, url }) => {
 	if (pipelineId) {
 		pipeline = await getPipelineForUser(firestore, pipelineId, data.gitHubUser.repos);
 
-		runs = await firestore.getRunsByPipelineId(pipelineId);
-	} else if (runId) {
-		run = (await firestore.getRun(runId)) as Run;
+		if (runId) {
+			run = await getRun(firestore, pipelineId, runId);
 
-		const pipelineId = run?.pipeline?.id;
-
-		pipeline = await getPipelineForUser(firestore, pipelineId, data.gitHubUser.repos);
-
-		recentRuns = await firestore.getRunsByPipelineId(pipelineId, true, 3, runId);
+			recentRuns = await firestore.getRunsByPipelineId(pipelineId, true, 3, runId);
+		} else {
+			runs = await firestore.getRunsByPipelineId(pipelineId);
+		}
 	} else if (org) {
 		// if pipelineId and runId are both undefined, then we're on the all pipelines page
 		pipelines = await getPipelinesForUser(firestore, org, data.gitHubUser.repos);
@@ -154,4 +152,12 @@ async function getPipelinesForUser(firestore : Firestore, org : string, repos : 
 		.filter(pipeline => repos.includes(pipeline.repo));
 
 	return authorizedPipelines;
+}
+
+async function getRun(firestore : Firestore, pipelineId : string, runId : string) : Promise<undefined | Run> {
+	const run = (await firestore.getRun(runId)) as Run;
+
+	return run.pipeline.id === pipelineId
+		? run
+		: undefined;
 }

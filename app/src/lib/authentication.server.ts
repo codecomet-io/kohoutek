@@ -12,7 +12,7 @@ export type GitHubUser = {
 };
 
 
-export class VerifyAuthentication {
+export class Authentication {
 	private decodedToken! : jose.JWTPayload;
 
 

@@ -1,12 +1,12 @@
 import type { LayoutServerLoad } from './$types';
 
-import { VerifyAuthentication } from '$lib/verify-authentication.server';
+import { Authentication } from '$lib/authentication.server';
 
 
 export const load = (async ({ cookies }) => {
-	const verifyAuthentication = new VerifyAuthentication(cookies);
+	const authentication = new Authentication(cookies);
 
-	const isAuthenticated : boolean = verifyAuthentication.isAuthenticated();
+	const isAuthenticated : boolean = authentication.isAuthenticated();
 
 	return {
 		isAuthenticated,

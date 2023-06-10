@@ -36,6 +36,7 @@ export type StartedFilterValue =
 	| 'last 7 days'
 	| 'last 30 days'
 	| 'last 90 days'
+	| 'last 365 days'
 	;
 
 export type FiniteFilterValuesMap = {

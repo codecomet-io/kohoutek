@@ -1,17 +1,17 @@
 import type { LayoutServerLoad } from './$types';
-import type { GitHubUser } from '$lib/verify-authentication.server';
+import type { GitHubUser } from '$lib/authentication.server';
 
 import { redirect } from '@sveltejs/kit';
 
-import { VerifyAuthentication } from '$lib/verify-authentication.server';
+import { Authentication } from '$lib/authentication.server';
 
 
 export const load = (async ({ cookies, url }) => {
-	const verifyAuthentication = new VerifyAuthentication(cookies, () => {
+	const authentication = new Authentication(cookies, () => {
 		eject(url.pathname);
 	});
 
-	const gitHubUser : GitHubUser = verifyAuthentication.getGitHubUser();
+	const gitHubUser : GitHubUser = authentication.getGitHubUser();
 
 	return {
 		gitHubUser,

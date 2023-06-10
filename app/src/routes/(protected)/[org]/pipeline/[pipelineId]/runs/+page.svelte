@@ -318,7 +318,7 @@
 			{#each $runs as run }
 				<a
 					class="row"
-					href="/{ data.org }/run/{ run.id }"
+					href="/{ data.org }/pipeline/{ data.pipeline?.id }/run/{ run.id }"
 				>
 					{#each $visibleColumns as key }
 						{@const value = get(run, key.split('.')) }

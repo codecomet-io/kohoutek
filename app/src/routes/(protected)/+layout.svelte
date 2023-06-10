@@ -134,10 +134,10 @@
 					<ion-breadcrumb disabled={ true }>{ data.pipeline.name }</ion-breadcrumb>
 
 					<ion-breadcrumb href="/{ data.org }/pipeline/{ data.pipeline.id }/runs">All Pipeline Runs</ion-breadcrumb>
-				{/if}
 
-				{#if data.run }
-					<ion-breadcrumb href="/{ data.org }/run/{ data.run.id }">This Run</ion-breadcrumb>
+					{#if data.run }
+						<ion-breadcrumb href="/{ data.org }/pipeline/{ data.pipeline.id }/run/{ data.run.id }">This Run</ion-breadcrumb>
+					{/if}
 				{/if}
 			</ion-breadcrumbs>
 		</div>
@@ -216,7 +216,7 @@
 						{/if}
 					</ion-item-group>
 
-					{#if data.recentRuns && data.recentRuns.length > 0 }
+					{#if data.pipeline?.id && data.recentRuns && data.recentRuns.length > 0 }
 						<ion-item-group>
 							<ion-item-divider>
 								<ion-label>Recent Runs</ion-label>
@@ -224,7 +224,7 @@
 
 							{#each data.recentRuns as recentRun }
 								<ion-item
-									href="/{ data.org }/run/{ recentRun.id }"
+									href="/{ data.org }/pipeline/{ data.pipeline.id }/run/{ recentRun.id }"
 									on:click={ closeMenu }
 									on:keydown={ closeMenu }
 								>

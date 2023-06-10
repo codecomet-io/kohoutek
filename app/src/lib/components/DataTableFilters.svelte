@@ -231,6 +231,7 @@
 		'last 7 days',
 		'last 30 days',
 		'last 90 days',
+		'last 365 days',
 	];
 
 	function handleUpdateStartedFilter(option : StartedFilterValue) : void {

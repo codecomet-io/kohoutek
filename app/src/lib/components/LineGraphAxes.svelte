@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Coordinate } from '$lib/types/runs-table';
+	import type { Coordinate } from '$lib/types/data-table';
 
 	import { roundToDecimals } from 'briznads-helpers';
 

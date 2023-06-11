@@ -1,3 +1,6 @@
+import type { AnyMap } from 'briznads-helpers';
+
+
 export type Column = {
 	name             : string;
 	size?            : number;
@@ -27,10 +30,10 @@ type GenericFilterMap = {
 };
 
 export interface FilterMap extends GenericFilterMap {
-	started? : [ StartedFilterValue ] | [ number, number ];
+	started? : TimeFilterValue;
 }
 
-export type StartedFilterValue =
+export type TimeFilterNamedValue =
 	| 'last 24 hours'
 	| 'last 3 days'
 	| 'last 7 days'
@@ -38,6 +41,8 @@ export type StartedFilterValue =
 	| 'last 90 days'
 	| 'last 365 days'
 	;
+
+type TimeFilterValue = [ TimeFilterNamedValue ] | [ number, number ];
 
 export type FiniteFilterValuesMap = {
 	[ key in string ] : false | any[];
@@ -55,3 +60,20 @@ export type AggregatedData = {
 };
 
 export type Coordinate = [ number, number ];
+
+export interface Row extends AnyMap {
+	id : string;
+}
+
+export type Options = {
+	initialRows            : Row[];
+	columnMap              : ColumnMap;
+	parseRowLink           : ParseRowLinkFunc;
+	parseCellTitle         : ParseCellTitleFunc;
+	defaultTimeFilter?     : TimeFilterValue | false;
+	includeAggregatedData? : boolean;
+};
+
+export type ParseRowLinkFunc = (row : any) => string;
+
+export type ParseCellTitleFunc = (key : string, value : any) => string;

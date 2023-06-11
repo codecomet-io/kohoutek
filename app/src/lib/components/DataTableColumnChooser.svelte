@@ -1,15 +1,40 @@
 <script lang="ts">
+	import type { DataTable } from '$lib/stores/data-table';
+
 	import { onMount } from 'svelte';
 	import { menu } from 'ionicons/icons';
 	import { HEK } from '$lib/helper';
-	import { runsTable } from '$lib/stores/runs-table';
 
+
+	export let storeInstance : DataTable;
 
 	const {
 		columnMap,
 		selectedColumns,
 		selectableColumns,
-	} = runsTable;
+	} = storeInstance;
+
+	const localStorageKey = 'dataTableSelectedColumns';
+
+	let storedColumnsStr : string | null;
+
+	function initStoredColumns() : void {
+		storedColumnsStr = window.localStorage.getItem(localStorageKey);
+
+		storeInstance.initStoredColumns(storedColumnsStr);
+	}
+
+	onMount(initStoredColumns);
+
+	function updateStoredColumns(columns : string[]) : void {
+		if (storedColumnsStr === undefined || columns.length === 0) {
+			return;
+		}
+
+		window.localStorage.setItem(localStorageKey, JSON.stringify(columns));
+	}
+
+	$: updateStoredColumns($selectedColumns);
 
 	let ionSelectColumns : HTMLIonSelectElement;
 

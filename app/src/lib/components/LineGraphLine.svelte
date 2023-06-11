@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Coordinate } from '$lib/types/runs-table';
+	import type { Coordinate } from '$lib/types/data-table';
 
 	import { draw } from 'svelte/transition';
 	import { sineOut } from 'svelte/easing';

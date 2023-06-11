@@ -1,14 +1,16 @@
 <script lang="ts">
+	import type { DataTable } from '$lib/stores/data-table';
+
 	import { arrowUpOutline } from 'ionicons/icons';
 	import { HEK, gotoSearchString } from '$lib/helper';
-	import { runsTable } from '$lib/stores/runs-table';
 
 
+	export let storeInstance : DataTable;
 	export let key : string;
 
 	const {
 		activeSort,
-	} = runsTable;
+	} = storeInstance;
 
 	function updateActiveSort(key : string) : void {
 		const currentActiveSort = $activeSort;

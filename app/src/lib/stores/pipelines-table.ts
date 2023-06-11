@@ -9,4 +9,4 @@ import { DataTable } from '$lib/stores/data-table';
 // 	}
 // }
 
-export const runsTable = new DataTable();
+export const pipelinesTable = new DataTable();

@@ -3,7 +3,7 @@ import type { NumberMap } from 'briznads-helpers';
 
 import type { Run } from '../../../../pantry/src/lib/model';
 
-import type { AggregatedDataMap, AggregatedData, Coordinate } from '$lib/types/runs-table';
+import type { AggregatedDataMap, AggregatedData, Coordinate } from '$lib/types/data-table';
 
 import { derived } from 'svelte/store';
 import { lapsed, smartSort, roundToDecimals, parseDate, objectEntries, sleep, deepCopy } from 'briznads-helpers';
@@ -59,7 +59,7 @@ class AggregatedDataRuns {
 
 	private initAggregatedDataMap() : Readable<AggregatedDataMap> {
 		return derived(
-			runsTable.queriedRuns,
+			runsTable.queriedRows,
 			(
 				$runs : Run[],
 				set  : (value : any) => void,

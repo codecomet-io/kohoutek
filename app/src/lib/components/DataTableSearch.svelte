@@ -1,15 +1,17 @@
 <script lang="ts">
+	import type { DataTable } from '$lib/stores/data-table';
+
 	import { gotoSearchString } from '$lib/helper';
-	import { runsTable } from '$lib/stores/runs-table';
 
 
 	export let searchParams : URLSearchParams;
+	export let storeInstance : DataTable;
 
 	let stolenFocus : boolean;
 
 	const {
 		activeSearch,
-	} = runsTable;
+	} = storeInstance;
 
 	function updateFromParams(searchParams : URLSearchParams) : void {
 		const search = searchParams.get('search') ?? '';

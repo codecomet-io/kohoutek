@@ -2,26 +2,28 @@
 	import type { AlertInput } from '@ionic/core';
 	import type { BooleanMap, ValueOf } from 'briznads-helpers';
 
-	import type { FilterMap, StartedFilterValue } from '$lib/types/runs-table';
+	import type { DataTable } from '$lib/stores/data-table';
+
+	import type { FilterMap, TimeFilterNamedValue } from '$lib/types/data-table';
 
 	import { onMount } from 'svelte';
 	import { snakeCase, camelCase } from 'lodash';
 	import { lapsed, objectEntries } from 'briznads-helpers';
 	import { filter as filterIcon, closeCircle, chevronDown } from 'ionicons/icons';
 	import { HEK, getEndpoints, gotoSearchString } from '$lib/helper';
-	import { runsTable } from '$lib/stores/runs-table';
 
 
-	export let searchParams : URLSearchParams;
+	export let searchParams  : URLSearchParams;
+	export let storeInstance : DataTable;
 
 	const {
 		columnMap,
 		filterMap,
 		addFilterInfo,
-		runs,
+		rows,
 		finiteFilterValuesMap,
 		filterableColumns,
-	} = runsTable;
+	} = storeInstance;
 
 	const filterParamRegex = /^filter__/;
 
@@ -39,16 +41,7 @@
 			filterParams[ parsedKey ] = parsedValues;
 		}
 
-		// if no time filter is set, default to last 30 days
-		if (!filterParams.started) {
-			const defaultTimeFilter : [ StartedFilterValue ] = [ 'last 30 days' ];
-
-			filterParams.started = defaultTimeFilter;
-
-			updateFilter('started', defaultTimeFilter);
-		}
-
-		runsTable.updateFilterMap(filterParams);
+		storeInstance.updateFilterMap(filterParams);
 
 		chipClickedMap = {};
 	}
@@ -79,7 +72,7 @@
 	}
 
 	function populateMachineTimeAddFilterAlert() : void {
-		const { lower, upper } = getEndpoints($runs, 'machineTime', true);
+		const { lower, upper } = getEndpoints($rows, 'machineTime', true);
 
 		addFilterAlertElement.message = `
 			<p>${ parseMachineTime(lower) } - ${ parseMachineTime(upper) }</p>
@@ -225,7 +218,7 @@
 		updateFilter(key);
 	}
 
-	const startedFilterOptions : StartedFilterValue[] = [
+	const startedFilterOptions : TimeFilterNamedValue[] = [
 		'last 24 hours',
 		'last 3 days',
 		'last 7 days',
@@ -234,7 +227,7 @@
 		'last 365 days',
 	];
 
-	function handleUpdateStartedFilter(option : StartedFilterValue) : void {
+	function handleUpdateStartedFilter(option : TimeFilterNamedValue) : void {
 		updateFilter('started', [ option ]);
 	}
 </script>
@@ -246,7 +239,6 @@
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 8px;
-		margin-top: 20px;
 		margin-bottom: 20px;
 
 		:first-child {
@@ -271,94 +263,98 @@
 </style>
 
 
-<div class="filter-container">
-	{#if $filterMap.started }
-		<ion-chip
-			id="startedPopoverTrigger"
-			disabled={ chipClickedMap.started }
-		>
-			<ion-label><strong>{ $columnMap?.started.name }:</strong> { getFilterChipValue('started', $filterMap.started) }</ion-label>
-
-			<ion-icon
-				icon={ chevronDown }
-				color="dark"
-			></ion-icon>
-		</ion-chip>
-
-		<ion-popover
-			trigger="startedPopoverTrigger"
-			dismiss-on-select={ true }
-		>
-			<ion-content>
-				<ion-list>
-					{#each startedFilterOptions as option, index }
-						<ion-item
-							button={ true }
-							detail={ false }
-							disabled={ $filterMap.started?.[0] === option }
-							lines={ index === startedFilterOptions.length - 1 ? 'none' : 'inset' }
-							on:click={ () => handleUpdateStartedFilter(option)}
-							on:keydown={ (e) => HEK(e, () => handleUpdateStartedFilter(option)) }
-						>{ option }</ion-item>
-					{/each }
-				</ion-list>
-			</ion-content>
-		</ion-popover>
-	{/if }
-
-	{#each objectEntries($filterMap) as [ key, values ] }
-		{#if key !== 'started' }
+{#if Object.keys($filterMap).length > 0 || Object.keys($filterableColumns).length > 0 }
+	<div class="filter-container">
+		{#if 'started' in $filterMap }
 			<ion-chip
-				on:click={ () => handleChipClick(key) }
-				on:keydown={ (e) => HEK(e, () => handleChipClick(key)) }
-				disabled={ chipClickedMap[ key ] }
+				id="startedPopoverTrigger"
+				disabled={ chipClickedMap.started }
 			>
-				<ion-label><strong>{ $columnMap?.[ key ].name }:</strong> { getFilterChipValue(key, values) }</ion-label>
+				<ion-label><strong>{ $columnMap?.started?.name }:</strong> { getFilterChipValue('started', $filterMap.started) }</ion-label>
 
 				<ion-icon
-					icon={ closeCircle }
+					icon={ chevronDown }
 					color="dark"
 				></ion-icon>
 			</ion-chip>
+
+			<ion-popover
+				trigger="startedPopoverTrigger"
+				dismiss-on-select={ true }
+			>
+				<ion-content>
+					<ion-list>
+						{#each startedFilterOptions as option, index }
+							<ion-item
+								button={ true }
+								detail={ false }
+								disabled={ $filterMap.started?.[0] === option }
+								lines={ index === startedFilterOptions.length - 1 ? 'none' : 'inset' }
+								on:click={ () => handleUpdateStartedFilter(option)}
+								on:keydown={ (e) => HEK(e, () => handleUpdateStartedFilter(option)) }
+							>{ option }</ion-item>
+						{/each }
+					</ion-list>
+				</ion-content>
+			</ion-popover>
 		{/if }
-	{/each}
 
-	<ion-button
-		class="add-filter-popover-trigger"
-		id="addFilterPopoverTrigger"
-		color="dark"
-		size="small"
-		fill="outline"
-	>
-		<ion-icon
-			slot="start"
-			size="small"
-			icon={ filterIcon }
-		></ion-icon>
+		{#each objectEntries($filterMap) as [ key, values ] }
+			{#if key !== 'started' }
+				<ion-chip
+					on:click={ () => handleChipClick(key) }
+					on:keydown={ (e) => HEK(e, () => handleChipClick(key)) }
+					disabled={ chipClickedMap[ key ] }
+				>
+					<ion-label><strong>{ $columnMap?.[ key ].name }:</strong> { getFilterChipValue(key, values) }</ion-label>
 
-		Add Filter
-	</ion-button>
+					<ion-icon
+						icon={ closeCircle }
+						color="dark"
+					></ion-icon>
+				</ion-chip>
+			{/if }
+		{/each}
 
-	<ion-popover
-		trigger="addFilterPopoverTrigger"
-		dismiss-on-select={ true }
-	>
-		<ion-content>
-			<ion-list>
-				{#each $filterableColumns as key, index }
-					<ion-item
-						button={ true }
-						detail={ false }
-						lines={ index === $filterableColumns.length - 1 ? 'none' : 'inset' }
-						disabled={ $filterMap[ key ] != null }
-						on:click={ () => handleAddFilter(key)}
-						on:keydown={ (e) => HEK(e, () => handleAddFilter(key)) }
-					>{ $columnMap?.[ key ].name }</ion-item>
-				{/each }
-			</ion-list>
-		</ion-content>
-	</ion-popover>
-</div>
+		{#if Object.keys($filterableColumns).length > 0 }
+			<ion-button
+				class="add-filter-popover-trigger"
+				id="addFilterPopoverTrigger"
+				color="dark"
+				size="small"
+				fill="outline"
+			>
+				<ion-icon
+					slot="start"
+					size="small"
+					icon={ filterIcon }
+				></ion-icon>
+
+				Add Filter
+			</ion-button>
+
+			<ion-popover
+				trigger="addFilterPopoverTrigger"
+				dismiss-on-select={ true }
+			>
+				<ion-content>
+					<ion-list>
+						{#each $filterableColumns as key, index }
+							<ion-item
+								button={ true }
+								detail={ false }
+								lines={ index === $filterableColumns.length - 1 ? 'none' : 'inset' }
+								disabled={ $filterMap[ key ] != null }
+								on:click={ () => handleAddFilter(key)}
+								on:keydown={ (e) => HEK(e, () => handleAddFilter(key)) }
+							>{ $columnMap?.[ key ].name }</ion-item>
+						{/each }
+					</ion-list>
+				</ion-content>
+			</ion-popover>
+		{/if }
+	</div>
+{/if }
 
 <ion-alert
 	bind:this={ addFilterAlertElement }

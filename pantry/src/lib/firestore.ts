@@ -2,7 +2,7 @@ import type { ServiceAccount } from 'firebase-admin';
 import type { Firestore as FirestoreType } from 'firebase-admin/firestore';
 import type { AnyMap } from 'briznads-helpers';
 
-import type { Run, Pipeline } from './model.js';
+import type { Run, Pipeline, PipelineStats } from './model.js';
 
 import { initializeApp, cert } from 'firebase-admin/app';
 
@@ -10,7 +10,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 import * as dotenv from 'dotenv';
 
-import { deepCopy } from 'briznads-helpers';
+import { deepCopy, objectEntries } from 'briznads-helpers';
 
 
 export class Firestore {
@@ -95,18 +95,53 @@ export class Firestore {
 		return;
 	}
 
-	async updatePipeline(id : string, updates : AnyMap) : Promise<void> {
-		try {
-			// Add a new document
-			await this.db.collection('pipelines').doc(id).update(updates);
-		} catch (e) {
-			console.error(e);
+	async updatePipeline(id : string, updates : AnyMap, stats : PipelineStats) : Promise<Pipeline> {
+		const ref = this.db.collection('pipelines').doc(id);
 
-			return;
+		let pipeline : Pipeline;
+
+		try {
+			await this.db.runTransaction(async (transaction) => {
+				const currentPipeline : Pipeline = (await transaction.get(ref)).data() as Pipeline;
+
+				const pipelineStats = this.parsePipelineStats(currentPipeline, stats);
+
+				pipeline = {
+					...currentPipeline,
+					...updates,
+					...pipelineStats,
+				};
+
+				transaction.update(ref, { ...updates, ...pipelineStats });
+			});
+
+			console.info('Updated Pipeline with ID: ', id);
+		} catch (e) {
+			console.log('Transaction failure:', e);
 		}
 
-		console.info('Updated Pipeline with ID: ', id);
+		return pipeline;
+	}
 
-		return;
+	private parsePipelineStats(pipeline : Pipeline, stats : PipelineStats) : PipelineStats {
+		for (const [ key, value ] of objectEntries(stats)) {
+			if (typeof value === 'number') {
+				stats[ key ] += pipeline[ key ];
+			} else if (typeof value === 'object') {
+				for (const [ mapKey, mapValue ] of objectEntries(value)) {
+					if (pipeline[ key ][ mapKey ] == null) {
+						pipeline[ key ][ mapKey ] = mapValue;
+					} else if (key === 'actorsMap') {
+						pipeline[ key ][ mapKey as string ].count += mapValue.count;
+					} else {
+						pipeline[ key ][ mapKey ] += mapValue;
+					}
+				}
+
+				stats[ key ] = pipeline[ key ];
+			}
+		}
+
+		return stats;
 	}
 }

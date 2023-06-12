@@ -16,12 +16,27 @@ class Build implements BuildRun {
 	id = "abcd1234";
 	name = "user-defined name for this run";
 	pipeline = {
-		id          : '1234abcd',
-		org         : 'org',
-		repo        : 'org/repo',
-		fqn         : 'org/repo/pipeline.go',
-		name        : 'user-defined name for the pipeline',
-		description : 'This is our super test plan, and guess what this description can change at any time',
+		id                      : '1234abcd',
+		org                     : 'org',
+		repo                    : 'org/repo',
+		fqn                     : 'org/repo/pipeline.go',
+		name                    : 'user-defined name for the pipeline',
+		description             : 'This is our super test plan, and this description can change at any time',
+		firstRunAt              : 0,
+		lastRunAt               : 0,
+		runCount                : 0,
+		machineTime             : 0,
+		actionsCount            : 0,
+		cachedActionsCount      : 0,
+		ranActionsCount         : 0,
+		completedActionsCount   : 0,
+		erroredActionsCount     : 0,
+		interruptedActionsCount : 0,
+		notRanActionsCount      : 0,
+		statusesMap             : {},
+		erroredActionsMap       : {},
+		triggersMap             : {},
+		actorsMap               : {},
 	};
 	started = 0;
 	completed = 0;
@@ -431,11 +446,11 @@ export class BuffIngester {
 								stderr    : remainingStderrLines,
 								exitCode  : 0,
 							});
-						} else if (parsedLog.plain != ".") {
+						} else if (parsedLog.plain != '.') {
 							try {
 								assembledLogs[assembledLogs.length - 1 ].stderr = parsedLog.plain;
 							} catch (e) {
-								console.warn("WTF", parsedLog, assembledLogs.length);
+								console.warn('WTF', parsedLog, assembledLogs.length);
 							}
 						}
 					}

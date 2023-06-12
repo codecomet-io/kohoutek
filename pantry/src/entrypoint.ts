@@ -26,6 +26,7 @@ import {
 	MergeBuildAction,
 	CopyBuildAction,
 	Pipeline,
+	PipelineStats,
 } from "./lib/model.js";
 import { error, nil } from "codecomet-js/source/buildkit-port/dependencies/golang/mock.js";
 import CodeComet from "codecomet-js";
@@ -524,35 +525,65 @@ async function saveRunToFirestore(run : Run) : Promise<Run> {
 	const firestore = new Firestore();
 
 	// retrieve the pipeline id from firestore, or create it if it doesn't exist
-	// also update firestore pipeline details if they have changed
-	run.pipeline = await parsePipeline(firestore, run.pipeline);
+	// also update firestore pipeline details and aggregate run data
+	run.pipeline = await upsertPipeline(firestore, run);
 
 	await firestore.saveRun(run);
 
 	return run;
 }
 
-async function parsePipeline(firestore : Firestore, runPipeline : Pipeline) : Promise<Pipeline> {
-	let firestorePipeline = await firestore.getPipelineByFqn(runPipeline.fqn);
+async function upsertPipeline(firestore : Firestore, run : Run) : Promise<Pipeline> {
+	const runStats : PipelineStats = {
+		runCount                : 1,
+		machineTime             : run.machineTime,
+		actionsCount            : run.stats.total,
+		cachedActionsCount      : run.stats.cached,
+		ranActionsCount         : run.stats.ran,
+		completedActionsCount   : run.stats.finishedSuccessfully,
+		erroredActionsCount     : run.stats.errored,
+		interruptedActionsCount : run.stats.interrupted,
+		notRanActionsCount      : run.stats.notRan,
+		statusesMap             : {
+			[ run.status ] : 1,
+		},
+		erroredActionsMap : {},
+		triggersMap       : {
+			[ run.trigger ] : 1,
+		},
+		actorsMap : {
+			[ run.actor.id ] : {
+				name  : run.actor.name,
+				count : 1,
+			},
+		},
+	};
 
-	if (!firestorePipeline?.id) {
+	if (run.erroredActionName) {
+		runStats.erroredActionsMap[ run.erroredActionName ] = 1;
+	}
+
+	let firestorePipeline : Pipeline = await firestore.getPipelineByFqn(run.pipeline.fqn);
+
+	if (firestorePipeline?.id) {
+		const updates = {
+			name        : run.pipeline.name,
+			description : run.pipeline.description,
+			lastRunAt   : run.started,
+		};
+
+		firestorePipeline = await firestore.updatePipeline(firestorePipeline.id , updates, runStats);
+
+	} else {
 		firestorePipeline = {
-			...firestorePipeline,
-			...runPipeline,
-			id : createId('lowercase', 8),
+			...run.pipeline,
+			...runStats,
+			firstRunAt : run.started,
+			lastRunAt  : run.started,
+			id         : createId('lowercase', 8),
 		};
 
 		await firestore.savePipeline(firestorePipeline);
-	} else if (firestorePipeline.name !== runPipeline.name || firestorePipeline.description !== runPipeline.description) {
-		const { name, description } = runPipeline;
-
-		await firestore.updatePipeline(firestorePipeline.id , { name, description });
-
-		firestorePipeline = {
-			...firestorePipeline,
-			name,
-			description,
-		};
 	}
 
 	return firestorePipeline;

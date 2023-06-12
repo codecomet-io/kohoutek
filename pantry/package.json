@@ -27,7 +27,7 @@
 	"dependencies": {
 		"@sentry/integrations": "^7.40.0",
 		"@sentry/node": "^7.40.0",
-		"briznads-helpers": "^1.0.18",
+		"briznads-helpers": "^1.5.1",
 		"codecomet-js": "file:vendor/codecomet-js-v1.0.0.tgz",
 		"dotenv": "^16.0.3",
 		"firebase-admin": "^11.8.0"

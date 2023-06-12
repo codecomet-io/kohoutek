@@ -81,10 +81,14 @@
 			class="cell { key.replace('.', '-') }"
 			title={ storeInstance.opts.parseCellTitle(key, value) }
 		>
-			<slot
-				{ key }
+			{#if $$slots.default }
+				<slot
+					{ key }
+					{ value }
+				/>
+			{:else }
 				{ value }
-			/>
+			{/if }
 		</div>
 	{/each}
 </a>

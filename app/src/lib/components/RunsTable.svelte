@@ -3,12 +3,13 @@
 
 	import type { Options } from '$lib/types/data-table';
 
-	import { getDateString, parseDate, getTimeString, lapsed } from 'briznads-helpers';
+	import { getDateString, parseDate, getTimeString, lapsed, roundToDecimals } from 'briznads-helpers';
 	import { chevronForwardOutline } from 'ionicons/icons';
 	import { runsTable } from '$lib/stores/runs-table';
 
 	import DataTable from '$lib/components/DataTable.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
+	import LineGraph from '$lib/components/LineGraph.svelte';
 
 
 	export let searchParams : URLSearchParams;
@@ -88,6 +89,14 @@
 			parseCellTitle,
 		};
 	}
+
+	const formatYValueMap : any = {
+		machineTime : (tick : number) => lapsed(tick, true),
+		cachedRate  : (tick : number) => `${ tick }%`,
+		runsPerDay  : (tick : number) => tick % 1 === 0
+			? tick
+			: '',
+	};
 </script>
 
 
@@ -99,6 +108,21 @@
 	storeInstance={ runsTable }
 	options={ parseOptions(searchParams, runs) }
 >
+	<svelte:fragment
+		slot="aggregatedChart"
+		let:key
+		let:coordinates
+	>
+		{#if coordinates }
+			<LineGraph
+				{ coordinates }
+				formatYValue={ formatYValueMap[ key ] ?? ((item) => roundToDecimals(item).toString()) }
+				hideYTicks={ key === 'erroredRate' }
+				showTooltips={ key !== 'runsPerDay' }
+			/>
+		{/if }
+	</svelte:fragment>
+
 	<svelte:fragment
 		slot="cell"
 		let:key

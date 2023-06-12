@@ -81,7 +81,17 @@
 />
 
 {#if storeInstance.opts.includeAggregatedData !== false }
-	<DataTableAggregatedData />
+	<DataTableAggregatedData
+		{ storeInstance }
+		let:key
+		let:coordinates
+	>
+		<slot
+			name="aggregatedChart"
+			{ key }
+			{ coordinates }
+		/>
+	</DataTableAggregatedData>
 {/if}
 
 <div class="table-scroll-container">

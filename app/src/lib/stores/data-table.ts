@@ -1,10 +1,10 @@
 import type { Writable, Readable } from 'svelte/store';
 import type { QueryOptions, AnyMap } from 'briznads-helpers';
 
-import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options } from '$lib/types/data-table';
+import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, AggregatedDataMap } from '$lib/types/data-table';
 
 import { writable, derived, get } from 'svelte/store';
-import { get as getValue, Query, smartSort, smartSortFunction, objectEntries } from 'briznads-helpers';
+import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, deepCopy } from 'briznads-helpers';
 
 
 type PartialOptions = Partial<Options>;
@@ -18,8 +18,10 @@ export class DataTable {
 		includeAggregatedData : true,
 	};
 
-	public opts!         : Options;
-	public isInitialized : boolean = false;
+	public opts!                    : Options;
+	public isInitialized            : boolean           = false;
+	public updateAggregatedValues   : boolean           = false;
+	public defaultAggregatedDataMap : AggregatedDataMap = {};
 
 	public columnMap       : Writable<ColumnMap>;
 	public initialRows     : Writable<Row[]>;
@@ -36,6 +38,7 @@ export class DataTable {
 	public rows                  : Readable<Row[]>;
 	public finiteFilterValuesMap : Readable<FiniteFilterValuesMap>;
 	public filterableColumns     : Readable<string[]>;
+	public aggregatedDataMap     : Readable<AggregatedDataMap>;
 
 
 	constructor() {
@@ -62,6 +65,8 @@ export class DataTable {
 		this.rows                  = this.initRows();
 		this.finiteFilterValuesMap = this.initFiniteFilterValuesMap();
 		this.filterableColumns     = this.initFilterableColumns();
+		this.aggregatedDataMap     = this.initAggregatedDataMap();
+
 	}
 
 
@@ -403,5 +408,40 @@ export class DataTable {
 			key,
 			direction,
 		});
+	}
+
+
+
+	private initAggregatedDataMap() : Readable<AggregatedDataMap> {
+		return derived(
+			this.queriedRows,
+			(
+				$rows : Row[],
+				set   : (value : any) => void,
+			) : void => {
+				if (this.opts.includeAggregatedData !== false && $rows?.length > 0) {
+					this.updateAggregatedValues = true;
+
+					this.setAggregatedDataMap($rows, set);
+				} else {
+					this.updateAggregatedValues = false;
+
+					set(this.getDefaultAggregatedDataMap());
+				}
+			},
+			this.getDefaultAggregatedDataMap(),
+		);
+	}
+
+	public getDefaultAggregatedDataMap() : AggregatedDataMap {
+		return this.opts?.includeAggregatedData === false
+			? {}
+			: deepCopy(this.defaultAggregatedDataMap);
+	}
+
+	public async setAggregatedDataMap(rows : Row[], set : (value : any) => void, passedMap? : AggregatedDataMap) : Promise<void> {
+		set(passedMap == null
+			? this.getDefaultAggregatedDataMap()
+			: passedMap);
 	}
 }

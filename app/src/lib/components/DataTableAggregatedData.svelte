@@ -1,38 +1,16 @@
 <script lang="ts">
-	import { lapsed, parseDate, objectEntries } from 'briznads-helpers';
+	import type { DataTable } from '$lib/stores/data-table';
 
-	import { aggregatedDataRuns } from '$lib/stores/aggregated-data-runs';
+	import { objectEntries } from 'briznads-helpers';
 
 	import LineGraph from '$lib/components/LineGraph.svelte';
 
 
-	const { aggregatedDataMap } = aggregatedDataRuns;
+	export let storeInstance : DataTable;
 
-	function formatXValue(tick : number, ticks : number[] = []) : string {
-		const options : any = {
-			month : 'short',
-			day   : 'numeric',
-		};
-
-		const getYear = (tick : number) => parseDate(tick).getFullYear();
-
-		const upper = ticks[ 0 ];
-		const lower = ticks[ ticks.length - 1 ];
-
-		if (getYear(upper) !== getYear(lower)) {
-			options.year = 'numeric';
-		}
-
-		return parseDate(tick).toLocaleString(undefined, options);
-	}
-
-	const formatYValueMap : any = {
-		machineTime : (tick : number) => lapsed(tick, true),
-		cachedRate  : (tick : number) => `${ tick }%`,
-		runsPerDay  : (tick : number) => tick % 1 === 0
-			? tick
-			: '',
-	};
+	const {
+		aggregatedDataMap,
+	} = storeInstance;
 </script>
 
 
@@ -78,28 +56,37 @@
 </style>
 
 
-<div class="aggregate-data-container">
-	{#each objectEntries($aggregatedDataMap ?? {}) as [ key, data ] }
-		<ion-card class:has-graph={ data.chartCoordinates && data.chartCoordinates.length > 1 }>
-			<ion-card-header>
-				<ion-card-title class:no-title={ data.title === '' }>{ data.title === '' ? 'no value' : data.title }</ion-card-title>
+{#if Object.keys($aggregatedDataMap).length > 0 }
+	<div class="aggregate-data-container">
+		{#each objectEntries($aggregatedDataMap ?? {}) as [ key, data ] }
+			<ion-card
+				class:has-graph={ data.chartCoordinates && data.chartCoordinates.length > 1 }
+			>
+				<ion-card-header>
+					<ion-card-title
+						class:no-title={ data.title === '' }
+					>
+						{ data.title === '' ? 'no value' : data.title }
+					</ion-card-title>
 
-				<ion-card-subtitle>{ data.subtitle }</ion-card-subtitle>
-			</ion-card-header>
+					<ion-card-subtitle>{ data.subtitle }</ion-card-subtitle>
+				</ion-card-header>
 
-			{#if data.chartCoordinates && data.chartCoordinates.length > 1 }
-				<ion-card-content>
-					<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
+				{#if data.chartCoordinates && data.chartCoordinates.length > 1 }
+					<ion-card-content>
+						<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
 
-					<LineGraph
-						coordinates={ data.chartCoordinates }
-						{ formatXValue }
-						formatYValue={ formatYValueMap[ key ] ?? ((item) => item.toString()) }
-						hideYTicks={ key === 'erroredRate' }
-						showTooltips={ key === 'machineTime' }
-					/>
-				</ion-card-content>
-			{/if}
-		</ion-card>
-	{/each}
-</div>
+						{#if $$slots.default }
+							<slot
+								{ key }
+								coordinates={ data.chartCoordinates }
+							/>
+						{:else }
+							<LineGraph coordinates={ data.chartCoordinates } />
+						{/if }
+					</ion-card-content>
+				{/if}
+			</ion-card>
+		{/each}
+	</div>
+{/if }

@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import { scaleLinear } from 'd3-scale';
 	import { extent } from 'd3-array';
+	import { roundToDecimals, parseDate, isInvalidDate } from 'briznads-helpers';
 
 	import LineGraphAxes from '$lib/components/LineGraphAxes.svelte';
 	import LineGraphLine from '$lib/components/LineGraphLine.svelte';
@@ -16,8 +17,8 @@
 
 	export let coordinates : Coordinate[];
 
-	export let formatXValue : FormatValueFunction = (item) => item.toString();
-	export let formatYValue : FormatValueFunction = (item) => item.toString();
+	export let formatXValue : FormatValueFunction = defaultFormatXValue;
+	export let formatYValue : FormatValueFunction = (item : number) => roundToDecimals(item).toString();
 
 	export let hideYTicks   : boolean = false;
 	export let showTooltips : boolean = true;
@@ -70,6 +71,32 @@
 	}
 
 	$: init(coordinates);
+
+	function defaultFormatXValue(item : number, items? : number[]) : string {
+		const date = parseDate(item);
+
+		return isInvalidDate(date)
+			? roundToDecimals(item).toString()
+			: formatDefaultXDateValue(date, items);
+	}
+
+	function formatDefaultXDateValue(date : Date, items : number[] = []) : string {
+		const options : any = {
+			month : 'short',
+			day   : 'numeric',
+		};
+
+		const getYear = (item : number) => parseDate(item).getFullYear();
+
+		const upper = items[ 0 ];
+		const lower = items[ items.length - 1 ];
+
+		if (getYear(upper) !== getYear(lower)) {
+			options.year = 'numeric';
+		}
+
+		return date.toLocaleString(undefined, options);
+	}
 
 	let cachedCoordStr : string;
 

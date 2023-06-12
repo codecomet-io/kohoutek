@@ -46,6 +46,7 @@
 
 	function parseOptions(searchParams : URLSearchParams, pipelines : Pipeline[]) : Options {
 		return {
+			namespace   : 'pipelines',
 			initialRows : pipelines,
 			columnMap : {
 				name : {

@@ -66,6 +66,7 @@ export interface Row extends AnyMap {
 }
 
 export type Options = {
+	namespace 						 : string;
 	initialRows            : Row[];
 	columnMap              : ColumnMap;
 	parseRowLink           : ParseRowLinkFunc;

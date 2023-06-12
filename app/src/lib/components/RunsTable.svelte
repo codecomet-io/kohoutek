@@ -48,8 +48,9 @@
 
 	function parseOptions(searchParams : URLSearchParams, runs : Run[]) : Options {
 		return {
+			namespace   : 'runs',
 			initialRows : runs,
-			columnMap : {
+			columnMap   : {
 				status : {
 					name : 'Status',
 					size : 0.5,

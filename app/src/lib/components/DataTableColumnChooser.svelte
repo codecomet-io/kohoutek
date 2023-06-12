@@ -14,11 +14,13 @@
 		selectableColumns,
 	} = storeInstance;
 
-	const localStorageKey = 'dataTableSelectedColumns';
+	let localStorageKey : string;
 
 	let storedColumnsStr : string | null;
 
 	function initStoredColumns() : void {
+		localStorageKey = `dataTableSelectedColumns.${ storeInstance?.opts?.namespace }`;
+
 		storedColumnsStr = window.localStorage.getItem(localStorageKey);
 
 		storeInstance.initStoredColumns(storedColumnsStr);

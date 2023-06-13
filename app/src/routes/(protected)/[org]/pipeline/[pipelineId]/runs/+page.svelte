@@ -1,10 +1,16 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 
+	import { runsTable } from '$lib/stores/runs-table';
+
 	import RunsTable from '$lib/components/RunsTable.svelte';
 
 
 	export let data : PageData;
+
+	const {
+		rows,
+	} = runsTable;
 </script>
 
 
@@ -21,7 +27,7 @@
 >
 	<ion-card-subtitle>{ data.pipeline?.name ?? '' }</ion-card-subtitle>
 
-	<ion-card-title>All Pipeline Runs</ion-card-title>
+	<ion-card-title>All Pipeline Runs ({ $rows?.length ?? 0 })</ion-card-title>
 
 	{#if data.org && data.pipeline?.id && data.runs }
 		<RunsTable

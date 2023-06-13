@@ -1,12 +1,16 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 
+	import { pipelinesTable } from '$lib/stores/pipelines-table';
+
 	import PipelinesTable from '$lib/components/PipelinesTable.svelte';
 
 
 	export let data : PageData;
 
-	// $: console.debug('data', data);
+	const {
+		rows,
+	} = pipelinesTable;
 </script>
 
 
@@ -21,9 +25,9 @@
 	class="ion-padding"
 	fullscreen={ true }
 >
-<ion-card-subtitle>{ data.org ?? '' }</ion-card-subtitle>
+	<ion-card-subtitle>{ data.org ?? '' }</ion-card-subtitle>
 
-	<ion-card-title>All Pipelines</ion-card-title>
+	<ion-card-title>All Pipelines ({ $rows?.length ?? 0 })</ion-card-title>
 
 	{#if data.org && data.pipelines }
 		<PipelinesTable

@@ -61,11 +61,8 @@
 			padding-left: 0;
 			padding-right: 0.333em;
 			justify-content: end;
+			font-size: 24px;
 		}
-	}
-
-	ion-icon {
-		font-size: 25px;
 	}
 </style>
 
@@ -87,7 +84,7 @@
 					{ value }
 				/>
 			{:else }
-				{ value }
+				{ value ?? '' }
 			{/if }
 		</div>
 	{/each}

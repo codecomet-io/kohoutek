@@ -2,15 +2,12 @@ import type { NumberMap } from 'briznads-helpers';
 
 import type { Run } from '../../../../pantry/src/lib/model';
 
-import type { AggregatedData, AggregatedDataMap, Coordinate } from '$lib/types/data-table';
+import type { AggregatedDataMap, Coordinate, PartialAggregatedData } from '$lib/types/data-table';
 
 import { sleep, objectEntries, smartSort, lapsed, roundToDecimals, parseDate } from 'briznads-helpers';
 
 import { getEndpoints } from '$lib/helper';
 import { DataTable } from '$lib/stores/data-table';
-
-
-type PartialAggregatedData = Partial<AggregatedData>;
 
 
 class RunsTable extends DataTable {

@@ -52,6 +52,8 @@ export type AggregatedDataMap = {
 	[ key in string ] : AggregatedData;
 };
 
+export type PartialAggregatedData = Partial<AggregatedData>;
+
 export type AggregatedData = {
 	subtitle          : string;
 	title             : number | string;

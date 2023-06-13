@@ -3,7 +3,7 @@
 
 	import { objectEntries } from 'briznads-helpers';
 
-	import LineGraph from '$lib/components/LineGraph.svelte';
+	import LineGraph from '$lib/components/LineGraph/component.svelte';
 
 
 	export let storeInstance : DataTable;

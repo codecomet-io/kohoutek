@@ -167,7 +167,7 @@ export class DataTable {
 		return rows;
 	}
 
-	private filterNumericalRange(rows : Row[], key : 'machineTime' | 'started', values : [ number, number ]) : Row[] {
+	private filterNumericalRange(rows : Row[], key : string, values : [ number, number ]) : Row[] {
 		let [ lower, upper ] = values;
 
 		if (key === 'started' && typeof lower === 'string') {

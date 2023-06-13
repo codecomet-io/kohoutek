@@ -7,9 +7,9 @@
 	import { chevronForwardOutline } from 'ionicons/icons';
 	import { runsTable } from '$lib/stores/runs-table';
 
-	import DataTable from '$lib/components/DataTable.svelte';
+	import DataTable from '$lib/components/DataTable/component.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import LineGraph from '$lib/components/LineGraph.svelte';
+	import LineGraph from '$lib/components/LineGraph/component.svelte';
 
 
 	export let searchParams : URLSearchParams;
@@ -19,30 +19,28 @@
 
 
 	function parseCellTitle(key : string, value : any) : string {
-		let parsedValue = value?.toString();
-
 		if (key === 'started') {
-			parsedValue = getDateString(value);
+			return getDateString(value);
 		} else if (key === 'machineTime') {
-			parsedValue += ` millisecond${ value === 1 ? '' : 's' }`;
+			return lapsed(value, true, true);
 		} else if (key === 'link') {
-			parsedValue = 'View Run';
+			return 'View Run';
+		} else {
+			return value?.toString();
 		}
-
-		return parsedValue;
 	}
 
 	function parseRowLink(row : Run) : string {
 		return `/${ org }/pipeline/${ pipelineId }/run/${ row.id }`;
 	}
 
-	function parseStartedValue(value : number) : string {
+	function parseDateValue(value : number) : string {
 		const dateObj = parseDate(value);
 		const ago = Date.now() - value;
 
 		// if more than a day ago, show date and time
 		return ago > 86400000
-			? dateObj.toLocaleString(undefined, { dateStyle:'short', timeStyle:'short'})
+			? dateObj.toLocaleString(undefined, { dateStyle : 'short', timeStyle : 'short' })
 			: getTimeString(dateObj);
 	}
 
@@ -98,6 +96,10 @@
 			? tick
 			: '',
 	};
+
+	function parseFormatYValue(key : string) : (item : number, items? : number[]) => string {
+		return formatYValueMap[ key ] ?? ((item : number) => roundToDecimals(item).toString());
+	}
 </script>
 
 
@@ -117,9 +119,10 @@
 		{#if coordinates }
 			<LineGraph
 				{ coordinates }
-				formatYValue={ formatYValueMap[ key ] ?? ((item) => roundToDecimals(item).toString()) }
+				formatYValue={ parseFormatYValue(key) }
 				hideYTicks={ key === 'erroredRate' }
 				showTooltips={ key !== 'runsPerDay' }
+				xValueType="date"
 			/>
 		{/if }
 	</svelte:fragment>
@@ -135,7 +138,7 @@
 				status={ value }
 			/>
 		{:else if key === 'started' }
-			{ parseStartedValue(value) }
+			{ parseDateValue(value) }
 		{:else if key === 'machineTime' }
 			{ lapsed(value, true) }
 		{:else if key === 'link' }

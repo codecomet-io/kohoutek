@@ -3,12 +3,12 @@
 
 	import type { Options } from '$lib/types/data-table';
 
-	import { getDateString, parseDate, getTimeString, lapsed } from 'briznads-helpers';
+	import { getDateString, parseDate, getTimeString, lapsed, roundToDecimals } from 'briznads-helpers';
 	import { chevronForwardOutline } from 'ionicons/icons';
 	import { pipelinesTable } from '$lib/stores/pipelines-table';
 
-	import DataTable from '$lib/components/DataTable.svelte';
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
+	import DataTable from '$lib/components/DataTable/component.svelte';
+	import LineGraph from '$lib/components/LineGraph/component.svelte';
 
 
 	export let searchParams : URLSearchParams;
@@ -17,30 +17,28 @@
 
 
 	function parseCellTitle(key : string, value : any) : string {
-		let parsedValue = value?.toString();
-
-		if (key === 'started') {
-			parsedValue = getDateString(value);
+		if (key === 'firstRunAt' || key === 'lastRunAt') {
+			return getDateString(value);
 		} else if (key === 'machineTime') {
-			parsedValue += ` millisecond${ value === 1 ? '' : 's' }`;
+			return lapsed(value, true, true);
 		} else if (key === 'link') {
-			parsedValue = 'View Run';
+			return 'View Run';
+		} else {
+			return value?.toString();
 		}
-
-		return parsedValue;
 	}
 
 	function parseRowLink(pipeline : Pipeline) : string {
 		return `/${ org }/pipeline/${ pipeline.id }/runs`;
 	}
 
-	function parseStartedValue(value : number) : string {
+	function parseDateValue(value : number) : string {
 		const dateObj = parseDate(value);
 		const ago = Date.now() - value;
 
 		// if more than a day ago, show date and time
 		return ago > 86400000
-			? dateObj.toLocaleString(undefined, { dateStyle:'short', timeStyle:'short'})
+			? dateObj.toLocaleString(undefined, { dateStyle : 'short', timeStyle : 'short' })
 			: getTimeString(dateObj);
 	}
 
@@ -51,16 +49,78 @@
 			columnMap : {
 				name : {
 					name         : 'Name',
-					size         : 2.5,
+					size         : 2,
 					unfilterable : true,
 				},
+				firstRunAt : {
+					name : 'First Run',
+				},
+				lastRunAt : {
+					name : 'Last Run',
+				},
+				runCount : {
+					name : 'Runs',
+					size : 0.5,
+				},
+				'statusesMap.cancelled' : {
+					name            : 'Cancelled Runs',
+					initiallyHidden : true,
+				},
+				'statusesMap.completed' : {
+					name : 'Completed Runs',
+				},
+				'statusesMap.degraded' : {
+					name            : 'Degraded Runs',
+					initiallyHidden : true,
+				},
+				'statusesMap.errored' : {
+					name : 'Errored Runs',
+				},
+				machineTime : {
+					name : 'Total Machine Time',
+				},
+				actionsCount : {
+					name            : 'Attempted Actions',
+					initiallyHidden : true,
+				},
+				cachedActionsCount : {
+					name : 'Cached Actions',
+				},
+				ranActionsCount : {
+					name            : 'Ran Actions',
+					initiallyHidden : true,
+				},
+				completedActionsCount : {
+					name            : 'Completed Actions',
+					initiallyHidden : true,
+				},
+				erroredActionsCount : {
+					name : 'Errored Actions',
+				},
+				interruptedActionsCount : {
+					name            : 'Interrupted Actions',
+					initiallyHidden : true,
+				},
+				notRanActionsCount : {
+					name            : 'Not Ran Actions',
+					initiallyHidden : true,
+				},
 				description : {
-					name         : 'Description',
-					size         : 3,
-					unfilterable : true,
+					name            : 'Description',
+					size            : 3,
+					unfilterable    : true,
+					initiallyHidden : true,
 				},
 				repo : {
 					name : 'Repository',
+				},
+				'triggersMap.manual' : {
+					name            : 'Triggered Manually',
+					initiallyHidden : true,
+				},
+				'triggersMap.automated' : {
+					name            : 'Triggered Automatically',
+					initiallyHidden : true,
 				},
 				link : {
 					name         : 'Link',
@@ -72,9 +132,18 @@
 			},
 			parseRowLink,
 			parseCellTitle,
-			defaultTimeFilter     : false,
-			includeAggregatedData : false,
+			defaultTimeFilter : false,
 		};
+	}
+
+	const formatYValueMap : any = {
+		machineTime       : (tick : number) => lapsed(tick, true),
+		cachedActionsRate : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
+		erroredRunRate    : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
+	};
+
+	function parseFormatYValue(key : string) : (item : number, items? : number[]) => string {
+		return formatYValueMap[ key ] ?? ((item : number) => roundToDecimals(item).toString());
 	}
 </script>
 
@@ -88,26 +157,36 @@
 	options={ parseOptions(searchParams, pipelines) }
 >
 	<svelte:fragment
+		slot="aggregatedChart"
+		let:key
+		let:coordinates
+	>
+		{#if coordinates }
+			<LineGraph
+				{ coordinates }
+				formatYValue={ parseFormatYValue(key) }
+				xValueType={ undefined }
+			/>
+		{/if }
+	</svelte:fragment>
+
+	<svelte:fragment
 		slot="cell"
 		let:key
 		let:value
 	>
-		{#if key === 'status' }
-			<StatusIcon
-				size="small"
-				status={ value }
-			/>
-		{:else if key === 'started' }
-			{ parseStartedValue(value) }
+		{#if key === 'firstRunAt' || key === 'lastRunAt' }
+			{ parseDateValue(value) }
 		{:else if key === 'machineTime' }
 			{ lapsed(value, true) }
 		{:else if key === 'link' }
 			<ion-icon
 				icon={ chevronForwardOutline }
 				color="medium"
+				size="medium"
 			></ion-icon>
-		{:else}
+		{:else }
 			{ value ?? '' }
-		{/if}
+		{/if }
 	</svelte:fragment>
 </DataTable>

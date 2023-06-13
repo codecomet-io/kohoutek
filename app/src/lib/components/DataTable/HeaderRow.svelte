@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DataTable } from '$lib/stores/data-table';
 
-	import DataTableSort from '$lib/components/DataTableSort.svelte';
+	import Sort from '$lib/components/DataTable/Sort.svelte';
 
 
 	export let searchParams  : URLSearchParams;
@@ -88,7 +88,7 @@
 			<span class="label">{ column?.name }</span>
 
 			{#if column?.hiddenHeader !== true }
-				<DataTableSort
+				<Sort
 					{ storeInstance }
 					{ key }
 				/>

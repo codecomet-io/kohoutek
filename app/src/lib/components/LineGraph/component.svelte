@@ -6,10 +6,10 @@
 	import { extent } from 'd3-array';
 	import { roundToDecimals, parseDate, isInvalidDate } from 'briznads-helpers';
 
-	import LineGraphAxes from '$lib/components/LineGraphAxes.svelte';
-	import LineGraphLine from '$lib/components/LineGraphLine.svelte';
-	import LineGraphArea from '$lib/components/LineGraphArea.svelte';
-	import LineGraphTooltip from '$lib/components/LineGraphTooltip.svelte';
+	import Axes from '$lib/components/LineGraph/Axes.svelte';
+	import Line from '$lib/components/LineGraph/Line.svelte';
+	import Area from '$lib/components/LineGraph/Area.svelte';
+	import Tooltip from '$lib/components/LineGraph/Tooltip.svelte';
 
 
 	type FormatValueFunction = (item : number, items? : number[]) => string;
@@ -17,9 +17,11 @@
 
 	export let coordinates : Coordinate[];
 
-	export let formatXValue : FormatValueFunction = defaultFormatXValue;
+	export let formatXValue : FormatValueFunction = (item : number) => roundToDecimals(item).toString();
 	export let formatYValue : FormatValueFunction = (item : number) => roundToDecimals(item).toString();
 
+	export let xValueType   : undefined | 'date' = undefined;
+	export let hideXTicks   : boolean = false;
 	export let hideYTicks   : boolean = false;
 	export let showTooltips : boolean = true;
 
@@ -29,6 +31,10 @@
 		bottom : 20,
 		left   : 32.5,
 	};
+
+	$: if (hideXTicks) {
+		padding.bottom = 0;
+	}
 
 	$: if (hideYTicks) {
 		padding.left = 0;
@@ -72,15 +78,16 @@
 
 	$: init(coordinates);
 
-	function defaultFormatXValue(item : number, items? : number[]) : string {
-		const date = parseDate(item);
+	function formatXValueFunc() : any {
+		return xValueType === 'date'
+			? formatXDateValue
+			: formatXValue;
 
-		return isInvalidDate(date)
-			? roundToDecimals(item).toString()
-			: formatDefaultXDateValue(date, items);
 	}
 
-	function formatDefaultXDateValue(date : Date, items : number[] = []) : string {
+	function formatXDateValue(item : number, items : number[] = []) : string {
+		const date = parseDate(item);
+
 		const options : any = {
 			month : 'short',
 			day   : 'numeric',
@@ -145,9 +152,10 @@
 
 
 <svg viewBox="0 0 { width } { height }">
-	<LineGraphAxes
-		{ formatXValue }
+	<Axes
+		formatXValue={ formatXValueFunc() }
 		{ formatYValue }
+		{ hideXTicks }
 		{ hideYTicks }
 		{ padding }
 		{ height }
@@ -157,7 +165,7 @@
 		{ yScale }
 	/>
 
-	<LineGraphLine
+	<Line
 		bind:pathElement={ pathLineElement }
 		{ coordinates }
 		{ xScale }
@@ -165,7 +173,7 @@
 		{ isVisible }
 	/>
 
-	<LineGraphArea
+	<Area
 		{ coordinates }
 		{ xScale }
 		{ yScale }
@@ -174,7 +182,7 @@
 	/>
 
 	{#if showTooltips }
-		<LineGraphTooltip
+		<Tooltip
 			{ formatYValue }
 			{ xEndpoints }
 			{ innerWidth }

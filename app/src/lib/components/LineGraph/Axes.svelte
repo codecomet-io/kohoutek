@@ -11,6 +11,7 @@
 
 	export let formatXValue : FormatValueFunction = (item) => item.toString();
 	export let formatYValue : FormatValueFunction = (item) => item.toString();
+	export let hideXTicks   : boolean = false;
 	export let hideYTicks   : boolean = false;
 	export let padding      : { top : number, right : number, bottom : number, left : number };
 	export let height       : number;
@@ -82,7 +83,7 @@
 
 
 <!-- y axis -->
-<g class="axis y-axis" transform="translate(0, { padding.top })">
+<g class="axis y-axis" transform="translate(0, { padding.bottom })">
 	{#each yTicks as tick, index }
 		<g
 			class="tick tick-{ index }"
@@ -102,19 +103,21 @@
 	{#each xTicks as tick, index }
 		<g
 			class="tick tick-{ index }"
-			transform="translate({ xScale(tick) },{ height })"
+			transform="translate({ xScale(tick) }, { height })"
 		>
 			<line
-				y1="-{ height }"
-				y2="-{ padding.bottom }"
 				x1="0"
+				y1="-{ height }"
 				x2="0"
+				y2="-{ padding.bottom }"
 			></line>
 
-			<text
-				y="-2"
-				transform="translate(-{ index === 0 ? padding.left : 0 }, 0)"
-			>{ formatXValue(tick, xTicks) }</text>
+			{#if !hideXTicks }
+				<text
+					y="-2"
+					transform="translate(-{ index === 0 ? padding.left : 0 }, 0)"
+				>{ formatXValue(tick, xTicks) }</text>
+			{/if }
 		</g>
 	{/each}
 </g>

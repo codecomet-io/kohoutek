@@ -2,12 +2,12 @@
 	import type { ColumnMap, ParseRowLinkFunc, ParseCellTitleFunc, Options } from '$lib/types/data-table';
 	import type { DataTable } from '$lib/stores/data-table';
 
-	import DataTableFilters from '$lib/components/DataTableFilters.svelte';
-	import DataTableAggregatedData from '$lib/components/DataTableAggregatedData.svelte';
-	import DataTableColumnChooser from '$lib/components/DataTableColumnChooser.svelte';
-	import DataTableSearch from '$lib/components/DataTableSearch.svelte';
-	import DataTableHeaderRow from '$lib/components/DataTableHeaderRow.svelte';
-	import DataTableRow from '$lib/components/DataTableRow.svelte';
+	import Filters from '$lib/components/DataTable/Filters.svelte';
+	import AggregatedHeadlineData from '$lib/components/DataTable/AggregatedHeadlineData.svelte';
+	import ColumnChooser from '$lib/components/DataTable/ColumnChooser.svelte';
+	import Search from '$lib/components/DataTable/Search.svelte';
+	import HeaderRow from '$lib/components/DataTable/HeaderRow.svelte';
+	import Row from '$lib/components/DataTable/Row.svelte';
 
 
 	export let searchParams  : URLSearchParams;
@@ -75,13 +75,13 @@
 </style>
 
 
-<DataTableFilters
+<Filters
 	{ searchParams }
 	{ storeInstance }
 />
 
 {#if storeInstance.opts.includeAggregatedData !== false }
-	<DataTableAggregatedData
+	<AggregatedHeadlineData
 		{ storeInstance }
 		let:key
 		let:coordinates
@@ -91,11 +91,11 @@
 			{ key }
 			{ coordinates }
 		/>
-	</DataTableAggregatedData>
+	</AggregatedHeadlineData>
 {/if}
 
 <div class="table-scroll-container">
-	<DataTableSearch
+	<Search
 		{ searchParams }
 		{ storeInstance }
 	/>
@@ -104,15 +104,15 @@
 		class="table-wrapper"
 		style="--grid-template-columns:{ parseGridTemplateColumns($columnMap, $visibleColumns) };"
 	>
-		<DataTableColumnChooser { storeInstance }/>
+		<ColumnChooser { storeInstance }/>
 
-		<DataTableHeaderRow
+		<HeaderRow
 			{ searchParams }
 			{ storeInstance }
 		/>
 
 		{#each $rows as row }
-			<DataTableRow
+			<Row
 				{ storeInstance }
 				{ row }
 				let:key
@@ -123,7 +123,7 @@
 					{ key }
 					{ value }
 				/>
-			</DataTableRow>
+			</Row>
 		{/each}
 	</div>
 </div>

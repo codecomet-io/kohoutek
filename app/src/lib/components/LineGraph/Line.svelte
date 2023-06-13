@@ -1,14 +1,16 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { Coordinate } from '$lib/types/data-table';
+	import type { ScaleFunction } from '$lib/types/line-graph';
 
 	import { draw } from 'svelte/transition';
 	import { sineOut } from 'svelte/easing';
 	import { line, curveMonotoneX } from 'd3-shape';
+</script>
 
-
-	type ScaleFunction = (input : number) => number;
-
-
+<script lang="ts">
 	export let coordinates : Coordinate[];
 	export let xScale      : ScaleFunction;
 	export let yScale      : ScaleFunction;

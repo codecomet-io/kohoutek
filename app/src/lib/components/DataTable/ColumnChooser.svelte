@@ -1,11 +1,16 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { DataTable } from '$lib/stores/data-table';
 
 	import { onMount } from 'svelte';
 	import { menu } from 'ionicons/icons';
 	import { HEK } from '$lib/helper';
+</script>
 
 
+<script lang="ts">
 	export let storeInstance : DataTable;
 
 	const {

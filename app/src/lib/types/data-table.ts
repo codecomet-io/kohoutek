@@ -1,5 +1,7 @@
 import type { AnyMap } from 'briznads-helpers';
 
+import type { AggregatedHeadlineDataOptionsMap } from '$lib/types/aggregated-headline-data';
+
 
 export type Column = {
 	name             : string;
@@ -48,34 +50,21 @@ export type FiniteFilterValuesMap = {
 	[ key in string ] : false | any[];
 };
 
-export type AggregatedDataMap = {
-	[ key in string ] : AggregatedData;
-};
-
-export type PartialAggregatedData = Partial<AggregatedData>;
-
-export type AggregatedData = {
-	subtitle          : string;
-	title             : number | string;
-	chartLabel?       : string;
-	chartCoordinates? : Coordinate[];
-};
-
-export type Coordinate = [ number, number ];
-
 export interface Row extends AnyMap {
 	id : string;
 }
 
 export type Options = {
-	namespace 						 : string;
-	initialRows            : Row[];
-	columnMap              : ColumnMap;
-	parseRowLink           : ParseRowLinkFunc;
-	parseCellTitle         : ParseCellTitleFunc;
-	defaultTimeFilter?     : TimeFilterValue | false;
-	includeAggregatedData? : boolean;
+	namespace                         : string;
+	initialRows                       : Row[];
+	columnMap                         : ColumnMap;
+	parseRowLink                      : ParseRowLinkFunc;
+	parseCellTitle                    : ParseCellTitleFunc;
+	defaultTimeFilter?                : TimeFilterValue | false;
+	aggregatedHeadlineDataOptionsMap? : AggregatedHeadlineDataOptionsMap;
 };
+
+export type PartialOptions = Partial<Options>;
 
 export type ParseRowLinkFunc = (row : any) => string;
 

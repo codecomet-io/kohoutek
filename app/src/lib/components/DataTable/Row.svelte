@@ -1,9 +1,14 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { DataTable } from '$lib/stores/data-table';
 
 	import { get } from 'briznads-helpers';
+</script>
 
 
+<script lang="ts">
 	export let storeInstance : DataTable;
 	export let row           : any;
 

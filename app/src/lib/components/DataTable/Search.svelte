@@ -1,9 +1,14 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { DataTable } from '$lib/stores/data-table';
 
 	import { gotoSearchString } from '$lib/helper';
+</script>
 
 
+<script lang="ts">
 	export let searchParams : URLSearchParams;
 	export let storeInstance : DataTable;
 

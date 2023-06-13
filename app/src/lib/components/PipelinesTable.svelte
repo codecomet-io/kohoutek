@@ -1,7 +1,11 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { Pipeline } from '../../../../pantry/src/lib/model';
 
-	import type { Options } from '$lib/types/data-table';
+	import type { Options, ColumnMap } from '$lib/types/data-table';
+	import type { AggregatedHeadlineDataOptionsMap } from '$lib/types/aggregated-headline-data';
 
 	import { getDateString, parseDate, getTimeString, lapsed, roundToDecimals } from 'briznads-helpers';
 	import { chevronForwardOutline } from 'ionicons/icons';
@@ -9,8 +13,10 @@
 
 	import DataTable from '$lib/components/DataTable/component.svelte';
 	import LineGraph from '$lib/components/LineGraph/component.svelte';
+</script>
 
 
+<script lang="ts">
 	export let searchParams : URLSearchParams;
 	export let org : string;
 	export let pipelines : Pipeline[];
@@ -42,102 +48,132 @@
 			: getTimeString(dateObj);
 	}
 
-	function parseOptions(searchParams : URLSearchParams, pipelines : Pipeline[]) : Options {
+	function parseOptions(pipelines : Pipeline[]) : Options {
 		return {
-			namespace   : 'pipelines',
-			initialRows : pipelines,
-			columnMap : {
-				name : {
-					name         : 'Name',
-					size         : 2,
-					unfilterable : true,
-				},
-				firstRunAt : {
-					name : 'First Run',
-				},
-				lastRunAt : {
-					name : 'Last Run',
-				},
-				runCount : {
-					name : 'Runs',
-					size : 0.5,
-				},
-				'statusesMap.cancelled' : {
-					name            : 'Cancelled Runs',
-					initiallyHidden : true,
-				},
-				'statusesMap.completed' : {
-					name : 'Completed Runs',
-				},
-				'statusesMap.degraded' : {
-					name            : 'Degraded Runs',
-					initiallyHidden : true,
-				},
-				'statusesMap.errored' : {
-					name : 'Errored Runs',
-				},
-				machineTime : {
-					name : 'Total Machine Time',
-				},
-				actionsCount : {
-					name            : 'Attempted Actions',
-					initiallyHidden : true,
-				},
-				cachedActionsCount : {
-					name : 'Cached Actions',
-				},
-				ranActionsCount : {
-					name            : 'Ran Actions',
-					initiallyHidden : true,
-				},
-				completedActionsCount : {
-					name            : 'Completed Actions',
-					initiallyHidden : true,
-				},
-				erroredActionsCount : {
-					name : 'Errored Actions',
-				},
-				interruptedActionsCount : {
-					name            : 'Interrupted Actions',
-					initiallyHidden : true,
-				},
-				notRanActionsCount : {
-					name            : 'Not Ran Actions',
-					initiallyHidden : true,
-				},
-				description : {
-					name            : 'Description',
-					size            : 3,
-					unfilterable    : true,
-					initiallyHidden : true,
-				},
-				repo : {
-					name : 'Repository',
-				},
-				'triggersMap.manual' : {
-					name            : 'Triggered Manually',
-					initiallyHidden : true,
-				},
-				'triggersMap.automated' : {
-					name            : 'Triggered Automatically',
-					initiallyHidden : true,
-				},
-				link : {
-					name         : 'Link',
-					size         : 0.3,
-					hiddenHeader : true,
-					unfilterable : true,
-					unhideable   : true,
-				},
-			},
 			parseRowLink,
 			parseCellTitle,
-			defaultTimeFilter : false,
+			namespace                        : 'pipelines',
+			initialRows                      : pipelines,
+			columnMap                        : getColumnMap(),
+			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
+			defaultTimeFilter                : false,
+		};
+	}
+
+	function getColumnMap() : ColumnMap {
+		return {
+			name : {
+				name         : 'Name',
+				size         : 2,
+				unfilterable : true,
+			},
+			firstRunAt : {
+				name : 'First Run',
+			},
+			lastRunAt : {
+				name : 'Last Run',
+			},
+			runCount : {
+				name : 'Runs',
+				size : 0.5,
+			},
+			'statusesMap.cancelled' : {
+				name            : 'Cancelled Runs',
+				initiallyHidden : true,
+			},
+			'statusesMap.completed' : {
+				name : 'Completed Runs',
+			},
+			'statusesMap.degraded' : {
+				name            : 'Degraded Runs',
+				initiallyHidden : true,
+			},
+			'statusesMap.errored' : {
+				name : 'Errored Runs',
+			},
+			machineTime : {
+				name : 'Total Machine Time',
+			},
+			actionsCount : {
+				name            : 'Attempted Actions',
+				initiallyHidden : true,
+			},
+			cachedActionsCount : {
+				name : 'Cached Actions',
+			},
+			ranActionsCount : {
+				name            : 'Ran Actions',
+				initiallyHidden : true,
+			},
+			completedActionsCount : {
+				name            : 'Completed Actions',
+				initiallyHidden : true,
+			},
+			erroredActionsCount : {
+				name : 'Errored Actions',
+			},
+			interruptedActionsCount : {
+				name            : 'Interrupted Actions',
+				initiallyHidden : true,
+			},
+			notRanActionsCount : {
+				name            : 'Not Ran Actions',
+				initiallyHidden : true,
+			},
+			description : {
+				name            : 'Description',
+				size            : 3,
+				unfilterable    : true,
+				initiallyHidden : true,
+			},
+			repo : {
+				name : 'Repository',
+			},
+			'triggersMap.manual' : {
+				name            : 'Triggered Manually',
+				initiallyHidden : true,
+			},
+			'triggersMap.automated' : {
+				name            : 'Triggered Automatically',
+				initiallyHidden : true,
+			},
+			link : {
+				name         : 'Link',
+				size         : 0.3,
+				hiddenHeader : true,
+				unfilterable : true,
+				unhideable   : true,
+			},
+		};
+	}
+
+	function getAggregatedHeadlineDataOptionsMap() : AggregatedHeadlineDataOptionsMap {
+		return {
+			machineTime : {
+				titleLabel : 'Average Machine Time',
+				chartLabel : 'All Machine Time',
+				parse      : pipelinesTable.machineTime.bind(pipelinesTable),
+			},
+			cachedActionsRate : {
+				titleLabel : 'Average Cached Actions Rate',
+				chartLabel : 'All Cached Actions Rate',
+				parse      : pipelinesTable.cachedActionsRate.bind(pipelinesTable),
+			},
+			erroredRunRate : {
+				titleLabel : 'Average Errored Rate',
+				chartLabel : 'All Errored Rates',
+				parse      : pipelinesTable.erroredRunRate.bind(pipelinesTable),
+			},
+			runCount : {
+				titleLabel : 'Average Run Count',
+				chartLabel : 'All Run Counts',
+				parse      : pipelinesTable.runCount.bind(pipelinesTable),
+			},
 		};
 	}
 
 	const formatYValueMap : any = {
-		machineTime       : (tick : number) => lapsed(tick, true),
+		machineTime       : (tick : number) => `${ roundToDecimals(tick / 1000 / 1000, 0) } min`,
 		cachedActionsRate : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
 		erroredRunRate    : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
 	};
@@ -154,7 +190,7 @@
 <DataTable
 	{ searchParams }
 	storeInstance={ pipelinesTable }
-	options={ parseOptions(searchParams, pipelines) }
+	options={ parseOptions(pipelines) }
 >
 	<svelte:fragment
 		slot="aggregatedChart"

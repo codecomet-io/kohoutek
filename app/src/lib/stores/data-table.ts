@@ -1,27 +1,25 @@
 import type { Writable, Readable } from 'svelte/store';
 import type { QueryOptions, AnyMap } from 'briznads-helpers';
 
-import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, AggregatedDataMap } from '$lib/types/data-table';
+import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions } from '$lib/types/data-table';
+import type { AggregatedHeadlineDataMap, AggregatedHeadlineData, PartialAggregatedHeadlineData } from '$lib/types/aggregated-headline-data';
 
 import { writable, derived, get } from 'svelte/store';
-import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, deepCopy } from 'briznads-helpers';
-
-
-type PartialOptions = Partial<Options>;
+import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, sleep } from 'briznads-helpers';
 
 
 export class DataTable {
 	private readonly defaultOpts : PartialOptions = {
-		parseRowLink          : () => '',
-		parseCellTitle        : (_, value : any) => value.toString(),
-		defaultTimeFilter     : [ 'last 30 days' ],
-		includeAggregatedData : true,
+		parseRowLink      : () => '',
+		parseCellTitle    : (_, value : any) => value.toString(),
+		defaultTimeFilter : [ 'last 30 days' ],
 	};
 
-	public opts!                    : Options;
-	public isInitialized            : boolean           = false;
-	public updateAggregatedValues   : boolean           = false;
-	public defaultAggregatedDataMap : AggregatedDataMap = {};
+	private defaultAggregatedHeadlineDataMap! : AggregatedHeadlineDataMap;
+
+	public opts!                          : Options;
+	public isInitialized                  : boolean = false;
+	public updateAggregatedHeadlineValues : boolean = false;
 
 	public columnMap       : Writable<ColumnMap>;
 	public initialRows     : Writable<Row[]>;
@@ -31,14 +29,14 @@ export class DataTable {
 	public activeSort      : Writable<ActiveSort>;
 	public addFilterInfo   : Writable<AddFilterInfo>;
 
-	public selectableColumns     : Readable<string[]>;
-	public visibleColumns        : Readable<string[]>;
-	public filteredRows          : Readable<Row[]>;
-	public queriedRows           : Readable<Row[]>;
-	public rows                  : Readable<Row[]>;
-	public finiteFilterValuesMap : Readable<FiniteFilterValuesMap>;
-	public filterableColumns     : Readable<string[]>;
-	public aggregatedDataMap     : Readable<AggregatedDataMap>;
+	public selectableColumns         : Readable<string[]>;
+	public visibleColumns            : Readable<string[]>;
+	public filteredRows              : Readable<Row[]>;
+	public queriedRows               : Readable<Row[]>;
+	public rows                      : Readable<Row[]>;
+	public finiteFilterValuesMap     : Readable<FiniteFilterValuesMap>;
+	public filterableColumns         : Readable<string[]>;
+	public aggregatedHeadlineDataMap : Readable<AggregatedHeadlineDataMap>;
 
 
 	constructor() {
@@ -58,15 +56,14 @@ export class DataTable {
 		});
 
 		// setup derived stores
-		this.selectableColumns     = this.initSelectableColumns();
-		this.visibleColumns        = this.initVisibleColumns();
-		this.filteredRows          = this.initFilteredRows();
-		this.queriedRows           = this.initQueriedRows();
-		this.rows                  = this.initRows();
-		this.finiteFilterValuesMap = this.initFiniteFilterValuesMap();
-		this.filterableColumns     = this.initFilterableColumns();
-		this.aggregatedDataMap     = this.initAggregatedDataMap();
-
+		this.selectableColumns         = this.initSelectableColumns();
+		this.visibleColumns            = this.initVisibleColumns();
+		this.filteredRows              = this.initFilteredRows();
+		this.queriedRows               = this.initQueriedRows();
+		this.rows                      = this.initRows();
+		this.finiteFilterValuesMap     = this.initFiniteFilterValuesMap();
+		this.filterableColumns         = this.initFilterableColumns();
+		this.aggregatedHeadlineDataMap = this.initAggregatedHeadlineDataMap();
 	}
 
 
@@ -410,38 +407,58 @@ export class DataTable {
 		});
 	}
 
-
-
-	private initAggregatedDataMap() : Readable<AggregatedDataMap> {
+	private initAggregatedHeadlineDataMap() : Readable<AggregatedHeadlineDataMap> {
 		return derived(
 			this.queriedRows,
 			(
 				$rows : Row[],
 				set   : (value : any) => void,
 			) : void => {
-				if (this.opts.includeAggregatedData !== false && $rows?.length > 0) {
-					this.updateAggregatedValues = true;
+				if (this.opts.aggregatedHeadlineDataOptionsMap && $rows?.length > 0) {
+					this.updateAggregatedHeadlineValues = true;
 
-					this.setAggregatedDataMap($rows, set);
+					this.setAggregatedHeadlineDataMap($rows, set);
 				} else {
-					this.updateAggregatedValues = false;
+					this.updateAggregatedHeadlineValues = false;
 
-					set(this.getDefaultAggregatedDataMap());
+					set(this.getDefaultAggregatedHeadlineDataMap());
 				}
 			},
-			this.getDefaultAggregatedDataMap(),
+			this.getDefaultAggregatedHeadlineDataMap(),
 		);
 	}
 
-	public getDefaultAggregatedDataMap() : AggregatedDataMap {
-		return this.opts?.includeAggregatedData === false
-			? {}
-			: deepCopy(this.defaultAggregatedDataMap);
+	private async setAggregatedHeadlineDataMap(rows : Row[], set : (value : any) => void) : Promise<void> {
+		await sleep(1);
+
+		const map : AggregatedHeadlineDataMap = {};
+
+		for (const [ key, value ] of objectEntries(this.opts.aggregatedHeadlineDataOptionsMap ?? {})) {
+			map[ key ] = {
+				...this.getDefaultAggregatedHeadlineDataMap()[ key ],
+				...(this.updateAggregatedHeadlineValues ? await value.parse(rows) : undefined),
+			};
+
+			set(map);
+		}
 	}
 
-	public async setAggregatedDataMap(rows : Row[], set : (value : any) => void, passedMap? : AggregatedDataMap) : Promise<void> {
-		set(passedMap == null
-			? this.getDefaultAggregatedDataMap()
-			: passedMap);
+	private getDefaultAggregatedHeadlineDataMap() : AggregatedHeadlineDataMap {
+		if (!this.isInitialized) {
+			return {};
+		} else if (this.defaultAggregatedHeadlineDataMap == null) {
+			const map : AggregatedHeadlineDataMap = {};
+
+			for (const [ key, value ] of objectEntries(this.opts.aggregatedHeadlineDataOptionsMap ?? {})) {
+				map[ key ] = {
+					titleLabel : value.titleLabel,
+					chartLabel : value.chartLabel,
+				};
+			}
+
+			this.defaultAggregatedHeadlineDataMap = map;
+		}
+
+		return this.defaultAggregatedHeadlineDataMap;
 	}
 }

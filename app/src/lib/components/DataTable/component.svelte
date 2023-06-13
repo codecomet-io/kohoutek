@@ -1,5 +1,8 @@
-<script lang="ts">
-	import type { ColumnMap, ParseRowLinkFunc, ParseCellTitleFunc, Options } from '$lib/types/data-table';
+<script
+	lang="ts"
+	context="module"
+>
+	import type { ColumnMap, Options } from '$lib/types/data-table';
 	import type { DataTable } from '$lib/stores/data-table';
 
 	import Filters from '$lib/components/DataTable/Filters.svelte';
@@ -8,8 +11,10 @@
 	import Search from '$lib/components/DataTable/Search.svelte';
 	import HeaderRow from '$lib/components/DataTable/HeaderRow.svelte';
 	import Row from '$lib/components/DataTable/Row.svelte';
+</script>
 
 
+<script lang="ts">
 	export let searchParams  : URLSearchParams;
 	export let storeInstance : DataTable;
 	export let options       : Options;
@@ -80,7 +85,7 @@
 	{ storeInstance }
 />
 
-{#if storeInstance.opts.includeAggregatedData !== false }
+{#if Object.keys(storeInstance.opts.aggregatedHeadlineDataOptionsMap ?? {}).length > 0 }
 	<AggregatedHeadlineData
 		{ storeInstance }
 		let:key

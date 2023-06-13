@@ -1,15 +1,20 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { DataTable } from '$lib/stores/data-table';
 
 	import { objectEntries } from 'briznads-helpers';
 
 	import LineGraph from '$lib/components/LineGraph/component.svelte';
+</script>
 
 
+<script lang="ts">
 	export let storeInstance : DataTable;
 
 	const {
-		aggregatedDataMap,
+		aggregatedHeadlineDataMap,
 	} = storeInstance;
 </script>
 
@@ -56,25 +61,27 @@
 </style>
 
 
-{#if Object.keys($aggregatedDataMap).length > 0 }
+{#if Object.keys($aggregatedHeadlineDataMap).length > 0 }
 	<div class="aggregate-data-container">
-		{#each objectEntries($aggregatedDataMap ?? {}) as [ key, data ] }
+		{#each objectEntries($aggregatedHeadlineDataMap) as [ key, data ] }
 			<ion-card
 				class:has-graph={ data.chartCoordinates && data.chartCoordinates.length > 1 }
 			>
 				<ion-card-header>
 					<ion-card-title
-						class:no-title={ data.title === '' }
+						class:no-title={ !data.title }
 					>
-						{ data.title === '' ? 'no value' : data.title }
+						{ !data.title ? 'no value' : data.title }
 					</ion-card-title>
 
-					<ion-card-subtitle>{ data.subtitle }</ion-card-subtitle>
+					<ion-card-subtitle>{ data.titleLabel }</ion-card-subtitle>
 				</ion-card-header>
 
 				{#if data.chartCoordinates && data.chartCoordinates.length > 1 }
 					<ion-card-content>
-						<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
+						{#if data.chartLabel }
+							<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
+						{/if}
 
 						{#if $$slots.default }
 							<slot

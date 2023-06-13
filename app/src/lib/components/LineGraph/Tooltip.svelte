@@ -1,15 +1,17 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { Coordinate } from '$lib/types/data-table';
+	import type { Padding, FormatValueFunction } from '$lib/types/line-graph';
+</script>
 
-
-	type FormatValueFunction = (item : number, items? : number[]) => string;
-
-
+<script lang="ts">
 	export let formatYValue    : FormatValueFunction = (item) => item.toString();
 	export let xEndpoints      : Coordinate;
-	export let innerWidth      : number;
+	export let width           : number;
 	export let height          : number;
-	export let paddingBottom   : number;
+	export let padding         : Padding;
 	export let xScale          : any;
 	export let yScale          : any;
 	export let pathLineElement : SVGPathElement;
@@ -18,7 +20,7 @@
 
 	let rectangleWidth : number;
 
-	$: rectangleWidth = innerWidth / ( tooltipCount - 1 );
+	$: rectangleWidth = ( width - padding.left - padding.right ) / ( tooltipCount - 1 );
 
 	let activeTooltip : undefined | Coordinate;
 
@@ -96,7 +98,7 @@
 			stroke="hsl(0, 0%, 10%)"
 			stroke-width="1.5"
 			stroke-dasharray="1"
-			d="M 0 0 v { height - paddingBottom - yScale( activeTooltip[1] ) }"
+			d="M 0 0 v { height - padding.bottom - yScale( activeTooltip[1] ) }"
 		/>
 
 		<circle r="5" fill="hsl(0, 0%, 10%)" />

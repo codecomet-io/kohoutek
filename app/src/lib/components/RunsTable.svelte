@@ -1,7 +1,11 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { Run } from '../../../../pantry/src/lib/model';
 
-	import type { Options } from '$lib/types/data-table';
+	import type { Options, ColumnMap } from '$lib/types/data-table';
+	import type { AggregatedHeadlineDataOptionsMap } from '$lib/types/aggregated-headline-data';
 
 	import { getDateString, parseDate, getTimeString, lapsed, roundToDecimals } from 'briznads-helpers';
 	import { chevronForwardOutline } from 'ionicons/icons';
@@ -10,8 +14,10 @@
 	import DataTable from '$lib/components/DataTable/component.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
 	import LineGraph from '$lib/components/LineGraph/component.svelte';
+</script>
 
 
+<script lang="ts">
 	export let searchParams : URLSearchParams;
 	export let org : string;
 	export let pipelineId : string;
@@ -44,48 +50,78 @@
 			: getTimeString(dateObj);
 	}
 
-	function parseOptions(searchParams : URLSearchParams, runs : Run[]) : Options {
+	function parseOptions(runs : Run[]) : Options {
 		return {
-			namespace   : 'runs',
-			initialRows : runs,
-			columnMap   : {
-				status : {
-					name : 'Status',
-					size : 0.5,
-				},
-				name : {
-					name         : 'Name',
-					size         : 2.5,
-					unfilterable : true,
-				},
-				started : {
-					name         : 'Started',
-					unfilterable : true,
-				},
-				machineTime : {
-					name : 'Duration',
-				},
-				'actor.name' : {
-					name : 'Actor Name',
-				},
-				trigger : {
-					name : 'Trigger',
-				},
-				erroredActionName : {
-					name            : 'Errored Action',
-					size            : 2,
-					initiallyHidden : true,
-				},
-				link : {
-					name         : 'Link',
-					size         : 0.3,
-					hiddenHeader : true,
-					unfilterable : true,
-					unhideable   : true,
-				},
-			},
 			parseRowLink,
 			parseCellTitle,
+			namespace                        : 'runs',
+			initialRows                      : runs,
+			columnMap                        : getColumnMap(),
+			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
+		};
+	}
+
+	function getColumnMap() : ColumnMap {
+		return {
+			status : {
+				name : 'Status',
+				size : 0.5,
+			},
+			name : {
+				name         : 'Name',
+				size         : 2.5,
+				unfilterable : true,
+			},
+			started : {
+				name         : 'Started',
+				unfilterable : true,
+			},
+			machineTime : {
+				name : 'Duration',
+			},
+			'actor.name' : {
+				name : 'Actor Name',
+			},
+			trigger : {
+				name : 'Trigger',
+			},
+			erroredActionName : {
+				name            : 'Errored Action',
+				size            : 2,
+				initiallyHidden : true,
+			},
+			link : {
+				name         : 'Link',
+				size         : 0.3,
+				hiddenHeader : true,
+				unfilterable : true,
+				unhideable   : true,
+			},
+		};
+	}
+
+	function getAggregatedHeadlineDataOptionsMap() : AggregatedHeadlineDataOptionsMap {
+		return {
+			machineTime : {
+				titleLabel : 'Average Duration',
+				chartLabel : 'All Durations',
+				parse      : runsTable.machineTime.bind(runsTable),
+			},
+			runsPerDay : {
+				titleLabel : 'Average Runs Per Day',
+				chartLabel : 'All Runs Per Day',
+				parse      : runsTable.runsPerDay.bind(runsTable),
+			},
+			erroredRate : {
+				titleLabel : 'Average Errored Rate',
+				chartLabel : 'All Errored Rates',
+				parse      : runsTable.erroredRate.bind(runsTable),
+			},
+			cachedRate : {
+				titleLabel : 'Average Cached Rate',
+				chartLabel : 'All Cached Rates',
+				parse      : runsTable.cachedRate.bind(runsTable),
+			},
 		};
 	}
 
@@ -109,7 +145,7 @@
 <DataTable
 	{ searchParams }
 	storeInstance={ runsTable }
-	options={ parseOptions(searchParams, runs) }
+	options={ parseOptions(runs) }
 >
 	<svelte:fragment
 		slot="aggregatedChart"
@@ -121,7 +157,7 @@
 				{ coordinates }
 				formatYValue={ parseFormatYValue(key) }
 				hideYTicks={ key === 'erroredRate' }
-				showTooltips={ key !== 'runsPerDay' }
+				showTooltips={ key === 'machineTime' || key === 'cachedRate' }
 				xValueType="date"
 			/>
 		{/if }

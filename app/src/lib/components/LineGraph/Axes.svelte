@@ -1,14 +1,14 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { Coordinate } from '$lib/types/data-table';
+	import type { FormatValueFunction, ScaleFunction } from '$lib/types/line-graph';
 
 	import { roundToDecimals } from 'briznads-helpers';
+</script>
 
-
-	type FormatValueFunction = (item : number, items? : number[]) => string;
-
-	type ScaleFunction = (input : number) => number;
-
-
+<script lang="ts">
 	export let formatXValue : FormatValueFunction = (item) => item.toString();
 	export let formatYValue : FormatValueFunction = (item) => item.toString();
 	export let hideXTicks   : boolean = false;

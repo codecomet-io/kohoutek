@@ -1,31 +1,33 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { Coordinate } from '$lib/types/data-table';
+	import type { Padding, FormatValueFunction, XValueType, ScaleFunction } from '$lib/types/line-graph';
 
 	import { onMount } from 'svelte';
 	import { scaleLinear } from 'd3-scale';
 	import { extent } from 'd3-array';
-	import { roundToDecimals, parseDate, isInvalidDate } from 'briznads-helpers';
+	import { roundToDecimals, parseDate } from 'briznads-helpers';
 
 	import Axes from '$lib/components/LineGraph/Axes.svelte';
 	import Line from '$lib/components/LineGraph/Line.svelte';
 	import Area from '$lib/components/LineGraph/Area.svelte';
 	import Tooltip from '$lib/components/LineGraph/Tooltip.svelte';
+</script>
 
-
-	type FormatValueFunction = (item : number, items? : number[]) => string;
-
-
+<script lang="ts">
 	export let coordinates : Coordinate[];
 
 	export let formatXValue : FormatValueFunction = (item : number) => roundToDecimals(item).toString();
 	export let formatYValue : FormatValueFunction = (item : number) => roundToDecimals(item).toString();
 
-	export let xValueType   : undefined | 'date' = undefined;
+	export let xValueType   : XValueType = undefined;
 	export let hideXTicks   : boolean = false;
 	export let hideYTicks   : boolean = false;
 	export let showTooltips : boolean = true;
 
-	const padding = {
+	let padding : Padding = {
 		top    : 20,
 		right  : 0,
 		bottom : 20,
@@ -33,27 +35,31 @@
 	};
 
 	$: if (hideXTicks) {
-		padding.bottom = 0;
+		padding = {
+			...padding,
+			bottom : 0,
+		};
 	}
 
 	$: if (hideYTicks) {
-		padding.left = 0;
+		padding = {
+			...padding,
+			left : 0,
+		};
 	}
 
 	const width = 300;
 	const height = width / 3;
 
-	$: innerWidth = width - padding.left - padding.right;
-
 	let xEndpoints : Coordinate;
 	let yEndpoints : Coordinate;
 
-	let xScale : any;
-	let yScale : any;
+	let xScale : ScaleFunction;
+	let yScale : ScaleFunction;
 
 	let pathLineElement : SVGPathElement;
 
-	function init(coordinates : Coordinate[]) {
+	function init(coordinates : Coordinate[], padding : Padding) {
 		if (coordinatesAreUnchanged(coordinates)) {
 			return;
 		}
@@ -76,13 +82,12 @@
 		setVisible();
 	}
 
-	$: init(coordinates);
+	$: init(coordinates, padding);
 
-	function formatXValueFunc() : any {
+	function getXValueFunc(xValueType : XValueType, formatXValue : FormatValueFunction) : FormatValueFunction {
 		return xValueType === 'date'
 			? formatXDateValue
 			: formatXValue;
-
 	}
 
 	function formatXDateValue(item : number, items : number[] = []) : string {
@@ -153,7 +158,7 @@
 
 <svg viewBox="0 0 { width } { height }">
 	<Axes
-		formatXValue={ formatXValueFunc() }
+		formatXValue={ getXValueFunc(xValueType, formatXValue) }
 		{ formatYValue }
 		{ hideXTicks }
 		{ hideYTicks }
@@ -185,12 +190,12 @@
 		<Tooltip
 			{ formatYValue }
 			{ xEndpoints }
-			{ innerWidth }
+			{ width }
 			{ height }
+			{ padding }
 			{ xScale }
 			{ yScale }
 			{ pathLineElement }
-			paddingBottom={ padding.bottom }
 		/>
 	{/if}
 </svg>

@@ -1,19 +1,21 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { Coordinate } from '$lib/types/data-table';
+	import type { ScaleFunction } from '$lib/types/line-graph';
 
 	import { fade } from 'svelte/transition';
 	import { sineInOut } from 'svelte/easing';
 	import { area, curveMonotoneX } from 'd3-shape';
+</script>
 
-
-	type ScaleFunction = (input : number) => number;
-
-
-	export let coordinates    : Coordinate[];
-	export let xScale         : ScaleFunction;
-	export let yScale         : ScaleFunction;
-	export let yEndpoints     : Coordinate;
-	export let isVisible      : boolean = false;
+<script lang="ts">
+	export let coordinates : Coordinate[];
+	export let xScale      : ScaleFunction;
+	export let yScale      : ScaleFunction;
+	export let yEndpoints  : Coordinate;
+	export let isVisible   : boolean = false;
 
 	const fadeOptions = {
 		duration : 1000,

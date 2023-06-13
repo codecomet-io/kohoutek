@@ -1,75 +1,25 @@
 import type { NumberMap } from 'briznads-helpers';
 
-import type { Run } from '../../../../pantry/src/lib/model';
+import type { Row } from '$lib/types/data-table';
+import type { PartialAggregatedHeadlineData, Coordinate } from '$lib/types/aggregated-headline-data';
 
-import type { AggregatedDataMap, Coordinate, PartialAggregatedData } from '$lib/types/data-table';
-
-import { sleep, objectEntries, smartSort, lapsed, roundToDecimals, parseDate } from 'briznads-helpers';
+import { objectEntries, smartSort, lapsed, roundToDecimals, parseDate } from 'briznads-helpers';
 
 import { getEndpoints } from '$lib/helper';
 import { DataTable } from '$lib/stores/data-table';
 
 
 class RunsTable extends DataTable {
-	public defaultAggregatedDataMap : AggregatedDataMap = {
-		machineTime : {
-			title      : '',
-			subtitle   : 'Average Duration',
-			chartLabel : 'All Durations',
-		},
-		runsPerDay : {
-			title      : '',
-			subtitle   : 'Average Runs Per Day',
-			chartLabel : 'All Runs Per Day',
-		},
-		erroredRate : {
-			title      : '',
-			subtitle   : 'Average Errored Rate',
-			chartLabel : 'All Errored Rates',
-		},
-		cachedRate : {
-			title      : '',
-			subtitle   : 'Average Cached Rate',
-			chartLabel : 'All Cached Rates',
-		},
-	};
-
-
 	constructor() {
 		super();
 	}
 
 
-	public async setAggregatedDataMap(runs : Run[], set : (value : any) => void, passedMap? : AggregatedDataMap) : Promise<void> {
-		await sleep(1);
-
-		const aggregatedDataMap = this.getDefaultAggregatedDataMap();
-
-		for (const [ key, value ] of objectEntries(aggregatedDataMap)) {
-			// @briznad: there doesn't appear to be a current solution to make this error go away
-			// https://github.com/microsoft/TypeScript/issues/13543
-			this[ key ](runs)
-				.then((partialAggregatedData : PartialAggregatedData) => {
-					// insure that the data is still relevant
-					if (!this.updateAggregatedValues) {
-						return;
-					}
-
-					aggregatedDataMap[ key ] = {
-						...aggregatedDataMap[ key ],
-						...partialAggregatedData,
-					};
-
-					super.setAggregatedDataMap(runs, set, aggregatedDataMap);
-				});
-		}
-	}
-
-	private async machineTime(runs : Run[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = runs
-			.map((run : Run) : Coordinate => [
-				run.started,
-				run.machineTime,
+	public async machineTime(rows : Row[]) : Promise<PartialAggregatedHeadlineData> {
+		const chartCoordinates = rows
+			.map((row : Row) : Coordinate => [
+				row.started,
+				row.machineTime,
 			]);
 
 		smartSort(chartCoordinates, undefined, undefined, '0');
@@ -84,10 +34,10 @@ class RunsTable extends DataTable {
 		};
 	}
 
-	private async runsPerDay(runs : Run[]) : Promise<PartialAggregatedData> {
+	public async runsPerDay(rows : Row[]) : Promise<PartialAggregatedHeadlineData> {
 		// await sleep(1);
 
-		const runsByStarted : number[] = runs.map((run : Run) => run.started);
+		const runsByStarted : number[] = rows.map((row : Row) => row.started);
 
 		const runsPerDayMap : NumberMap = {};
 
@@ -157,21 +107,21 @@ class RunsTable extends DataTable {
 		}
 	}
 
-	private async erroredRate(runs : Run[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = runs.map((run : Run) : Coordinate => [
-			run.started,
-			run.status === 'errored'
+	public async erroredRate(rows : Row[]) : Promise<PartialAggregatedHeadlineData> {
+		const chartCoordinates = rows.map((row : Row) : Coordinate => [
+			row.started,
+			row.status === 'errored'
 				? 1
 				: 0,
 		]);
 
 		smartSort(chartCoordinates, undefined, undefined, '0');
 
-		const erroredRuns : number = chartCoordinates
+		const total : number = chartCoordinates
 			.filter(([ x, y ] : Coordinate) => y)
 			.length;
 
-		const title = `${ roundToDecimals(erroredRuns / chartCoordinates.length * 100) }%`;
+		const title = roundToDecimals(total / chartCoordinates.length * 100) + '%';
 
 		return {
 			title,
@@ -179,18 +129,18 @@ class RunsTable extends DataTable {
 		};
 	}
 
-	private async cachedRate(runs : Run[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = runs.map((run : Run) : Coordinate => [
-			run.started,
-			run.stats?.cachedPercent ?? 0,
+	public async cachedRate(rows : Row[]) : Promise<PartialAggregatedHeadlineData> {
+		const chartCoordinates = rows.map((row : Row) : Coordinate => [
+			row.started,
+			row.stats?.cachedPercent ?? 0,
 		]);
 
 		smartSort(chartCoordinates, undefined, undefined, '0');
 
-		const totalCachedPercent : number = chartCoordinates
+		const total : number = chartCoordinates
 			.reduce((sum : number, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = `${ roundToDecimals(totalCachedPercent / chartCoordinates.length) }%`;
+		const title = roundToDecimals(total / chartCoordinates.length) + '%';
 
 		return {
 			title,

@@ -1,77 +1,23 @@
-import type { Pipeline } from '../../../../pantry/src/lib/model';
+import type { Row } from '$lib/types/data-table';
+import type { PartialAggregatedHeadlineData, Coordinate } from '$lib/types/aggregated-headline-data';
 
-import type { AggregatedDataMap, PartialAggregatedData, Coordinate } from '$lib/types/data-table';
+import { lapsed, roundToDecimals } from 'briznads-helpers';
 
 import { DataTable } from '$lib/stores/data-table';
 
-import { sleep, objectEntries, smartSort, lapsed, roundToDecimals, parseDate } from 'briznads-helpers';
-
 
 class PipelinesTable extends DataTable {
-	public defaultAggregatedDataMap : AggregatedDataMap = {
-		machineTime : {
-			title      : '',
-			subtitle   : 'Average Machine Time',
-			chartLabel : 'All Machine Time',
-		},
-		cachedActionsRate : {
-			title      : '',
-			subtitle   : 'Average Cached Actions Rate',
-			chartLabel : 'All Cached Actions Rate',
-		},
-		erroredRunRate : {
-			title      : '',
-			subtitle   : 'Average Errored Rate',
-			chartLabel : 'All Errored Rates',
-		},
-		runCount : {
-			title      : '',
-			subtitle   : 'Average Run Count',
-			chartLabel : 'All Run Counts',
-		},
-	};
-
-
 	constructor() {
 		super();
 	}
 
 
-	public async setAggregatedDataMap(pipelines : Pipeline[], set : (value : any) => void, passedMap? : AggregatedDataMap) : Promise<void> {
-		await sleep(1);
+	public async machineTime(rows : Row[]) : Promise<PartialAggregatedHeadlineData> {
+		const chartCoordinates = this.getChartCoordinates(rows, 'machineTime');
 
-		const aggregatedDataMap = this.getDefaultAggregatedDataMap();
+		const total = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
-		for (const [ key, value ] of objectEntries(aggregatedDataMap)) {
-			// @briznad: there doesn't appear to be a current solution to make this error go away
-			// https://github.com/microsoft/TypeScript/issues/13543
-			this[ key ](pipelines)
-				.then((partialAggregatedData : PartialAggregatedData) => {
-					// insure that the data is still relevant
-					if (!this.updateAggregatedValues) {
-						return;
-					}
-
-					aggregatedDataMap[ key ] = {
-						...aggregatedDataMap[ key ],
-						...partialAggregatedData,
-					};
-
-					super.setAggregatedDataMap(pipelines, set, aggregatedDataMap);
-				});
-		}
-	}
-
-	private async machineTime(pipelines : Pipeline[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = pipelines
-			.map((pipeline : Pipeline, index : number) : Coordinate => [
-				index + 1,
-				pipeline.machineTime,
-			]);
-
-		const totalMachineTime = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
-
-		const title = lapsed(Math.floor(totalMachineTime / chartCoordinates.length), true, true);
+		const title = `${ roundToDecimals(total / chartCoordinates.length / 1000 / 1000, 0) } min`;
 
 		return {
 			title,
@@ -79,33 +25,15 @@ class PipelinesTable extends DataTable {
 		};
 	}
 
-	private async cachedActionsRate(pipelines : Pipeline[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = pipelines
-			.map((pipeline : Pipeline, index : number) : Coordinate => [
-				index + 1,
-				roundToDecimals(pipeline.cachedActionsCount / pipeline.actionsCount * 100),
-			]);
+	public async cachedActionsRate(rows : Row[]) : Promise<PartialAggregatedHeadlineData> {
+		const chartCoordinates = this.getChartCoordinates(
+			rows,
+			(row) => roundToDecimals(row.cachedActionsCount / row.actionsCount * 100),
+		);
 
-		const totalCachedActionsRate = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
+		const total = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = roundToDecimals(totalCachedActionsRate / chartCoordinates.length) + '%';
-
-		return {
-			title,
-			chartCoordinates,
-		};
-	}
-
-	private async erroredRunRate(pipelines : Pipeline[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = pipelines
-			.map((pipeline : Pipeline, index : number) : Coordinate => [
-				index + 1,
-				roundToDecimals(pipeline.statusesMap.errored / pipeline.runCount * 100),
-			]);
-
-		const totalErroredRate = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
-
-		const title = roundToDecimals(totalErroredRate / chartCoordinates.length) + '%';
+		const title = roundToDecimals(total / chartCoordinates.length) + '%';
 
 		return {
 			title,
@@ -113,21 +41,43 @@ class PipelinesTable extends DataTable {
 		};
 	}
 
-	private async runCount(pipelines : Pipeline[]) : Promise<PartialAggregatedData> {
-		const chartCoordinates = pipelines
-			.map((pipeline : Pipeline, index : number) : Coordinate => [
-				index + 1,
-				pipeline.runCount,
-			]);
+	public async erroredRunRate(rows : Row[]) : Promise<PartialAggregatedHeadlineData> {
+		const chartCoordinates = this.getChartCoordinates(
+			rows,
+			(row) => roundToDecimals(row.statusesMap.errored / row.runCount * 100),
+		);
 
-		const totalRunCount = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
+		const total = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = roundToDecimals(totalRunCount / chartCoordinates.length);
+		const title = roundToDecimals(total / chartCoordinates.length) + '%';
 
 		return {
 			title,
 			chartCoordinates,
 		};
+	}
+
+	public async runCount(rows : Row[]) : Promise<PartialAggregatedHeadlineData> {
+		const chartCoordinates = this.getChartCoordinates(rows, 'runCount');
+
+		const total = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
+
+		const title = roundToDecimals(total / chartCoordinates.length);
+
+		return {
+			title,
+			chartCoordinates,
+		};
+	}
+
+	private getChartCoordinates(rows : Row[], parse : string | ((row : Row) => number)) : Coordinate[] {
+		return rows
+			.map((row : Row, index : number) : Coordinate => [
+				index + 1,
+				typeof parse === 'string'
+					? row[ parse ]
+					: parse(row),
+			]);
 	}
 }
 

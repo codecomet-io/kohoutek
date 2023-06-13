@@ -1,18 +1,23 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { AlertInput } from '@ionic/core';
 	import type { BooleanMap, ValueOf } from 'briznads-helpers';
 
-	import type { DataTable } from '$lib/stores/data-table';
-
 	import type { FilterMap, TimeFilterNamedValue } from '$lib/types/data-table';
+
+	import type { DataTable } from '$lib/stores/data-table';
 
 	import { onMount } from 'svelte';
 	import { snakeCase, camelCase } from 'lodash';
 	import { lapsed, objectEntries } from 'briznads-helpers';
 	import { filter as filterIcon, closeCircle, chevronDown } from 'ionicons/icons';
 	import { HEK, getEndpoints, gotoSearchString } from '$lib/helper';
+</script>
 
 
+<script lang="ts">
 	export let searchParams  : URLSearchParams;
 	export let storeInstance : DataTable;
 

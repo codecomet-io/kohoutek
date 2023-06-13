@@ -190,7 +190,7 @@ class RunsTable extends DataTable {
 		const totalCachedPercent : number = chartCoordinates
 			.reduce((sum : number, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = `${ roundToDecimals(totalCachedPercent / chartCoordinates.length * 100) }%`;
+		const title = `${ roundToDecimals(totalCachedPercent / chartCoordinates.length) }%`;
 
 		return {
 			title,

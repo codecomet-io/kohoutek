@@ -17,7 +17,11 @@ class PipelinesTable extends DataTable {
 
 		const total = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = `${ roundToDecimals(total / chartCoordinates.length / 1000 / 1000, 0) } min`;
+		let title;
+
+		if (this.opts.columnMap.machineTime.parseDisplayValue) {
+			title = this.opts.columnMap.machineTime.parseDisplayValue(total / chartCoordinates.length);
+		}
 
 		return {
 			title,

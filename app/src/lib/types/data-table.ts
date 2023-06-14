@@ -10,7 +10,9 @@ export type Column = {
 	initiallyHidden?               : boolean;
 	unfilterable?                  : boolean;
 	unhideable?                    : boolean;
+	numericValue?                  : boolean;
 	aggregatedColumnDataDirection? : 'ascending' | 'descending';
+	parseDisplayValue?     	       : (value : any) => string;
 };
 
 export type ColumnMap = {

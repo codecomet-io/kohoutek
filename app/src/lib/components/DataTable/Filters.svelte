@@ -75,15 +75,15 @@
 		addFilterAlertElement.inputs = [];
 	}
 
-	function populateMachineTimeAddFilterAlert() : void {
-		const { lower, upper } = getEndpoints($rows, 'machineTime', true);
+	function parseAddNumericFilterAlertInputs(key : string) : void {
+		const { lower, upper } = getEndpoints($rows, key, true);
 
 		addFilterAlertElement.message = `
-			<p>${ parseMachineTime(lower) } - ${ parseMachineTime(upper) }</p>
+			<p>${ parseDisplayValue(key, lower) } - ${ parseDisplayValue(key, upper) }</p>
 
 			<ion-range
 				id="durationRangeSlider"
-				aria-label="Volume"
+				aria-label="${ $columnMap?.[ key ].name } range"
 				dual-knobs="true"
 			></ion-range>
 		`;
@@ -107,17 +107,17 @@
 
 			durationRangeSlider.pin = true;
 
-			durationRangeSlider.pinFormatter = parseMachineTime;
+			durationRangeSlider.pinFormatter = getDisplayValueFunction(key);
 
 			durationRangeSlider.addEventListener(
 				'ionChange',
-				handleDurationRangeChange,
+				handleRangeChange,
 				false,
 			);
 		}, 10);
 	}
 
-	function handleDurationRangeChange(event : any) : void {
+	function handleRangeChange(event : any) : void {
 		const { lower, upper } = event?.detail?.value;
 
 		addFilterInfo.update(item => {
@@ -132,13 +132,17 @@
 			values = [];
 		}
 
-		return key === 'machineTime'
-			? `${ parseMachineTime(values[0]) } - ${ parseMachineTime(values[1]) }`
-			: values.join(', ');
+		return $columnMap?.[ key ].numericValue === false
+			? values.join(', ')
+			: `${ parseDisplayValue(key as string, values[0]) } - ${ parseDisplayValue(key as string, values[1]) }`;
 	}
 
-	function parseMachineTime(value : number) : string {
-		return lapsed(value, true);
+	function parseDisplayValue(key : string, value : any) : string {
+		return getDisplayValueFunction(key)(value);
+	}
+
+	function getDisplayValueFunction(key : string) : (value : any) => string {
+		return $columnMap?.[ key ].parseDisplayValue ?? ((value : any) => value?.toString() ?? '');
 	}
 
 	function handleAddFilter(key : string) : void {
@@ -163,10 +167,10 @@
 
 		addFilterAlertElement.subHeader = `Filter By ${ $columnMap?.[ key ].name }`;
 
-		if (key === 'machineTime') {
-			populateMachineTimeAddFilterAlert();
-		} else {
+		if ($columnMap?.[ key ].numericValue === false) {
 			addFilterAlertElement.inputs = parseAddFilterAlertInputs();
+		} else {
+			parseAddNumericFilterAlertInputs(key);
 		}
 	}
 
@@ -191,9 +195,9 @@
 
 		const { key, value } = $addFilterInfo;
 
-		const values = key === 'machineTime'
-			? value
-			: event?.detail?.data?.values ?? [];
+		const values = $columnMap?.[ key ].numericValue === false
+			? event?.detail?.data?.values ?? []
+			: value;
 
 		if (!values.join('').trim()) {
 			return;

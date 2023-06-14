@@ -21,6 +21,21 @@
 	export let org : string;
 	export let pipelines : Pipeline[];
 
+	let options : Options;
+
+	$: options = parseOptions(pipelines);
+
+	function parseOptions(pipelines : Pipeline[]) : Options {
+		return {
+			parseRowLink,
+			parseCellTitle,
+			namespace                        : 'pipelines',
+			initialRows                      : pipelines,
+			columnMap                        : getColumnMap(),
+			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
+			defaultTimeFilter                : false,
+		};
+	}
 
 	function parseCellTitle(key : string, value : any) : string {
 		if (key === 'firstRunAt' || key === 'lastRunAt') {
@@ -48,18 +63,6 @@
 			: getTimeString(dateObj);
 	}
 
-	function parseOptions(pipelines : Pipeline[]) : Options {
-		return {
-			parseRowLink,
-			parseCellTitle,
-			namespace                        : 'pipelines',
-			initialRows                      : pipelines,
-			columnMap                        : getColumnMap(),
-			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
-			defaultTimeFilter                : false,
-		};
-	}
-
 	function getColumnMap() : ColumnMap {
 		return {
 			name : {
@@ -68,10 +71,12 @@
 				unfilterable : true,
 			},
 			firstRunAt : {
-				name : 'First Run',
+				name              : 'First Run',
+				parseDisplayValue : parseDateValue,
 			},
 			lastRunAt : {
-				name : 'Last Run',
+				name              : 'Last Run',
+				parseDisplayValue : parseDateValue,
 			},
 			runCount : {
 				name : 'Runs',
@@ -97,6 +102,7 @@
 			machineTime : {
 				name                          : 'Total Machine Time',
 				aggregatedColumnDataDirection : 'ascending',
+				parseDisplayValue             : (value : number) => roundToDecimals(value / 1000 / 1000, 0) + ' min',
 			},
 			actionsCount : {
 				name            : 'Attempted Actions',
@@ -135,7 +141,8 @@
 				initiallyHidden : true,
 			},
 			repo : {
-				name : 'Repository',
+				name         : 'Repository',
+				numericValue : false,
 			},
 			'triggersMap.manual' : {
 				name            : 'Triggered Manually',
@@ -181,13 +188,14 @@
 	}
 
 	const formatYValueMap : any = {
-		machineTime       : (tick : number) => `${ roundToDecimals(tick / 1000 / 1000, 0) } min`,
 		cachedActionsRate : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
 		erroredRunRate    : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
 	};
 
 	function parseFormatYValue(key : string) : (item : number, items? : number[]) => string {
-		return formatYValueMap[ key ] ?? ((item : number) => roundToDecimals(item).toString());
+		return options.columnMap[ key ]?.parseDisplayValue
+			?? formatYValueMap[ key ]
+			?? ((item : number) => roundToDecimals(item).toString());
 	}
 </script>
 
@@ -198,7 +206,7 @@
 <DataTable
 	{ searchParams }
 	storeInstance={ pipelinesTable }
-	options={ parseOptions(pipelines) }
+	{ options }
 >
 	<svelte:fragment
 		slot="aggregatedChart"
@@ -219,18 +227,14 @@
 		let:key
 		let:value
 	>
-		{#if key === 'firstRunAt' || key === 'lastRunAt' }
-			{ parseDateValue(value) }
-		{:else if key === 'machineTime' }
-			{ roundToDecimals(value / 1000 / 1000, 0) } min
-		{:else if key === 'link' }
+		{#if key === 'link' }
 			<ion-icon
 				icon={ chevronForwardOutline }
 				color="medium"
 				size="medium"
 			></ion-icon>
 		{:else }
-			{ value ?? '' }
+			{ (options?.columnMap?.[ key ]?.parseDisplayValue ?? ((value) => value?.toString() ?? ''))(value) }
 		{/if }
 	</svelte:fragment>
 </DataTable>

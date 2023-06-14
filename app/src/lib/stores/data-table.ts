@@ -5,7 +5,7 @@ import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilter
 import type { AggregatedHeadlineDataMap } from '$lib/types/aggregated-headline-data';
 
 import { writable, derived, get } from 'svelte/store';
-import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, sleep } from 'briznads-helpers';
+import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, sleep, roundToDecimals } from 'briznads-helpers';
 
 
 export class DataTable {
@@ -96,7 +96,7 @@ export class DataTable {
 				$selectableColumns,
 				$selectedColumns,
 			]) : string[] => {
-				return objectEntries(get(this.columnMap) ?? {})
+				return objectEntries(this.opts?.columnMap ?? {})
 					.filter(([ key, column ]) => {
 						if (column.unhideable === true) {
 							return true;
@@ -128,8 +128,8 @@ export class DataTable {
 		const finiteFilterValuesMap = get(this.finiteFilterValuesMap);
 
 		for (const [ key, values ] of objectEntries(filterMap)) {
-			if (key === 'machineTime' || key === 'started') {
-				rows = this.filterNumericalRange(rows, key, values as [ number, number ]);
+			if (this.opts?.columnMap[ key ]?.numericValue !== false) {
+				rows = this.filterNumericalRange(rows, key as string, values as [ number, number ]);
 
 				continue;
 			}
@@ -249,7 +249,7 @@ export class DataTable {
 			([
 				$rows,
 			]) : FiniteFilterValuesMap => {
-				return objectEntries(get(this.columnMap) ?? {})
+				return objectEntries(this.opts?.columnMap ?? {})
 					.reduce((sum : FiniteFilterValuesMap, [ key, column ]) => {
 						if (column.unfilterable === true) {
 							return sum;
@@ -265,7 +265,10 @@ export class DataTable {
 	}
 
 	private parseFiniteFilterValues(rows : Row[], key : string) : false | any[] {
-		if (key === 'machineTime' || key === 'started') {
+		// if (key === 'machineTime' || key === 'started') {
+		// 	return [];
+		// }
+		if (key === 'started') {
 			return [];
 		}
 
@@ -312,7 +315,7 @@ export class DataTable {
 				$selectedColumns,
 				$finiteFilterValuesMap,
 			]) : string[] => {
-				return objectEntries(get(this.columnMap) ?? {})
+				return objectEntries(this.opts?.columnMap ?? {})
 					.filter(([ key, column ]) => {
 						return column.unfilterable !== true
 							&& $finiteFilterValuesMap[ key ]
@@ -357,13 +360,13 @@ export class DataTable {
 	}
 
 	private initColumns() : void {
-		this.columnMap.set(this.opts.columnMap);
-
-		const selectedColumns = objectEntries(get(this.columnMap))
+		const selectedColumns = objectEntries(this.opts.columnMap)
 			.filter(([ key, column ]) =>
 				column.unhideable === true || column.initiallyHidden !== true
 			)
 			.map(([ key ]) => key);
+
+		this.columnMap.set(this.opts.columnMap);
 
 		this.selectedColumns.set(selectedColumns);
 	}
@@ -527,5 +530,9 @@ export class DataTable {
 			best,
 			worst,
 		};
+	}
+
+	public static getDisplayValue(value : number, decimals? : 0 | 1 | 2 | 3 | 4 | 5 | 6, suffix : string = '') : string {
+		return roundToDecimals(value, decimals) + suffix;
 	}
 }

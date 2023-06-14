@@ -1,8 +1,8 @@
 import type { Writable, Readable } from 'svelte/store';
 import type { QueryOptions, AnyMap } from 'briznads-helpers';
 
-import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions } from '$lib/types/data-table';
-import type { AggregatedHeadlineDataMap, AggregatedHeadlineData, PartialAggregatedHeadlineData } from '$lib/types/aggregated-headline-data';
+import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions, AggregatedColumnDataMap, AggregatedColumnData } from '$lib/types/data-table';
+import type { AggregatedHeadlineDataMap } from '$lib/types/aggregated-headline-data';
 
 import { writable, derived, get } from 'svelte/store';
 import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, sleep } from 'briznads-helpers';
@@ -20,6 +20,7 @@ export class DataTable {
 	public opts!                          : Options;
 	public isInitialized                  : boolean = false;
 	public updateAggregatedHeadlineValues : boolean = false;
+	public updateAggregatedColumnValues      : boolean = false;
 
 	public columnMap       : Writable<ColumnMap>;
 	public initialRows     : Writable<Row[]>;
@@ -37,6 +38,7 @@ export class DataTable {
 	public finiteFilterValuesMap     : Readable<FiniteFilterValuesMap>;
 	public filterableColumns         : Readable<string[]>;
 	public aggregatedHeadlineDataMap : Readable<AggregatedHeadlineDataMap>;
+	public aggregatedColumnDataMap   : Readable<AggregatedColumnDataMap>;
 
 
 	constructor() {
@@ -64,6 +66,7 @@ export class DataTable {
 		this.finiteFilterValuesMap     = this.initFiniteFilterValuesMap();
 		this.filterableColumns         = this.initFilterableColumns();
 		this.aggregatedHeadlineDataMap = this.initAggregatedHeadlineDataMap();
+		this.aggregatedColumnDataMap   = this.initAggregatedColumnDataMap();
 	}
 
 
@@ -460,5 +463,69 @@ export class DataTable {
 		}
 
 		return this.defaultAggregatedHeadlineDataMap;
+	}
+
+	private initAggregatedColumnDataMap() : Readable<AggregatedColumnDataMap> {
+		return derived(
+			[
+				this.queriedRows,
+				this.visibleColumns,
+			],
+			(
+				[
+					$rows,
+					$visibleColumns,
+				],
+				set : (value : any) => void,
+			) : void => {
+				const activeColumns : string[] = this.parseActiveAggregatedColumns($visibleColumns);
+
+				if (activeColumns.length > 0 && $rows?.length > 0) {
+					this.updateAggregatedColumnValues = true;
+
+					this.setAggregatedColumnDataMap(activeColumns, $rows, set);
+				} else {
+					this.updateAggregatedColumnValues = false;
+
+					set({});
+				}
+			},
+			{},
+		);
+	}
+
+	private parseActiveAggregatedColumns(visibleColumns : string[]) : string[] {
+		return objectEntries(this.opts?.columnMap ?? {})
+			.filter(([ key, value ]) => value.aggregatedColumnDataDirection)
+			.map(([ key ]) => key)
+			.filter((key : string) => visibleColumns.includes(key));
+	}
+
+	private async setAggregatedColumnDataMap(activeColumns : string[], rows : Row[], set : (value : any) => void) : Promise<void> {
+		await sleep(1);
+
+		const map : AggregatedColumnDataMap = {};
+
+		for (const key of activeColumns) {
+			if (this.updateAggregatedColumnValues) {
+				map[ key ] = this.parseAggregatedColumnData(key, rows);
+			}
+
+			set(map);
+		}
+	}
+
+	private parseAggregatedColumnData(key : string, rows : Row[]) : AggregatedColumnData {
+		const sortArr = rows.map(item => getValue(item, key.split('.')));
+
+		const rangeArr = smartSort(sortArr, this.opts?.columnMap[ key ]?.aggregatedColumnDataDirection);
+
+		const best = rangeArr[ 0 ];
+		const worst = rangeArr[ rangeArr.length - 1 ];
+
+		return {
+			best,
+			worst,
+		};
 	}
 }

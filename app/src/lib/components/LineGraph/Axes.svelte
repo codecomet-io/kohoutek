@@ -3,7 +3,7 @@
 	context="module"
 >
 	import type { Coordinate } from '$lib/types/data-table';
-	import type { FormatValueFunction, ScaleFunction } from '$lib/types/line-graph';
+	import type { FormatValueFunction, ScaleFunction, Padding } from '$lib/types/line-graph';
 
 	import { roundToDecimals } from 'briznads-helpers';
 </script>
@@ -13,7 +13,7 @@
 	export let formatYValue : FormatValueFunction = (item) => item.toString();
 	export let hideXTicks   : boolean = false;
 	export let hideYTicks   : boolean = false;
-	export let padding      : { top : number, right : number, bottom : number, left : number };
+	export let padding      : Padding;
 	export let height       : number;
 	export let xEndpoints   : Coordinate;
 	export let yEndpoints   : Coordinate;
@@ -35,30 +35,20 @@
 			upper,
 		];
 	}
+
+	function parseXTickTextAnchor(index : number, xTicks : number[], padding : Padding) : 'middle' | 'start' | 'end' {
+		if (index === xTicks.length - 1) {
+			return 'end';
+		} else if (index === 0 && padding.left === 0) {
+			return 'start';
+		} else {
+			return 'middle';
+		}
+	}
 </script>
 
 
 <style lang="scss">
-	.x-axis {
-		.tick {
-			text {
-				text-anchor: middle;
-			}
-
-			&:first-child {
-				text {
-					text-anchor: start;
-				}
-			}
-
-			&:last-child {
-				text {
-					text-anchor: end;
-				}
-			}
-		}
-	}
-
 	.tick {
 		font-size: 0.725em;
 		font-weight: 200;
@@ -76,7 +66,6 @@
 
 		text {
 			fill: #666;
-			text-anchor: start;
 		}
 	}
 </style>
@@ -92,7 +81,10 @@
 			<line x2="100%"></line>
 
 			{#if !hideYTicks }
-				<text y="-4">{ formatYValue(tick, yTicks) }</text>
+				<text
+					y="-4"
+					text-anchor="start"
+				>{ formatYValue(tick, yTicks) }</text>
 			{/if}
 		</g>
 	{/each}
@@ -115,7 +107,7 @@
 			{#if !hideXTicks }
 				<text
 					y="-2"
-					transform="translate(-{ index === 0 ? padding.left : 0 }, 0)"
+					text-anchor={ parseXTickTextAnchor(index, xTicks, padding) }
 				>{ formatXValue(tick, xTicks) }</text>
 			{/if }
 		</g>

@@ -82,43 +82,51 @@
 				initiallyHidden : true,
 			},
 			'statusesMap.completed' : {
-				name : 'Completed Runs',
+				name                          : 'Completed Runs',
+				aggregatedColumnDataDirection : 'descending',
 			},
 			'statusesMap.degraded' : {
-				name            : 'Degraded Runs',
-				initiallyHidden : true,
+				name                          : 'Degraded Runs',
+				initiallyHidden               : true,
+				aggregatedColumnDataDirection : 'ascending',
 			},
 			'statusesMap.errored' : {
-				name : 'Errored Runs',
+				name                          : 'Errored Runs',
+				aggregatedColumnDataDirection : 'ascending',
 			},
 			machineTime : {
-				name : 'Total Machine Time',
+				name                          : 'Total Machine Time',
+				aggregatedColumnDataDirection : 'ascending',
 			},
 			actionsCount : {
 				name            : 'Attempted Actions',
 				initiallyHidden : true,
 			},
 			cachedActionsCount : {
-				name : 'Cached Actions',
+				name                          : 'Cached Actions',
+				aggregatedColumnDataDirection : 'descending',
 			},
 			ranActionsCount : {
 				name            : 'Ran Actions',
 				initiallyHidden : true,
 			},
 			completedActionsCount : {
-				name            : 'Completed Actions',
-				initiallyHidden : true,
+				name                          : 'Completed Actions',
+				initiallyHidden               : true,
+				aggregatedColumnDataDirection : 'descending',
 			},
 			erroredActionsCount : {
-				name : 'Errored Actions',
+				name                          : 'Errored Actions',
+				aggregatedColumnDataDirection : 'ascending',
 			},
 			interruptedActionsCount : {
 				name            : 'Interrupted Actions',
 				initiallyHidden : true,
 			},
 			notRanActionsCount : {
-				name            : 'Not Ran Actions',
-				initiallyHidden : true,
+				name                          : 'Not Ran Actions',
+				initiallyHidden               : true,
+				aggregatedColumnDataDirection : 'ascending',
 			},
 			description : {
 				name            : 'Description',
@@ -214,7 +222,7 @@
 		{#if key === 'firstRunAt' || key === 'lastRunAt' }
 			{ parseDateValue(value) }
 		{:else if key === 'machineTime' }
-			{ lapsed(value, true) }
+			{ roundToDecimals(value / 1000 / 1000, 0) } min
 		{:else if key === 'link' }
 			<ion-icon
 				icon={ chevronForwardOutline }

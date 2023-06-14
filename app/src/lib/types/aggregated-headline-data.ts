@@ -1,13 +1,7 @@
 import type { Row } from '$lib/types/data-table';
 
 
-export type Coordinate = [ number, number ];
-
 export type AggregatedHeadlineDataParseFunc = (rows : Row[]) => Promise<PartialAggregatedHeadlineData>;
-
-export type AggregatedHeadlineDataMap = {
-	[ key in string ] : AggregatedHeadlineData;
-};
 
 export type AggregatedHeadlineDataOptions = {
 	titleLabel  : string;
@@ -19,6 +13,8 @@ export type AggregatedHeadlineDataOptionsMap = {
 	[ key in string ] : AggregatedHeadlineDataOptions;
 };
 
+export type Coordinate = [ number, number ];
+
 export type AggregatedHeadlineData = {
 	titleLabel        : string;
 	title?            : number | string;
@@ -27,3 +23,7 @@ export type AggregatedHeadlineData = {
 };
 
 export type PartialAggregatedHeadlineData = Partial<AggregatedHeadlineData>;
+
+export type AggregatedHeadlineDataMap = {
+	[ key in string ] : AggregatedHeadlineData;
+};

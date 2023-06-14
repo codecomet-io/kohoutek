@@ -1,7 +1,7 @@
 import type { Row } from '$lib/types/data-table';
 import type { PartialAggregatedHeadlineData, Coordinate } from '$lib/types/aggregated-headline-data';
 
-import { lapsed, roundToDecimals } from 'briznads-helpers';
+import { roundToDecimals } from 'briznads-helpers';
 
 import { DataTable } from '$lib/stores/data-table';
 

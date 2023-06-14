@@ -4,12 +4,13 @@ import type { AggregatedHeadlineDataOptionsMap } from '$lib/types/aggregated-hea
 
 
 export type Column = {
-	name             : string;
-	size?            : number;
-	hiddenHeader?    : boolean;
-	initiallyHidden? : boolean;
-	unfilterable?    : boolean;
-	unhideable?      : boolean;
+	name                           : string;
+	size?                          : number;
+	hiddenHeader?                  : boolean;
+	initiallyHidden?               : boolean;
+	unfilterable?                  : boolean;
+	unhideable?                    : boolean;
+	aggregatedColumnDataDirection? : 'ascending' | 'descending';
 };
 
 export type ColumnMap = {
@@ -69,3 +70,12 @@ export type PartialOptions = Partial<Options>;
 export type ParseRowLinkFunc = (row : any) => string;
 
 export type ParseCellTitleFunc = (key : string, value : any) => string;
+
+export type AggregatedColumnData = {
+	best  : number;
+	worst : number;
+};
+
+export type AggregatedColumnDataMap = {
+	[ key in string ] : AggregatedColumnData;
+};

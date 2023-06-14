@@ -5,6 +5,7 @@
 	import type { DataTable } from '$lib/stores/data-table';
 
 	import { get } from 'briznads-helpers';
+    import { testUserAgent } from 'ionic-svelte';
 </script>
 
 
@@ -12,9 +13,9 @@
 	export let storeInstance : DataTable;
 	export let row           : any;
 
-
 	const {
 		visibleColumns,
+		aggregatedColumnDataMap,
 	} = storeInstance;
 </script>
 
@@ -60,6 +61,9 @@
 		&.status,
 		&.link {
 			display: flex;
+			// don't allow icons to expand row height
+			padding-top: 0;
+			padding-bottom: 0;
 		}
 
 		&.link {
@@ -67,6 +71,28 @@
 			padding-right: 0.333em;
 			justify-content: end;
 			font-size: 24px;
+		}
+
+		&.best,
+		&.worst {
+			position: relative;
+
+			&::after {
+				content: '';
+				position: absolute;
+				top: 2px;
+				right: 1.25px;
+				bottom: 2px;
+				left: 1.25px;
+			}
+		}
+
+		&.best::after {
+			background-color: rgba(49, 197, 25, 0.13);
+		}
+
+		&.worst::after {
+			background-color: rgba(201, 23, 23, 0.1);
 		}
 	}
 </style>
@@ -78,9 +104,12 @@
 >
 	{#each $visibleColumns as key }
 		{@const value = get(row, key.split('.')) }
+		{@const { best, worst } = $aggregatedColumnDataMap[ key ] ?? {} }
 
 		<div
 			class="cell { key.replace('.', '-') }"
+			class:best={ best != null && best !== worst && value === best }
+			class:worst={ worst != null && best !== worst && value === worst }
 			title={ storeInstance.opts.parseCellTitle(key, value) }
 		>
 			{#if $$slots.default }

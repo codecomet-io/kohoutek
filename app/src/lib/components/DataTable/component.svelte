@@ -68,10 +68,10 @@
 	.table-wrapper {
 		position: relative;
 		width: fit-content;
-		box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 16px;
 		border-bottom-left-radius: var(--rounded-corner-radius);
 		border-bottom-right-radius: var(--rounded-corner-radius);
 		border: var(--outer-border-width) solid var(--border-color);
+		box-shadow: var(--drop-shadow);
 
 		@media (min-width: 768px) {
 			width: 100%;

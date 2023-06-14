@@ -256,7 +256,7 @@
 		ion-button,
 		ion-chip {
 			margin: 0;
-			box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 16px;
+			box-shadow: var(--drop-shadow);
 		}
 	}
 

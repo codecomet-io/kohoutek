@@ -1,4 +1,7 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	/* Import all components - or do partial loading - see below */
 	// import 'ionic-svelte/components/all'
 
@@ -75,12 +78,17 @@
 
 	import { setupIonicBase } from 'ionic-svelte';
 
+	import { spatialMode } from '$lib/stores/ui-toggles';
+
 	/* Call Ionic's setup routine */
 	setupIonicBase({
-		mode : 'ios',
+		mode                      : 'ios',
 		innerHTMLTemplatesEnabled : true,
 	});
 </script>
+
+
+<script lang="ts"></script>
 
 
 <style lang="scss">
@@ -96,6 +104,6 @@
 </style>
 
 
-<ion-app>
+<ion-app style="--drop-shadow: { $spatialMode ? 'rgba(0, 0, 0, 0.12) 0px 4px 16px' : 'none' };">
 	<slot />
 </ion-app>

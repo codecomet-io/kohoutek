@@ -119,7 +119,7 @@
 		border-radius: 4px;
 		background: #fff;
 		border: 1px solid #ddd;
-		box-shadow: 1px 1px 1px #ddd;
+		box-shadow: var(--drop-shadow);
 		font-size: 14px;
 		opacity: 0;
 		pointer-events: none;

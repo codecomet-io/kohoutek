@@ -72,7 +72,7 @@
 		padding: 0;
 		list-style: none;
 		position: relative;
-		box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 16px;
+		box-shadow: var(--drop-shadow);
 		border-radius: var(--border-radius);
 	}
 

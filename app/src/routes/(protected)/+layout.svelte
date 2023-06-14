@@ -1,13 +1,22 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { LayoutData } from './$types';
 
 	import { onMount } from 'svelte';
-	import { chevronDown } from 'ionicons/icons';
+	import { chevronDown, stopOutline, cubeOutline, sunnyOutline, moonOutline } from 'ionicons/icons';
+	import { sleep } from 'briznads-helpers';
+
+	import { HEK } from '$lib/helper';
+	import { darkMode, spatialMode } from '$lib/stores/ui-toggles';
 
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
+</script>
 
 
+<script lang="ts">
 	export let data : LayoutData;
 
 	onMount(() => {
@@ -22,6 +31,61 @@
 
 	function closeMenu() {
 		ionMenu.close();
+	}
+
+	// function updateDarkMode(enabled : boolean) : void {
+	// 	document.body.classList.toggle('dark', enabled);
+	// }
+
+	// $: updateDarkMode($darkMode);
+
+	// function checkDarkMode() : void {
+	// 	const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+	// 	if (prefersDark.matches) {
+	// 		darkMode.set(true);
+	// 	}
+
+	// 	prefersDark.onchange = (event : MediaQueryListEvent) => {
+	// 		darkMode.set(event.matches);
+	// 	};
+	// }
+
+	// onMount(checkDarkMode);
+
+	// async function toggleDarkMode() : Promise<void> {
+	// 	await sleep(250);
+
+	// 	darkMode.update((enabled : boolean) => !enabled);
+	// }
+
+
+	const localStorageKey = 'spatialMode';
+
+	function checkSpatialMode() : void {
+		let storedSpatialMode = window.localStorage.getItem(localStorageKey);
+
+		if (storedSpatialMode == null) {
+			return;
+		}
+
+		storedSpatialMode = JSON.parse(storedSpatialMode);
+
+		if (typeof storedSpatialMode !== 'boolean') {
+			return;
+		}
+
+		spatialMode.set(storedSpatialMode);
+	}
+
+	onMount(checkSpatialMode);
+
+	async function toggleSpatialMode() : Promise<void> {
+		await sleep(250);
+
+		spatialMode.update((enabled : boolean) => !enabled);
+
+		window.localStorage.setItem(localStorageKey, JSON.stringify($spatialMode));
 	}
 </script>
 
@@ -72,6 +136,10 @@
 		@media (min-width: 992px) {
 			display: flex;
 		}
+	}
+
+	.profile-popover-trigger {
+		--width: min-content;
 	}
 
 	ion-avatar {
@@ -167,16 +235,47 @@
 				</ion-button>
 
 				<ion-popover
+					class="profile-popover-trigger"
 					trigger="profilePopoverTrigger"
 					dismiss-on-select={ true }
 				>
 					<ion-content>
 						<ion-list>
+							<!-- <ion-item
+								button={ true }
+								detail={ false }
+								on:click={ toggleDarkMode }
+								on:keydown={ (e) => HEK(e, toggleDarkMode) }
+							>
+								<ion-label>{ $darkMode ? 'Disable' : 'Enable' } Dark Mode</ion-label>
+
+								<ion-icon
+									slot="end"
+									icon={ $darkMode ? sunnyOutline : moonOutline }
+								></ion-icon>
+							</ion-item> -->
+
+							<ion-item
+								button={ true }
+								detail={ false }
+								on:click={ toggleSpatialMode }
+								on:keydown={ (e) => HEK(e, toggleSpatialMode) }
+							>
+								<ion-label>{ $spatialMode ? 'Disable' : 'Enable' } Spatial Mode</ion-label>
+
+								<ion-icon
+									slot="end"
+									icon={ $spatialMode ? stopOutline : cubeOutline }
+								></ion-icon>
+							</ion-item>
+
 							<ion-item
 								href="/logout"
 								rel="external"
 								lines="none"
-							>Sign Out</ion-item>
+							>
+								<ion-label>Sign Out</ion-label>
+							</ion-item>
 						</ion-list>
 					</ion-content>
 				</ion-popover>
@@ -269,7 +368,10 @@
 			</ion-content>
 		</ion-menu>
 
-		<div class="ion-page" id="main">
+		<div
+			id="main"
+			class="ion-page"
+		>
 			<slot />
 		</div>
 	</ion-split-pane>

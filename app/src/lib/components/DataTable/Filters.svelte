@@ -10,7 +10,6 @@
 	import type { DataTable } from '$lib/stores/data-table';
 
 	import { onMount } from 'svelte';
-	import { snakeCase, camelCase } from 'lodash';
 	import { lapsed, objectEntries } from 'briznads-helpers';
 	import { filter as filterIcon, closeCircle, chevronDown } from 'ionicons/icons';
 	import { HEK, getEndpoints, gotoSearchString } from '$lib/helper';
@@ -30,7 +29,7 @@
 		filterableColumns,
 	} = storeInstance;
 
-	const filterParamRegex = /^filter__/;
+	const filterParamRegex = /^filter_/;
 
 	function updateFromParams(searchParams : URLSearchParams) : void {
 		const filterParams : FilterMap = {};
@@ -40,7 +39,7 @@
 				continue;
 			}
 
-			const parsedKey = camelCase(key.replace(filterParamRegex, ''));
+			const parsedKey = key.replace(filterParamRegex, '');
 			const parsedValues = JSON.parse(value);
 
 			filterParams[ parsedKey ] = parsedValues;
@@ -204,7 +203,7 @@
 	}
 
 	function updateFilter(key : keyof FilterMap, values? : any[]) : void {
-		const paramKey = `filter__${ snakeCase(key) }`;
+		const paramKey = `filter_${ key }`;
 
 		let paramValues : undefined | string = undefined;
 

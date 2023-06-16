@@ -16,8 +16,6 @@
 		align-items: center;
 		margin-top: 18px;
 		margin-bottom: 10px;
-		padding-left: 16px;
-		padding-right: 16px;
 	}
 
 	h2 {

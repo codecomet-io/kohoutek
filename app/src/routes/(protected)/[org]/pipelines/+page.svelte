@@ -21,19 +21,14 @@
 </style>
 
 
-<ion-content
-	class="ion-padding"
-	fullscreen={ true }
->
-	<ion-card-subtitle>{ data.org ?? '' }</ion-card-subtitle>
+<ion-card-subtitle>{ data.org ?? '' }</ion-card-subtitle>
 
-	<ion-card-title>All Pipelines ({ $rows?.length ?? 0 })</ion-card-title>
+<ion-card-title>All Pipelines ({ $rows?.length ?? 0 })</ion-card-title>
 
-	{#if data.org && data.pipelines }
-		<PipelinesTable
-			searchParams={ data.searchParams }
-			org={ data.org }
-			pipelines={ data.pipelines }
-		/>
-	{/if }
-</ion-content>
+{#if data.org && data.pipelines }
+	<PipelinesTable
+		searchParams={ data.searchParams }
+		org={ data.org }
+		pipelines={ data.pipelines }
+	/>
+{/if }

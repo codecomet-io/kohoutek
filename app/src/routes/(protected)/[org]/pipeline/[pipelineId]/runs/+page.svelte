@@ -21,20 +21,15 @@
 </style>
 
 
-<ion-content
-	class="ion-padding"
-	fullscreen={ true }
->
-	<ion-card-subtitle>{ data.pipeline?.name ?? '' }</ion-card-subtitle>
+<ion-card-subtitle>{ data.pipeline?.name ?? '' }</ion-card-subtitle>
 
-	<ion-card-title>All Pipeline Runs ({ $rows?.length ?? 0 })</ion-card-title>
+<ion-card-title>All Pipeline Runs ({ $rows?.length ?? 0 })</ion-card-title>
 
-	{#if data.org && data.pipeline?.id && data.runs }
-		<RunsTable
-			searchParams={ data.searchParams }
-			org={ data.org }
-			pipelineId={ data.pipeline.id }
-			runs={ data.runs }
-		/>
-	{/if }
-</ion-content>
+{#if data.org && data.pipeline?.id && data.runs }
+	<RunsTable
+		searchParams={ data.searchParams }
+		org={ data.org }
+		pipelineId={ data.pipeline.id }
+		runs={ data.runs }
+	/>
+{/if }

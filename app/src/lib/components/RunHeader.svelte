@@ -14,7 +14,7 @@
 
 <style lang="scss">
 	ion-header {
-		padding: 16px;
+		margin-bottom: 24px;
 
 		&:not(.anonymous) {
 			max-width: 1280px;

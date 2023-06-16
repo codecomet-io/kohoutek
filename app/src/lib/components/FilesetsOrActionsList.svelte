@@ -29,6 +29,9 @@
 
 <style lang="scss">
 	ion-accordion-group {
+		margin-left: 0;
+		margin-right: 0;
+		margin-bottom: 24px;
 		box-shadow: var(--drop-shadow);
 		border-radius: 8px;
 	}

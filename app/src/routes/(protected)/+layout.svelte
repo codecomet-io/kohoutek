@@ -5,11 +5,12 @@
 	import type { LayoutData } from './$types';
 
 	import { onMount } from 'svelte';
-	import { chevronDown, stopOutline, cubeOutline, sunnyOutline, moonOutline } from 'ionicons/icons';
+	import { chevronDown, stopOutline, cubeOutline } from 'ionicons/icons';
 	import { sleep } from 'briznads-helpers';
 
 	import { HEK } from '$lib/helper';
-	import { darkMode, spatialMode } from '$lib/stores/ui-toggles';
+	import { scrollContainer } from '$lib/stores/scroll-container';
+	import { spatialMode } from '$lib/stores/ui-toggles';
 
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
@@ -32,6 +33,12 @@
 	function closeMenu() {
 		ionMenu.close();
 	}
+
+	let ionContent : HTMLIonContentElement;
+
+	onMount(() => {
+		scrollContainer.set(ionContent);
+	});
 
 	// function updateDarkMode(enabled : boolean) : void {
 	// 	document.body.classList.toggle('dark', enabled);
@@ -180,6 +187,16 @@
 	ion-chip {
 		margin: 0;
 		pointer-events: none;
+	}
+
+	.ion-page {
+		ion-content {
+			&::part(scroll) {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+			}
+		}
 	}
 </style>
 
@@ -363,6 +380,20 @@
 								color="dark"
 							>Sign Out</ion-button>
 						</ion-item>
+
+						<ion-item
+							button={ true }
+							detail={ false }
+							on:click={ toggleSpatialMode }
+							on:keydown={ (e) => HEK(e, toggleSpatialMode) }
+						>
+							<ion-label>{ $spatialMode ? 'Disable' : 'Enable' } Spatial Mode</ion-label>
+
+							<ion-icon
+								slot="end"
+								icon={ $spatialMode ? stopOutline : cubeOutline }
+							></ion-icon>
+						</ion-item>
 					</ion-item-group>
 				</ion-list>
 			</ion-content>
@@ -372,7 +403,20 @@
 			id="main"
 			class="ion-page"
 		>
-			<slot />
+			<ion-content
+				fullscreen={ true }
+				bind:this={ ionContent }
+			>
+				<main class="ion-padding">
+					<slot />
+				</main>
+
+				<ion-footer>
+					<ion-toolbar>
+						<ion-title>Footer</ion-title>
+					</ion-toolbar>
+				</ion-footer>
+			</ion-content>
 		</div>
 	</ion-split-pane>
 </ion-content>

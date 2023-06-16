@@ -36,6 +36,9 @@
 	import 'ionic-svelte/components/ion-chip';
 	import 'ionic-svelte/components/ion-col';
 	import 'ionic-svelte/components/ion-content';
+	import 'ionic-svelte/components/ion-datetime';
+	import 'ionic-svelte/components/ion-datetime-button';
+	import 'ionic-svelte/components/ion-footer';
 	import 'ionic-svelte/components/ion-grid';
 	import 'ionic-svelte/components/ion-header';
 	import 'ionic-svelte/components/ion-input';

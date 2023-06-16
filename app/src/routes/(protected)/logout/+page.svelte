@@ -23,9 +23,4 @@
 <style lang="scss"></style>
 
 
-<ion-content
-	class="ion-padding"
-	fullscreen={ true }
->
-	Logging Out…
-</ion-content>
+Logging Out…

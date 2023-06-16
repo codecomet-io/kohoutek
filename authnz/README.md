@@ -1,4 +1,4 @@
-# CodeComet authn/authw flow
+# CodeComet authn/authz flow
 
 ## Local installation for developpers
 

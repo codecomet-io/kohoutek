@@ -1,5 +1,6 @@
+import type { GitHubUser } from '$lib/types/user';
+
 import type { LayoutServerLoad } from './$types';
-import type { GitHubUser } from '$lib/authentication.server';
 
 import { redirect } from '@sveltejs/kit';
 

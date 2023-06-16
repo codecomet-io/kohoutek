@@ -1,15 +1,8 @@
 import type { Cookies } from '@sveltejs/kit';
 
+import type { GitHubUser } from '$lib/types/user';
+
 import * as jose from 'jose';
-
-
-export type GitHubUser = {
-	id                  : string;
-	name                : string;
-	profileImage        : string;
-	personalAccessToken : string;
-	repos?              : string[];
-};
 
 
 export class Authentication {

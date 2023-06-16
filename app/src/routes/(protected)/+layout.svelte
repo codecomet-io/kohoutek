@@ -13,12 +13,14 @@
 	import { spatialMode } from '$lib/stores/ui-toggles';
 
 	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
+	import SplitPaneMenu from '$lib/components/SplitPaneMenu.svelte';
 </script>
 
 
 <script lang="ts">
 	export let data : LayoutData;
+
+	$: console.debug({ data });
 
 	onMount(() => {
 		const localStorageKey = 'gitHubUser.repos';
@@ -26,19 +28,13 @@
 		window.localStorage.setItem(localStorageKey, JSON.stringify(data.gitHubUser.repos));
 	});
 
-	$: console.debug({ data });
-
-	let ionMenu : HTMLIonMenuElement;
-
-	function closeMenu() {
-		ionMenu.close();
-	}
-
 	let ionContent : HTMLIonContentElement;
 
 	onMount(() => {
 		scrollContainer.set(ionContent);
 	});
+
+	let ionMenu : HTMLIonMenuElement;
 
 	// function updateDarkMode(enabled : boolean) : void {
 	// 	document.body.classList.toggle('dark', enabled);
@@ -167,28 +163,6 @@
 		}
 	}
 
-	.mobile-only {
-		@media (min-width: 992px) {
-			display: none;
-		}
-	}
-
-	ion-item-divider {
-		--background: transparent;
-		--padding-top: 16px;
-	}
-
-	ion-item {
-		:global(> .status-icon) {
-			padding-right: 0.25em;
-		}
-	}
-
-	ion-chip {
-		margin: 0;
-		pointer-events: none;
-	}
-
 	.ion-page {
 		ion-content {
 			&::part(scroll) {
@@ -216,7 +190,10 @@
 				<ion-breadcrumb href="/{ data.org }/pipelines">All Pipelines</ion-breadcrumb>
 
 				{#if data.pipeline }
-					<ion-breadcrumb disabled={ true }>{ data.pipeline.name }</ion-breadcrumb>
+					<ion-breadcrumb
+						href="/{ data.org }/pipeline/{ data.pipeline.id }"
+						disabled={ true }
+					>{ data.pipeline.name }</ion-breadcrumb>
 
 					<ion-breadcrumb href="/{ data.org }/pipeline/{ data.pipeline.id }/runs">All Pipeline Runs</ion-breadcrumb>
 
@@ -311,91 +288,15 @@
 			bind:this={ ionMenu }
 		>
 			<ion-content>
-				<ion-list>
-					<ion-item-group class="mobile-only">
-						<ion-item
-							href="/{ data.org }/pipelines"
-							on:click={ closeMenu }
-							on:keydown={ closeMenu }
-						>
-							<ion-label>All Pipelines</ion-label>
-						</ion-item>
-
-						{#if data.pipeline?.id }
-							<ion-item
-								href="/{ data.org }/pipeline/{ data.pipeline?.id }/runs"
-								on:click={ closeMenu }
-								on:keydown={ closeMenu }
-							>
-								<ion-label>All Pipeline Runs</ion-label>
-							</ion-item>
-						{/if}
-					</ion-item-group>
-
-					{#if data.pipeline?.id && data.recentRuns && data.recentRuns.length > 0 }
-						<ion-item-group>
-							<ion-item-divider>
-								<ion-label>Recent Runs</ion-label>
-							</ion-item-divider>
-
-							{#each data.recentRuns as recentRun }
-								<ion-item
-									href="/{ data.org }/pipeline/{ data.pipeline.id }/run/{ recentRun.id }"
-									on:click={ closeMenu }
-									on:keydown={ closeMenu }
-								>
-									<StatusIcon
-										size="small"
-										status={ recentRun.status }
-									/>
-
-									<ion-label>{ recentRun.name }</ion-label>
-								</ion-item>
-							{/each}
-						</ion-item-group>
-					{/if}
-
-					<ion-item-group class="mobile-only">
-						<ion-item-divider>
-							<ion-label>Signed In As</ion-label>
-						</ion-item-divider>
-
-						<ion-item>
-							<ion-chip>
-								<ion-avatar>
-									<img
-										alt="GitHub profile image for { data.gitHubUser?.name }"
-										src={ data.gitHubUser?.profileImage }
-									/>
-								</ion-avatar>
-
-								<ion-label>{ data.gitHubUser?.name }</ion-label>
-							</ion-chip>
-
-							<ion-button
-								size="small"
-								fill="clear"
-								href="/logout"
-								rel="external"
-								color="dark"
-							>Sign Out</ion-button>
-						</ion-item>
-
-						<ion-item
-							button={ true }
-							detail={ false }
-							on:click={ toggleSpatialMode }
-							on:keydown={ (e) => HEK(e, toggleSpatialMode) }
-						>
-							<ion-label>{ $spatialMode ? 'Disable' : 'Enable' } Spatial Mode</ion-label>
-
-							<ion-icon
-								slot="end"
-								icon={ $spatialMode ? stopOutline : cubeOutline }
-							></ion-icon>
-						</ion-item>
-					</ion-item-group>
-				</ion-list>
+				<SplitPaneMenu
+					{ ionMenu }
+					gitHubUser={ data.gitHubUser }
+					org={ data.org }
+					pipeline={ data.pipeline }
+					run={ data.run }
+					recentRuns={ data.recentRuns }
+					on:toggleSpatialMode={ toggleSpatialMode }
+				/>
 			</ion-content>
 		</ion-menu>
 

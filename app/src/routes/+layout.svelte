@@ -104,6 +104,12 @@
 		white-space: nowrap;
 		width: 1px;
 	}
+
+	:global(.mobile-only) {
+		@media (min-width: 992px) {
+			display: none;
+		}
+	}
 </style>
 
 

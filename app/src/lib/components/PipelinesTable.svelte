@@ -9,7 +9,7 @@
 
 	import { getDateString, parseDate, getTimeString, lapsed, roundToDecimals } from 'briznads-helpers';
 	import { chevronForwardOutline } from 'ionicons/icons';
-	import { pipelinesTable } from '$lib/stores/pipelines-table';
+	import { pipelinesTable as storeInstance } from '$lib/stores/pipelines-table';
 
 	import DataTable from '$lib/components/DataTable/component.svelte';
 	import LineGraph from '$lib/components/LineGraph/component.svelte';
@@ -33,17 +33,18 @@
 			initialRows                      : pipelines,
 			columnMap                        : getColumnMap(),
 			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
-			defaultTimeFilter                : false,
 		};
 	}
 
-	function parseCellTitle(key : string, value : any) : string {
+	function parseCellTitle(key : string, value : any) : string | null {
 		if (key === 'firstRunAt' || key === 'lastRunAt') {
 			return getDateString(value);
 		} else if (key === 'machineTime') {
 			return lapsed(value, true, true);
 		} else if (key === 'link') {
 			return 'View Run';
+		} else if (key === 'number') {
+			return null;
 		} else {
 			return value?.toString();
 		}
@@ -51,6 +52,12 @@
 
 	function parseRowLink(pipeline : Pipeline) : string {
 		return `/${ org }/pipeline/${ pipeline.id }/runs`;
+	}
+
+	function parseRowNumber(value : number, index? : number) : string {
+		return index == null
+			? ''
+			: (index + 1).toString();
 	}
 
 	function parseDateValue(value : number) : string {
@@ -65,6 +72,13 @@
 
 	function getColumnMap() : ColumnMap {
 		return {
+			number : {
+				name              : '#',
+				size              : 0.3,
+				unfilterable      : true,
+				unhideable        : true,
+				parseDisplayValue : parseRowNumber,
+			},
 			name : {
 				name         : 'Name',
 				size         : 2,
@@ -167,22 +181,22 @@
 			machineTime : {
 				titleLabel : 'Average Machine Time',
 				chartLabel : 'All Machine Time',
-				parse      : pipelinesTable.machineTime.bind(pipelinesTable),
+				parse      : storeInstance.machineTime.bind(storeInstance),
 			},
 			cachedActionsRate : {
 				titleLabel : 'Average Cached Actions Rate',
 				chartLabel : 'All Cached Actions Rate',
-				parse      : pipelinesTable.cachedActionsRate.bind(pipelinesTable),
+				parse      : storeInstance.cachedActionsRate.bind(storeInstance),
 			},
 			erroredRunRate : {
 				titleLabel : 'Average Errored Rate',
 				chartLabel : 'All Errored Rates',
-				parse      : pipelinesTable.erroredRunRate.bind(pipelinesTable),
+				parse      : storeInstance.erroredRunRate.bind(storeInstance),
 			},
 			runCount : {
 				titleLabel : 'Average Run Count',
 				chartLabel : 'All Run Counts',
-				parse      : pipelinesTable.runCount.bind(pipelinesTable),
+				parse      : storeInstance.runCount.bind(storeInstance),
 			},
 		};
 	}
@@ -205,7 +219,7 @@
 
 <DataTable
 	{ searchParams }
-	storeInstance={ pipelinesTable }
+	{ storeInstance }
 	{ options }
 >
 	<svelte:fragment
@@ -226,15 +240,15 @@
 		slot="cell"
 		let:key
 		let:value
+		let:index
 	>
 		{#if key === 'link' }
 			<ion-icon
 				icon={ chevronForwardOutline }
 				color="medium"
-				size="medium"
 			></ion-icon>
 		{:else }
-			{ (options?.columnMap?.[ key ]?.parseDisplayValue ?? ((value) => value?.toString() ?? ''))(value) }
+			{ storeInstance.parseDisplayValue(key, value, index) }
 		{/if }
 	</svelte:fragment>
 </DataTable>

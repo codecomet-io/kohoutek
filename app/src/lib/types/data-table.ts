@@ -3,6 +3,8 @@ import type { AnyMap } from 'briznads-helpers';
 import type { AggregatedHeadlineDataOptionsMap } from '$lib/types/aggregated-headline-data';
 
 
+export type ParseDisplayValueFunc = (value : any, index? : number) => string;
+
 export type Column = {
 	name                           : string;
 	size?                          : number;
@@ -12,7 +14,7 @@ export type Column = {
 	unhideable?                    : boolean;
 	numericValue?                  : boolean;
 	aggregatedColumnDataDirection? : 'ascending' | 'descending';
-	parseDisplayValue?     	       : (value : any) => string;
+	parseDisplayValue?     	       : ParseDisplayValueFunc;
 };
 
 export type ColumnMap = {
@@ -49,6 +51,13 @@ export type TimeFilterNamedValue =
 
 type TimeFilterValue = [ TimeFilterNamedValue ] | [ number, number ];
 
+type TimeFilterMap = {
+	key               : string;
+	value             : TimeFilterValue;
+	options           : TimeFilterNamedValue[];
+	allowCustomRange? : boolean;
+};
+
 export type FiniteFilterValuesMap = {
 	[ key in string ] : false | any[];
 };
@@ -63,7 +72,7 @@ export type Options = {
 	columnMap                         : ColumnMap;
 	parseRowLink                      : ParseRowLinkFunc;
 	parseCellTitle                    : ParseCellTitleFunc;
-	defaultTimeFilter?                : TimeFilterValue | false;
+	defaultTimeFilter?                : TimeFilterMap;
 	aggregatedHeadlineDataOptionsMap? : AggregatedHeadlineDataOptionsMap;
 };
 
@@ -71,7 +80,7 @@ export type PartialOptions = Partial<Options>;
 
 export type ParseRowLinkFunc = (row : any) => string;
 
-export type ParseCellTitleFunc = (key : string, value : any) => string;
+export type ParseCellTitleFunc = (key : string, value : any) => string | null;
 
 export type AggregatedColumnData = {
 	best  : number;

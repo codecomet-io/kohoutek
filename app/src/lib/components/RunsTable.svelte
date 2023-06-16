@@ -9,7 +9,7 @@
 
 	import { getDateString, parseDate, getTimeString, lapsed, roundToDecimals } from 'briznads-helpers';
 	import { chevronForwardOutline } from 'ionicons/icons';
-	import { runsTable } from '$lib/stores/runs-table';
+	import { runsTable as storeInstance } from '$lib/stores/runs-table';
 
 	import DataTable from '$lib/components/DataTable/component.svelte';
 	import StatusIcon from '$lib/components/StatusIcon.svelte';
@@ -23,6 +23,33 @@
 	export let pipelineId : string;
 	export let runs : Run[];
 
+	let options : Options;
+
+	$: options = parseOptions(runs);
+
+	function parseOptions(runs : Run[]) : Options {
+		return {
+			parseRowLink,
+			parseCellTitle,
+			namespace                        : 'runs',
+			initialRows                      : runs,
+			columnMap                        : getColumnMap(),
+			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
+			defaultTimeFilter                : {
+				key   : 'started',
+				value : [ 'last 30 days' ],
+				options : [
+					'last 24 hours',
+					'last 3 days',
+					'last 7 days',
+					'last 30 days',
+					'last 90 days',
+					'last 365 days',
+				],
+				allowCustomRange : true,
+			},
+		};
+	}
 
 	function parseCellTitle(key : string, value : any) : string {
 		if (key === 'started') {
@@ -50,22 +77,12 @@
 			: getTimeString(dateObj);
 	}
 
-	function parseOptions(runs : Run[]) : Options {
-		return {
-			parseRowLink,
-			parseCellTitle,
-			namespace                        : 'runs',
-			initialRows                      : runs,
-			columnMap                        : getColumnMap(),
-			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
-		};
-	}
-
 	function getColumnMap() : ColumnMap {
 		return {
 			status : {
-				name : 'Status',
-				size : 0.5,
+				name         : 'Status',
+				size         : 0.5,
+				numericValue : false,
 			},
 			name : {
 				name         : 'Name',
@@ -73,22 +90,27 @@
 				unfilterable : true,
 			},
 			started : {
-				name         : 'Started',
-				unfilterable : true,
+				name              : 'Started',
+				unfilterable      : true,
+				parseDisplayValue : parseDateValue,
 			},
 			machineTime : {
-				name : 'Duration',
+				name              : 'Duration',
+				parseDisplayValue : (value : number) => lapsed(value, true),
 			},
 			'actor.name' : {
-				name : 'Actor Name',
+				name         : 'Actor Name',
+				numericValue : false,
 			},
 			trigger : {
-				name : 'Trigger',
+				name         : 'Trigger',
+				numericValue : false,
 			},
 			erroredActionName : {
 				name            : 'Errored Action',
 				size            : 2,
 				initiallyHidden : true,
+				numericValue    : false,
 			},
 			link : {
 				name         : 'Link',
@@ -105,28 +127,27 @@
 			machineTime : {
 				titleLabel : 'Average Duration',
 				chartLabel : 'All Durations',
-				parse      : runsTable.machineTime.bind(runsTable),
+				parse      : storeInstance.machineTime.bind(storeInstance),
 			},
 			runsPerDay : {
 				titleLabel : 'Average Runs Per Day',
 				chartLabel : 'All Runs Per Day',
-				parse      : runsTable.runsPerDay.bind(runsTable),
+				parse      : storeInstance.runsPerDay.bind(storeInstance),
 			},
 			erroredRate : {
 				titleLabel : 'Average Errored Rate',
 				chartLabel : 'All Errored Rates',
-				parse      : runsTable.erroredRate.bind(runsTable),
+				parse      : storeInstance.erroredRate.bind(storeInstance),
 			},
 			cachedRate : {
 				titleLabel : 'Average Cached Rate',
 				chartLabel : 'All Cached Rates',
-				parse      : runsTable.cachedRate.bind(runsTable),
+				parse      : storeInstance.cachedRate.bind(storeInstance),
 			},
 		};
 	}
 
 	const formatYValueMap : any = {
-		machineTime : (tick : number) => lapsed(tick, true),
 		cachedRate  : (tick : number) => `${ tick }%`,
 		runsPerDay  : (tick : number) => tick % 1 === 0
 			? tick
@@ -134,7 +155,9 @@
 	};
 
 	function parseFormatYValue(key : string) : (item : number, items? : number[]) => string {
-		return formatYValueMap[ key ] ?? ((item : number) => roundToDecimals(item).toString());
+		return options.columnMap[ key ]?.parseDisplayValue
+			?? formatYValueMap[ key ]
+			?? ((item : number) => roundToDecimals(item).toString());
 	}
 </script>
 
@@ -144,8 +167,8 @@
 
 <DataTable
 	{ searchParams }
-	storeInstance={ runsTable }
-	options={ parseOptions(runs) }
+	{ storeInstance }
+	{ options }
 >
 	<svelte:fragment
 		slot="aggregatedChart"
@@ -173,17 +196,13 @@
 				size="small"
 				status={ value }
 			/>
-		{:else if key === 'started' }
-			{ parseDateValue(value) }
-		{:else if key === 'machineTime' }
-			{ lapsed(value, true) }
 		{:else if key === 'link' }
 			<ion-icon
 				icon={ chevronForwardOutline }
 				color="medium"
 			></ion-icon>
-		{:else}
-			{ value ?? '' }
-		{/if}
+		{:else }
+			{ storeInstance.parseDisplayValue(key, value) }
+		{/if }
 	</svelte:fragment>
 </DataTable>

@@ -1,7 +1,7 @@
 import type { Writable, Readable } from 'svelte/store';
 import type { QueryOptions, AnyMap } from 'briznads-helpers';
 
-import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions, AggregatedColumnDataMap, AggregatedColumnData } from '$lib/types/data-table';
+import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions, AggregatedColumnDataMap, AggregatedColumnData, ParseDisplayValueFunc } from '$lib/types/data-table';
 import type { AggregatedHeadlineDataMap } from '$lib/types/aggregated-headline-data';
 
 import { writable, derived, get } from 'svelte/store';
@@ -10,9 +10,8 @@ import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, sl
 
 export class DataTable {
 	private readonly defaultOpts : PartialOptions = {
-		parseRowLink      : () => '',
-		parseCellTitle    : (_, value : any) => value.toString(),
-		defaultTimeFilter : [ 'last 30 days' ],
+		parseRowLink   : () => '',
+		parseCellTitle : (_, value : any) => value.toString(),
 	};
 
 	private defaultAggregatedHeadlineDataMap! : AggregatedHeadlineDataMap;
@@ -20,7 +19,7 @@ export class DataTable {
 	public opts!                          : Options;
 	public isInitialized                  : boolean = false;
 	public updateAggregatedHeadlineValues : boolean = false;
-	public updateAggregatedColumnValues      : boolean = false;
+	public updateAggregatedColumnValues   : boolean = false;
 
 	public columnMap       : Writable<ColumnMap>;
 	public initialRows     : Writable<Row[]>;
@@ -355,7 +354,7 @@ export class DataTable {
 
 	private initFilters() : void {
 		if (this.opts.defaultTimeFilter) {
-			this.updateFilterMap('started', this.opts.defaultTimeFilter);
+			this.updateFilterMap(this.opts.defaultTimeFilter.key, this.opts.defaultTimeFilter.value);
 		}
 	}
 
@@ -389,8 +388,8 @@ export class DataTable {
 	public updateFilterMap(key : string | FilterMap, values? : any[]) : void {
 		this.filterMap.update(item => {
 			if (typeof key === 'object') {
-				if (this.opts.defaultTimeFilter && !key.started) {
-					key.started = this.opts.defaultTimeFilter;
+				if (this.opts.defaultTimeFilter && !key[ this.opts.defaultTimeFilter.key ]) {
+					key.started = this.opts.defaultTimeFilter.value;
 				}
 
 				return key;
@@ -532,7 +531,11 @@ export class DataTable {
 		};
 	}
 
-	public static getDisplayValue(value : number, decimals? : 0 | 1 | 2 | 3 | 4 | 5 | 6, suffix : string = '') : string {
-		return roundToDecimals(value, decimals) + suffix;
+	public parseDisplayValue(key : string, value : any, index? : number) : string {
+		return this.getDisplayValueFunction(key)(value, index);
+	}
+
+	public getDisplayValueFunction(key : string) : ParseDisplayValueFunc {
+		return this.opts?.columnMap?.[ key ]?.parseDisplayValue ?? ((value : any, index? : number) => value?.toString() ?? '');
 	}
 }

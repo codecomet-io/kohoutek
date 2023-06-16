@@ -27,7 +27,7 @@ export const load = (async ({ params, data, url }) => {
 		if (runId) {
 			run = await getRun(firestore, pipelineId, runId);
 
-			recentRuns = await firestore.getRunsByPipelineId(pipelineId, true, 3, runId);
+			recentRuns = await firestore.getRunsByPipelineId(pipelineId, true, 3);
 		} else {
 			runs = await firestore.getRunsByPipelineId(pipelineId);
 		}

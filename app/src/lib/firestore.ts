@@ -64,7 +64,7 @@ export class Firestore {
 		return docSnap.data() as Run;
 	}
 
-	async getRunsByPipelineId(id : string, sortByNewest : boolean = true, limitDocuments? : number, excludeRun? : string) : Promise<Run[]> {
+	async getRunsByPipelineId(id : string, sortByNewest : boolean = true, limitDocuments? : number) : Promise<Run[]> {
 		const collectionRef = collection(this.db, 'runs');
 
 		const queryParameters : any[] = [
@@ -76,22 +76,17 @@ export class Firestore {
 		}
 
 		if (limitDocuments != null) {
-			queryParameters.push(limit(limitDocuments + (excludeRun ? 1 : 0)));
+			queryParameters.push(limit(limitDocuments));
 		}
 
 		const q = query(collectionRef, ...queryParameters);
 
 		const querySnapshot = await getDocs(q);
 
-		let runs : any[] = querySnapshot.docs;
+		const docs : any[] = querySnapshot.docs;
 
-		if (excludeRun) {
-			runs = runs.filter((doc) => doc.id !== excludeRun);
-		}
-
-		runs = runs
-			.map((doc) => doc.data())
-			.slice(0, limitDocuments);
+		const runs : Run[] = docs
+			.map((doc) => doc.data());
 
 		return runs;
 	}

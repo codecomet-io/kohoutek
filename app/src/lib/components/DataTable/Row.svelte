@@ -5,7 +5,6 @@
 	import type { DataTable } from '$lib/stores/data-table';
 
 	import { get } from 'briznads-helpers';
-    import { testUserAgent } from 'ionic-svelte';
 </script>
 
 

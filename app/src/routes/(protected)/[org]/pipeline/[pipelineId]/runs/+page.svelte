@@ -1,11 +1,17 @@
-<script lang="ts">
+<script
+	lang="ts"
+	context="module"
+>
 	import type { PageData } from './$types';
 
 	import { runsTable } from '$lib/stores/runs-table';
 
+	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
 	import RunsTable from '$lib/components/RunsTable.svelte';
+</script>
 
 
+<script lang="ts">
 	export let data : PageData;
 
 	const {
@@ -21,7 +27,7 @@
 </style>
 
 
-<ion-card-subtitle>{ data.pipeline?.name ?? '' }</ion-card-subtitle>
+<ChunkyLabel>{ data.pipeline?.name ?? '' }</ChunkyLabel>
 
 <ion-card-title>All Pipeline Runs ({ $rows?.length ?? 0 })</ion-card-title>
 

@@ -20,7 +20,9 @@
 	export let ionMenu : HTMLIonMenuElement;
 	export let gitHubUser : undefined | GitHubUser;
 	export let org : undefined | string;
+	export let pipelineId : undefined | string;
 	export let pipeline : undefined | Pipeline;
+	export let runId : undefined | string;
 	export let run : undefined | Run;
 	// export let runs : undefined | Run[];
 	export let recentRuns : undefined | Run[];
@@ -53,6 +55,13 @@
 		margin-left: 16px;
 	}
 
+	.submenu-header {
+		ion-label {
+			margin-bottom: 2px;
+			font-weight: 600;
+		}
+	}
+
 	ion-chip {
 		margin: 0;
 		pointer-events: none;
@@ -69,18 +78,17 @@
 
 			<ion-item
 				href="/{ org }/pipelines"
+				disabled={ !pipelineId }
 				on:click={ closeMenu }
 				on:keydown={ closeMenu }
 			>
 				<ion-label>All Pipelines</ion-label>
 			</ion-item>
 
-			{#if pipeline?.id }
+			{#if pipelineId && pipeline?.id }
 				<ion-item
-					href="/{ org }/pipeline/{ pipeline?.id }"
-					on:click={ closeMenu }
-					on:keydown={ closeMenu }
-					disabled={ true }
+					class="submenu-item submenu-header"
+					lines="none"
 				>
 					<ion-label>{ pipeline.name }</ion-label>
 				</ion-item>
@@ -88,11 +96,24 @@
 				<ion-item
 					class="submenu-item"
 					href="/{ org }/pipeline/{ pipeline?.id }/runs"
+					disabled={ !runId }
 					on:click={ closeMenu }
 					on:keydown={ closeMenu }
 				>
 					<ion-label>All Pipeline Runs</ion-label>
 				</ion-item>
+
+				{#if runId && run?.id }
+					<ion-item
+						class="submenu-item"
+						href="/{ org }/pipeline/{ pipeline?.id }/run/{ run.id }"
+						disabled={ true }
+						on:click={ closeMenu }
+						on:keydown={ closeMenu }
+					>
+						<ion-label>{ run.name }</ion-label>
+					</ion-item>
+				{/if}
 			{/if}
 		</ion-item-group>
 

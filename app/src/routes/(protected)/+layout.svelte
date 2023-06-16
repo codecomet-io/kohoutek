@@ -2,6 +2,8 @@
 	lang="ts"
 	context="module"
 >
+	import type { BreadcrumbCustomEvent } from '@ionic/core';
+
 	import type { LayoutData } from './$types';
 
 	import { onMount } from 'svelte';
@@ -33,6 +35,40 @@
 	onMount(() => {
 		scrollContainer.set(ionContent);
 	});
+
+	let hiddenBreadcrumbPopover : HTMLIonPopoverElement;
+
+	function handleCollapsedBreadcrumbClick(event : BreadcrumbCustomEvent) : void {
+		if (!event?.detail?.collapsedBreadcrumbs) {
+			return;
+		}
+
+		populateHiddenBreadcrumbPopover(event.detail.collapsedBreadcrumbs);
+
+		hiddenBreadcrumbPopover.present(event);
+	}
+
+	function populateHiddenBreadcrumbPopover(hiddenBreadcrumbs : HTMLIonBreadcrumbElement[]) : void {
+		const list = hiddenBreadcrumbPopover.querySelector('ion-list');
+
+		if (!list) {
+			return;
+		}
+
+		const listHtml : string = hiddenBreadcrumbs
+			.map((item : HTMLIonBreadcrumbElement, index : number) => `
+				<ion-item
+					${ index === hiddenBreadcrumbs.length - 1 ? `lines="none"` : '' }
+					href="${ item.href }"
+					${ item.dataset?.disabled === 'true' ? `disabled="true"` : '' }
+				>
+					<ion-label>${ item.textContent }</ion-label>
+				</ion-item>
+			`)
+			.join('');
+
+		list.innerHTML = listHtml;
+	}
 
 	let ionMenu : HTMLIonMenuElement;
 
@@ -132,6 +168,21 @@
 		}
 	}
 
+	ion-breadcrumb {
+		&[data-disabled="true"] {
+			&::part(native) {
+				cursor: default;
+				opacity: 0.5;
+				pointer-events: none;
+			}
+		}
+	}
+
+	.hidden-breadcrumb-popover {
+		--width: min-content;
+		--max-width: 80vw;
+	}
+
 	.user-wrapper {
 		display: none;
 		align-items: center;
@@ -186,22 +237,35 @@
 		<div class="center-wrapper">
 			<CodeCometLogo />
 
-			<ion-breadcrumbs>
+			<ion-breadcrumbs
+				max-items={ 3 }
+				on:ionCollapsedClick={ handleCollapsedBreadcrumbClick }
+			>
 				<ion-breadcrumb href="/{ data.org }/pipelines">All Pipelines</ion-breadcrumb>
 
 				{#if data.pipeline }
 					<ion-breadcrumb
 						href="/{ data.org }/pipeline/{ data.pipeline.id }"
-						disabled={ true }
+						data-disabled="true"
 					>{ data.pipeline.name }</ion-breadcrumb>
 
 					<ion-breadcrumb href="/{ data.org }/pipeline/{ data.pipeline.id }/runs">All Pipeline Runs</ion-breadcrumb>
 
 					{#if data.run }
-						<ion-breadcrumb href="/{ data.org }/pipeline/{ data.pipeline.id }/run/{ data.run.id }">This Run</ion-breadcrumb>
+						<ion-breadcrumb href="/{ data.org }/pipeline/{ data.pipeline.id }/run/{ data.run.id }">{ data.run.name }</ion-breadcrumb>
 					{/if}
 				{/if}
 			</ion-breadcrumbs>
+
+			<ion-popover
+				class="hidden-breadcrumb-popover"
+				bind:this={ hiddenBreadcrumbPopover }
+				dismiss-on-select={ true }
+			>
+				<ion-content>
+					<ion-list></ion-list>
+				</ion-content>
+			</ion-popover>
 		</div>
 
 		<ion-buttons slot="end">
@@ -292,7 +356,9 @@
 					{ ionMenu }
 					gitHubUser={ data.gitHubUser }
 					org={ data.org }
+					pipelineId={ data.pipelineId }
 					pipeline={ data.pipeline }
+					runId={ data.runId }
 					run={ data.run }
 					recentRuns={ data.recentRuns }
 					on:toggleSpatialMode={ toggleSpatialMode }

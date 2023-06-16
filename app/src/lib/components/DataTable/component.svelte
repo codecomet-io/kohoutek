@@ -48,14 +48,16 @@
 
 
 <style lang="scss">
-	.table-scroll-container {
+	.table-wrapper {
 		--border-color: #c8c7cc;
 
 		--outer-border-width: 1px;
 		--inner-border-width: 0.5px;
 
 		--rounded-corner-radius: 8px;
+	}
 
+	.table-scroll-container {
 		overflow-x: auto;
 		margin-left: -16px;
 		margin-right: -16px;
@@ -65,7 +67,7 @@
 		padding-bottom: 16px;
 	}
 
-	.table-wrapper {
+	.table-container {
 		position: relative;
 		width: fit-content;
 		border-bottom-left-radius: var(--rounded-corner-radius);
@@ -99,36 +101,39 @@
 	</AggregatedHeadlineData>
 {/if}
 
-<div class="table-scroll-container">
+<div class="table-wrapper">
 	<Search
 		{ searchParams }
 		{ storeInstance }
 	/>
 
-	<div
-		class="table-wrapper"
-		style="--grid-template-columns:{ parseGridTemplateColumns($columnMap, $visibleColumns) };"
-	>
-		<ColumnChooser { storeInstance }/>
+	<div class="table-scroll-container">
+		<div
+			class="table-container"
+			style="--grid-template-columns:{ parseGridTemplateColumns($columnMap, $visibleColumns) };"
+		>
+			<ColumnChooser { storeInstance }/>
 
-		<HeaderRow
-			{ searchParams }
-			{ storeInstance }
-		/>
-
-		{#each $rows as row }
-			<Row
+			<HeaderRow
+				{ searchParams }
 				{ storeInstance }
-				{ row }
-				let:key
-				let:value
-			>
-				<slot
-					name="cell"
-					{ key }
-					{ value }
-				/>
-			</Row>
-		{/each}
+			/>
+
+			{#each $rows as row, index }
+				<Row
+					{ storeInstance }
+					{ row }
+					let:key
+					let:value
+				>
+					<slot
+						name="cell"
+						{ key }
+						{ value }
+						{ index }
+					/>
+				</Row>
+			{/each}
+		</div>
 	</div>
 </div>

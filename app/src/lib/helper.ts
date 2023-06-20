@@ -39,9 +39,9 @@ export function gotoSearchString(keyOrObject : string | SearchParamsMap, optiona
 	return goto(`${ window.location.pathname }?${ updateSearchString(keyOrObject, optionalValue) }`);
 }
 
-export function handleEnterKey(event : any, callback : () => void) : void {
+export function handleEnterKey(event : any, callback : (event? : any) => void) : void {
 	if (event.key === 'Enter') {
-		callback();
+		callback(event);
 	}
 }
 

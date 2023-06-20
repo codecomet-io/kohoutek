@@ -5,6 +5,8 @@
 	import type { ColumnMap, Options } from '$lib/types/data-table';
 	import type { DataTable } from '$lib/stores/data-table';
 
+	import { roundToDecimals } from 'briznads-helpers';
+
 	import Filters from '$lib/components/DataTable/Filters.svelte';
 	import AggregatedHeadlineData from '$lib/components/DataTable/AggregatedHeadlineData.svelte';
 	import ColumnChooser from '$lib/components/DataTable/ColumnChooser.svelte';
@@ -35,7 +37,7 @@
 
 		const percentArr = visibleColumns
 			.reduce((sum : string[], key : string) => {
-				const percent = 100 / totalColumnSpaces * (columnMap?.[ key ].size ?? 1);
+				const percent = roundToDecimals(100 / totalColumnSpaces * (columnMap?.[ key ].size ?? 1), 3);
 
 				sum.push(`${ percent }%`);
 
@@ -78,6 +80,12 @@
 		@media (min-width: 768px) {
 			width: 100%;
 		}
+
+		&.null-set {
+			:global(.header.row) {
+				border-bottom: none;
+			}
+		}
 	}
 </style>
 
@@ -110,6 +118,7 @@
 	<div class="table-scroll-container">
 		<div
 			class="table-container"
+			class:null-set={ !($rows.length > 0) }
 			style="--grid-template-columns:{ parseGridTemplateColumns($columnMap, $visibleColumns) };"
 		>
 			<ColumnChooser { storeInstance }/>

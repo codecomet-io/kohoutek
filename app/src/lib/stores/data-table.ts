@@ -36,6 +36,7 @@ export class DataTable {
 	public rows                      : Readable<Row[]>;
 	public finiteFilterValuesMap     : Readable<FiniteFilterValuesMap>;
 	public filterableColumns         : Readable<string[]>;
+	public selectableFilters         : Readable<string[]>;
 	public aggregatedHeadlineDataMap : Readable<AggregatedHeadlineDataMap>;
 	public aggregatedColumnDataMap   : Readable<AggregatedColumnDataMap>;
 
@@ -64,6 +65,7 @@ export class DataTable {
 		this.rows                      = this.initRows();
 		this.finiteFilterValuesMap     = this.initFiniteFilterValuesMap();
 		this.filterableColumns         = this.initFilterableColumns();
+		this.selectableFilters         = this.initSelectableFilters();
 		this.aggregatedHeadlineDataMap = this.initAggregatedHeadlineDataMap();
 		this.aggregatedColumnDataMap   = this.initAggregatedColumnDataMap();
 	}
@@ -318,9 +320,25 @@ export class DataTable {
 							&& (
 								$selectedColumns.includes(key)
 								|| column.unhideable === true
+								|| key === this.opts?.defaultTimeFilter?.key
 							);
 					})
 					.map(([ key ]) => key);
+			},
+			[],
+		);
+	}
+
+	private initSelectableFilters() : Readable<string[]> {
+		return derived(
+			[
+				this.filterableColumns,
+			],
+			([
+				$filterableColumns,
+			]) : string[] => {
+				return $filterableColumns
+					.filter((key : string) => key !== this.opts?.defaultTimeFilter?.key);
 			},
 			[],
 		);

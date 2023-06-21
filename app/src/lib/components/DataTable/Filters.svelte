@@ -27,6 +27,7 @@
 		rows,
 		finiteFilterValuesMap,
 		filterableColumns,
+		selectableFilters,
 	} = storeInstance;
 
 	const filterParamRegex = /^filter_/;
@@ -470,111 +471,111 @@
 </style>
 
 
-{#if Object.keys($filterMap).length > 0 || Object.keys($filterableColumns).length > 0 }
-	<div class="filter-container">
-		{#if storeInstance.opts?.defaultTimeFilter }
-			{@const timeFilter = storeInstance.opts.defaultTimeFilter }
-			{@const timeKey = timeFilter.key }
+<div class="filter-container">
+	{#if storeInstance.opts?.defaultTimeFilter }
+		{@const timeFilter = storeInstance.opts.defaultTimeFilter }
+		{@const timeKey = timeFilter.key }
 
-			{#if timeKey in $filterMap }
-				<ion-chip id="{ timeKey }PopoverTrigger">
-					<ion-label>
-						<strong>{ $columnMap?.[ timeKey ]?.name }:</strong>
+		{#if timeKey in $filterMap }
+			<ion-chip id="{ timeKey }PopoverTrigger">
+				<ion-label>
+					<strong>{ $columnMap?.[ timeKey ]?.name }:</strong>
 
-						{ getFilterChipValue(timeKey, $filterMap[ timeKey ]) }
-					</ion-label>
+					{ getFilterChipValue(timeKey, $filterMap[ timeKey ]) }
+				</ion-label>
 
-					<ion-icon
-						icon={ chevronDown }
-						color="dark"
-					></ion-icon>
-				</ion-chip>
+				<ion-icon
+					icon={ chevronDown }
+					color="dark"
+				></ion-icon>
+			</ion-chip>
 
-				<ion-popover
-					trigger="{ timeKey }PopoverTrigger"
-					dismiss-on-select={ true }
-				>
-					<ion-content>
-						<ion-list>
-							{#each timeFilter.options as option, index }
-								<ion-item
-									button={ true }
-									detail={ false }
-									disabled={ $filterMap[ timeKey ]?.[0] === option }
-									lines={ !timeFilter.allowCustomRange && index === timeFilter.options.length - 1 ? 'none' : 'inset' }
-									on:click={ () => handleUpdateTimeFilter(timeKey, option)}
-									on:keydown={ (e) => HEK(e, () => handleUpdateTimeFilter(timeKey, option)) }
-								>
-									<ion-label>{ option }</ion-label>
-								</ion-item>
-							{/each }
+			<ion-popover
+				trigger="{ timeKey }PopoverTrigger"
+				dismiss-on-select={ true }
+			>
+				<ion-content>
+					<ion-list>
+						{#each timeFilter.options as option, index }
+							<ion-item
+								button={ true }
+								detail={ false }
+								disabled={ $filterMap[ timeKey ]?.[0] === option }
+								lines={ !timeFilter.allowCustomRange && index === timeFilter.options.length - 1 ? 'none' : 'inset' }
+								on:click={ () => handleUpdateTimeFilter(timeKey, option)}
+								on:keydown={ (e) => HEK(e, () => handleUpdateTimeFilter(timeKey, option)) }
+							>
+								<ion-label>{ option }</ion-label>
+							</ion-item>
+						{/each }
 
-							{#if timeFilter.allowCustomRange }
-								<ion-item
-									button={ true }
-									detail={ false }
-									lines="none"
-									on:click={ () => handleAddFilter(timeKey)}
-									on:keydown={ (e) => HEK(e, () => handleAddFilter(timeKey)) }
-								>
-									<ion-label>custom range</ion-label>
-								</ion-item>
-							{/if}
-						</ion-list>
-					</ion-content>
-				</ion-popover>
-			{/if}
+						{#if timeFilter.allowCustomRange }
+							<ion-item
+								button={ true }
+								detail={ false }
+								lines="none"
+								on:click={ () => handleAddFilter(timeKey)}
+								on:keydown={ (e) => HEK(e, () => handleAddFilter(timeKey)) }
+							>
+								<ion-label>custom range</ion-label>
+							</ion-item>
+						{/if}
+					</ion-list>
+				</ion-content>
+			</ion-popover>
+		{/if}
+	{/if }
+
+	{#each objectEntries($filterMap) as [ key, values ] }
+		{#if key !== storeInstance.opts?.defaultTimeFilter?.key }
+			<ion-chip
+				on:click={ () => handleChipClick(key) }
+				on:keydown={ (e) => HEK(e, () => handleChipClick(key)) }
+				disabled={ chipClickedMap[ key ] }
+			>
+				<ion-label>
+					<strong>{ $columnMap?.[ key ].name }:</strong>
+
+					{ getFilterChipValue(key, values) }
+				</ion-label>
+
+				<ion-icon
+					icon={ closeCircle }
+					color="dark"
+				></ion-icon>
+			</ion-chip>
 		{/if }
+	{/each}
 
-		{#each objectEntries($filterMap) as [ key, values ] }
-			{#if key !== storeInstance.opts?.defaultTimeFilter?.key }
-				<ion-chip
-					on:click={ () => handleChipClick(key) }
-					on:keydown={ (e) => HEK(e, () => handleChipClick(key)) }
-					disabled={ chipClickedMap[ key ] }
-				>
-					<ion-label>
-						<strong>{ $columnMap?.[ key ].name }:</strong>
-
-						{ getFilterChipValue(key, values) }
-					</ion-label>
-
-					<ion-icon
-						icon={ closeCircle }
-						color="dark"
-					></ion-icon>
-				</ion-chip>
-			{/if }
-		{/each}
-
-		<ion-button
-			class="add-filter-popover-trigger"
-			id="addFilterPopoverTrigger"
-			color="dark"
+	<ion-button
+		class="add-filter-popover-trigger"
+		id="addFilterPopoverTrigger"
+		color="dark"
+		size="small"
+		fill="outline"
+		disabled={ Object.keys($selectableFilters).length === 0 }
+	>
+		<ion-icon
+			slot="start"
 			size="small"
-			fill="outline"
-			disabled={ Object.keys($filterableColumns).length <= 0 }
-		>
-			<ion-icon
-				slot="start"
-				size="small"
-				icon={ filterIcon }
-			></ion-icon>
+			icon={ filterIcon }
+		></ion-icon>
 
-			Add Filter
-		</ion-button>
+		Add Filter
+	</ion-button>
 
+	{#if Object.keys($selectableFilters).length > 0 }
 		<ion-popover
 			trigger="addFilterPopoverTrigger"
 			dismiss-on-select={ true }
 		>
 			<ion-content>
 				<ion-list>
-					{#each $filterableColumns as key, index }
+					{#each $selectableFilters as key, index }
 						<ion-item
 							button={ true }
 							detail={ false }
-							lines={ index === $filterableColumns.length - 1 ? 'none' : 'inset' }
+							lines={ index === $selectableFilters.length - 1 ? 'none' : 'inset' }
 							disabled={ $filterMap[ key ] != null }
 							on:click={ () => handleAddFilter(key)}
 							on:keydown={ (e) => HEK(e, () => handleAddFilter(key)) }
@@ -583,8 +584,10 @@
 				</ion-list>
 			</ion-content>
 		</ion-popover>
-	</div>
+	{/if }
+</div>
 
+{#if Object.keys($filterableColumns).length > 0 }
 	<ion-modal
 		bind:this={ dateTimeModalElementMap.lower }
 		on:willPresent={ handleDatetimeModalWillPresent }

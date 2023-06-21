@@ -72,6 +72,10 @@
 			font-size: 24px;
 		}
 
+		&.number:first-child {
+			overflow: visible;
+		}
+
 		&.best,
 		&.worst {
 			position: relative;

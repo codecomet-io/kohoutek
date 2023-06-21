@@ -48,6 +48,10 @@
 				],
 				allowCustomRange : true,
 			},
+			defaultSort                      : {
+				key       : 'started',
+				direction : 'descending',
+			},
 		};
 	}
 
@@ -72,7 +76,8 @@
 		const ago = Date.now() - value;
 
 		// if more than a day ago, show date and time
-		return ago > 86400000
+		// convert "ago" to absolute value to account for future dates
+		return Math.abs(ago) > 86400000
 			? dateObj.toLocaleString(undefined, { dateStyle : 'short', timeStyle : 'short' })
 			: getTimeString(dateObj);
 	}
@@ -80,9 +85,9 @@
 	function getColumnMap() : ColumnMap {
 		return {
 			status : {
-				name         : 'Status',
-				size         : 0.5,
-				numericValue : false,
+				name : 'Status',
+				type : 'string',
+				size : 0.5,
 			},
 			name : {
 				name         : 'Name',
@@ -91,6 +96,7 @@
 			},
 			started : {
 				name              : 'Started',
+				type              : 'datetime',
 				unfilterable      : true,
 				parseDisplayValue : parseDateValue,
 			},
@@ -99,18 +105,18 @@
 				parseDisplayValue : (value : number) => lapsed(value, true),
 			},
 			'actor.name' : {
-				name         : 'Actor Name',
-				numericValue : false,
+				name : 'Actor Name',
+				type : 'string',
 			},
 			trigger : {
-				name         : 'Trigger',
-				numericValue : false,
+				name : 'Trigger',
+				type : 'string',
 			},
 			erroredActionName : {
 				name            : 'Errored Action',
+				type            : 'string',
 				size            : 2,
 				initiallyHidden : true,
-				numericValue    : false,
 			},
 			link : {
 				name         : 'Link',

@@ -48,8 +48,8 @@ export class DataTable {
 		this.filterMap       = writable({});
 		this.activeSearch    = writable('');
 		this.activeSort      = writable({
-			key       : 'started',
-			direction : 'descending',
+			key       : '',
+			direction : 'ascending',
 		});
 		this.addFilterInfo   = writable({
 			key          : '',
@@ -127,50 +127,50 @@ export class DataTable {
 		const finiteFilterValuesMap = get(this.finiteFilterValuesMap);
 
 		for (const [ key, values ] of objectEntries(filterMap)) {
-			if (this.opts?.columnMap[ key ]?.numericValue !== false) {
-				rows = this.filterNumericalRange(rows, key as string, values as [ number, number ]);
-
-				continue;
-			}
-
-			const queryOptions : QueryOptions = finiteFilterValuesMap[ key ]
-				? {
-					matchPartialWords   : false,
-					disregardQueryOrder : false,
-					caseInsensitive     : false,
-				}
-				: {
-					matchPartialWords   : true,
-					disregardQueryOrder : true,
-					caseInsensitive     : true,
-				};
-
-			const queryResultsMap : { [ key in string ] : Row } = {};
-
-			for (const value of values ?? []) {
-				const queryResults = Query.matchObject(
-					rows,
-					value,
-					typeof key === 'number' ? key.toString() : key,
-					queryOptions,
-				);
-
-				for (const row of queryResults) {
-					queryResultsMap[ row.id ] = row;
-				}
-			}
-
-			rows = Object.values(queryResultsMap);
+			rows = this.opts?.columnMap[ key ]?.type === 'string'
+				? this.filterStringValue(rows, key as string, values as string[], finiteFilterValuesMap[ key ])
+				: this.filterNumericalRangeValue(rows, key as string, values as [ number, number ]);
 		}
 
 		return rows;
 	}
 
-	private filterNumericalRange(rows : Row[], key : string, values : [ number, number ]) : Row[] {
+	private filterStringValue(rows : Row[], key : string, values : string[], finiteValues : false | string[]) : Row[] {
+		const queryOptions : QueryOptions = finiteValues
+			? {
+				matchPartialWords   : false,
+				disregardQueryOrder : false,
+				caseInsensitive     : false,
+			}
+			: {
+				matchPartialWords   : true,
+				disregardQueryOrder : true,
+				caseInsensitive     : true,
+			};
+
+		const queryResultsMap : { [ key in string ] : Row } = {};
+
+		for (const value of values ?? []) {
+			const queryResults = Query.matchObject(
+				rows,
+				value,
+				key,
+				queryOptions,
+			);
+
+			for (const row of queryResults) {
+				queryResultsMap[ row.id ] = row;
+			}
+		}
+
+		return Object.values(queryResultsMap);
+	}
+
+	private filterNumericalRangeValue(rows : Row[], key : string, values : [ number, number ]) : Row[] {
 		let [ lower, upper ] = values;
 
-		if (key === 'started' && typeof lower === 'string') {
-			[ lower, upper ] = this.parseStartedValues(lower);
+		if (upper == null && typeof lower === 'string') {
+			[ lower, upper ] = this.parseNamedTimeFilterValues(lower);
 		}
 
 		return rows.filter((row : Row) => {
@@ -183,7 +183,7 @@ export class DataTable {
 		});
 	}
 
-	private parseStartedValues(value : TimeFilterNamedValue) : [ number, number ] {
+	public parseNamedTimeFilterValues(value : TimeFilterNamedValue) : [ number, number ] {
 		let numericValue : number = parseInt(value.replace(/[^0-9]/g, ''), 10);
 
 		if (isNaN(numericValue)) {
@@ -264,10 +264,7 @@ export class DataTable {
 	}
 
 	private parseFiniteFilterValues(rows : Row[], key : string) : false | any[] {
-		// if (key === 'machineTime' || key === 'started') {
-		// 	return [];
-		// }
-		if (key === 'started') {
+		if (this.opts?.columnMap?.[ key ]?.type !== 'string') {
 			return [];
 		}
 
@@ -340,6 +337,8 @@ export class DataTable {
 
 		this.initColumns();
 
+		this.updateActiveSort();
+
 		this.initialRows.set(options.initialRows);
 
 		this.isInitialized = true;
@@ -389,7 +388,7 @@ export class DataTable {
 		this.filterMap.update(item => {
 			if (typeof key === 'object') {
 				if (this.opts.defaultTimeFilter && !key[ this.opts.defaultTimeFilter.key ]) {
-					key.started = this.opts.defaultTimeFilter.value;
+					key[ this.opts.defaultTimeFilter.key ] = this.opts.defaultTimeFilter.value;
 				}
 
 				return key;
@@ -405,7 +404,19 @@ export class DataTable {
 		});
 	}
 
-	public updateActiveSort(key : string = 'started', direction : 'ascending' | 'descending' = 'descending') : void {
+	public updateActiveSort(key? : string, direction? : 'ascending' | 'descending') : void {
+		if (key == null && this.opts?.defaultSort) {
+			key = this.opts.defaultSort.key;
+		}
+
+		if (key == null) {
+			return;
+		}
+
+		if (direction == null) {
+			direction = this.opts?.defaultSort?.direction ?? 'ascending';
+		}
+
 		this.activeSort.set({
 			key,
 			direction,

@@ -33,6 +33,9 @@
 			initialRows                      : pipelines,
 			columnMap                        : getColumnMap(),
 			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
+			defaultSort                      : {
+				key : 'name',
+			},
 		};
 	}
 
@@ -86,10 +89,12 @@
 			},
 			firstRunAt : {
 				name              : 'First Run',
+				type              : 'datetime',
 				parseDisplayValue : parseDateValue,
 			},
 			lastRunAt : {
 				name              : 'Last Run',
+				type              : 'datetime',
 				parseDisplayValue : parseDateValue,
 			},
 			runCount : {
@@ -155,8 +160,8 @@
 				initiallyHidden : true,
 			},
 			repo : {
-				name         : 'Repository',
-				numericValue : false,
+				name : 'Repository',
+				type : 'string',
 			},
 			'triggersMap.manual' : {
 				name            : 'Triggered Manually',

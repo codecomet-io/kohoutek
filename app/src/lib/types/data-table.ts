@@ -5,14 +5,20 @@ import type { AggregatedHeadlineDataOptionsMap } from '$lib/types/aggregated-hea
 
 export type ParseDisplayValueFunc = (value : any, index? : number) => string;
 
+export type ColumnType =
+	| 'number'
+	| 'datetime'
+	| 'string'
+	;
+
 export type Column = {
 	name                           : string;
+	type?                          : ColumnType;
 	size?                          : number;
 	hiddenHeader?                  : boolean;
 	initiallyHidden?               : boolean;
 	unfilterable?                  : boolean;
 	unhideable?                    : boolean;
-	numericValue?                  : boolean;
 	aggregatedColumnDataDirection? : 'ascending' | 'descending';
 	parseDisplayValue?     	       : ParseDisplayValueFunc;
 };
@@ -29,7 +35,10 @@ export type ActiveSort = {
 export type AddFilterInfo = {
 	key          : string;
 	finiteValues : false | any[];
-	value?			 : any[];
+	value?			 : {
+		lower? : number,
+		upper? : number,
+	};
 };
 
 type GenericFilterMap = {
@@ -66,6 +75,11 @@ export interface Row extends AnyMap {
 	id : string;
 }
 
+export type DefaultSort = {
+	key        : string;
+	direction? : 'ascending' | 'descending';
+};
+
 export type Options = {
 	namespace                         : string;
 	initialRows                       : Row[];
@@ -74,6 +88,7 @@ export type Options = {
 	parseCellTitle                    : ParseCellTitleFunc;
 	defaultTimeFilter?                : TimeFilterMap;
 	aggregatedHeadlineDataOptionsMap? : AggregatedHeadlineDataOptionsMap;
+	defaultSort?                      : DefaultSort;
 };
 
 export type PartialOptions = Partial<Options>;

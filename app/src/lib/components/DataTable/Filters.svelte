@@ -2,15 +2,15 @@
 	lang="ts"
 	context="module"
 >
-	import type { AlertInput } from '@ionic/core';
+	import type { AlertInput, DatetimeCustomEvent } from '@ionic/core';
 	import type { BooleanMap, ValueOf } from 'briznads-helpers';
 
-	import type { FilterMap, TimeFilterNamedValue } from '$lib/types/data-table';
+	import type { FilterMap, TimeFilterNamedValue, AddFilterInfo } from '$lib/types/data-table';
 
 	import type { DataTable } from '$lib/stores/data-table';
 
 	import { onMount } from 'svelte';
-	import { lapsed, objectEntries } from 'briznads-helpers';
+	import { sleep, objectEntries, parseDate, isInvalidDate } from 'briznads-helpers';
 	import { filter as filterIcon, closeCircle, chevronDown } from 'ionicons/icons';
 	import { HEK, getEndpoints, gotoSearchString } from '$lib/helper';
 </script>
@@ -52,12 +52,12 @@
 
 	$: updateFromParams(searchParams);
 
-	let addFilterAlertElement : HTMLIonAlertElement;
+	let alertElement : HTMLIonAlertElement;
 
-	onMount(() => {
-		addFilterAlertElement.header = 'Add Filter';
+	function populateAddFilterAlertSkeleton() : void {
+		alertElement.header = 'Add Filter';
 
-		addFilterAlertElement.buttons = [
+		alertElement.buttons = [
 			{
 				text: 'Cancel',
 				role: 'cancel',
@@ -67,19 +67,34 @@
 				role: 'confirm',
 			},
 		];
-	});
-
-	function resetAddFilterAlert() : void {
-		addFilterAlertElement.subHeader = undefined;
-		addFilterAlertElement.message = undefined;
-		addFilterAlertElement.inputs = [];
 	}
 
-	function parseAddNumericFilterAlertInputs(key : string) : void {
+	onMount(populateAddFilterAlertSkeleton);
+
+	let alertMessageElement : HTMLElement;
+
+	function initAlertMessageElement() : void {
+		alertMessageElement = alertElement.querySelector('.alert-message') as HTMLElement;
+	}
+
+	async function resetAddFilterAlert() : Promise<void> {
+		alertElement.subHeader = undefined;
+		alertElement.inputs = [];
+
+		if (!alertMessageElement) {
+			await sleep(10);
+
+			initAlertMessageElement();
+		}
+
+		alertMessageElement.innerHTML = '';
+	}
+
+	async function parseAddNumericFilterAlertInputs(key : string) : Promise<void> {
 		const { lower, upper } = getEndpoints($rows, key, true);
 
-		addFilterAlertElement.message = `
-			<p>${ parseDisplayValue(key, lower) } - ${ parseDisplayValue(key, upper) }</p>
+		alertMessageElement.innerHTML = `
+			<p>${ storeInstance.parseDisplayValue(key, lower) } - ${ storeInstance.parseDisplayValue(key, upper) }</p>
 
 			<ion-range
 				id="durationRangeSlider"
@@ -88,40 +103,49 @@
 			></ion-range>
 		`;
 
-		setTimeout(() => {
-			const durationRangeSlider = document.querySelector('#durationRangeSlider') as HTMLIonRangeElement;
+		// wait a beat to insure range slider is selectable in the DOM
+		await sleep(10);
 
-			if (!durationRangeSlider) {
-				return;
-			}
+		const rangeSlider = document.querySelector('#durationRangeSlider') as HTMLIonRangeElement;
 
-			durationRangeSlider.dualKnobs = true;
+		if (!rangeSlider) {
+			return;
+		}
 
-			durationRangeSlider.max = upper;
-			durationRangeSlider.min = lower;
+		rangeSlider.dualKnobs = true;
 
-			durationRangeSlider.value = {
-				lower,
-				upper,
-			};
+		rangeSlider.max = upper;
+		rangeSlider.min = lower;
 
-			durationRangeSlider.pin = true;
+		rangeSlider.value = {
+			lower,
+			upper,
+		};
 
-			durationRangeSlider.pinFormatter = getDisplayValueFunction(key);
+		rangeSlider.pin = true;
 
-			durationRangeSlider.addEventListener(
-				'ionChange',
-				handleRangeChange,
-				false,
-			);
-		}, 10);
+		rangeSlider.pinFormatter = storeInstance.getDisplayValueFunction(key);
 	}
 
-	function handleRangeChange(event : any) : void {
-		const { lower, upper } = event?.detail?.value;
+	function updateRange(timeRange : { lower? : number, upper? : number }) : void {
+		const { lower, upper } = timeRange ?? {};
+
+		if (lower == null && upper == null) {
+			return;
+		}
 
 		addFilterInfo.update(item => {
-			item.value = [ lower, upper ];
+			if (item.value == null) {
+				item.value = {};
+			}
+
+			if (lower != null) {
+				item.value.lower = lower;
+			}
+
+			if (upper != null) {
+				item.value.upper = upper;
+			}
 
 			return item;
 		});
@@ -132,60 +156,111 @@
 			values = [];
 		}
 
-		return $columnMap?.[ key ].numericValue === false
-			? values.join(', ')
-			: `${ parseDisplayValue(key as string, values[0]) } - ${ parseDisplayValue(key as string, values[1]) }`;
+		return values.length > 1 && typeof values[0] === 'number'
+			? `${ storeInstance.parseDisplayValue(key as string, values[0]) } - ${ storeInstance.parseDisplayValue(key as string, values[1]) }`
+			: values.join(', ');
 	}
 
-	function parseDisplayValue(key : string, value : any) : string {
-		return getDisplayValueFunction(key)(value);
-	}
-
-	function getDisplayValueFunction(key : string) : (value : any) => string {
-		return $columnMap?.[ key ].parseDisplayValue ?? ((value : any) => value?.toString() ?? '');
-	}
-
-	function handleAddFilter(key : string) : void {
+	async function handleAddFilter(key : string) : Promise<void> {
 		setAddFilterInfo(key);
 
-		populateAddFilterAlert();
+		await populateAddFilterAlert();
 
-		addFilterAlertElement.present();
+		alertElement.present();
 	}
 
 	function setAddFilterInfo(key : string) : void {
-		addFilterInfo.set({
+		const info : AddFilterInfo = {
 			key,
 			finiteValues : $finiteFilterValuesMap[ key ] ?? false,
-		});
+		};
+
+		if ($filterMap?.[ key ] && $columnMap?.[ key ]?.type !== 'string') {
+			const [ lower, upper ] = $filterMap?.[ key ] ?? [];
+
+			if (lower != null || upper != null) {
+				info.value = {};
+
+				if (lower != null) {
+					info.value.lower = lower;
+				}
+
+				if (upper != null) {
+					info.value.upper = upper;
+				}
+			}
+		}
+
+		addFilterInfo.set(info);
 	}
 
-	function populateAddFilterAlert() : void {
-		resetAddFilterAlert();
+	async function populateAddFilterAlert() : Promise<void> {
+		await resetAddFilterAlert();
 
 		const { key } = $addFilterInfo;
 
-		addFilterAlertElement.subHeader = `Filter By ${ $columnMap?.[ key ].name }`;
+		alertElement.subHeader = `Filter By ${ $columnMap?.[ key ].name }`;
 
-		if ($columnMap?.[ key ].numericValue === false) {
-			addFilterAlertElement.inputs = parseAddFilterAlertInputs();
+		const type = $columnMap?.[ key ]?.type;
+
+		if (type === 'datetime') {
+			parseAddDateTimeFilterAlertInputs(key);
+		} else if (type === 'string') {
+			parseAddStringFilterAlertInputs();
 		} else {
 			parseAddNumericFilterAlertInputs(key);
 		}
 	}
 
-	function parseAddFilterAlertInputs() : AlertInput[] {
+	function parseAddDateTimeFilterAlertInputs(key : string) : void {
+		alertMessageElement.innerHTML = `
+			<ion-list class="time-filter-alert-list">
+				<ion-item class="lower-value">
+					<ion-label>
+						<ion-card-subtitle>Starting</ion-card-subtitle>
+
+						<ion-button
+							fill="outline"
+							data-bound="lower"
+						>Select Starting Date</ion-button>
+
+						<ion-datetime-button datetime="datetimeLower"></ion-datetime-button>
+					</ion-label>
+				</ion-item>
+
+				<ion-item
+					class="upper-value"
+					lines="none"
+				>
+					<ion-label>
+						<ion-card-subtitle>Ending</ion-card-subtitle>
+
+						<ion-button
+							fill="outline"
+							data-bound="upper"
+						>Select Ending Date</ion-button>
+
+						<ion-datetime-button datetime="datetimeUpper"></ion-datetime-button>
+					</ion-label>
+				</ion-item>
+			</ion-list>
+		`;
+	}
+
+	function parseAddStringFilterAlertInputs() : void {
 		const finiteValues = $addFilterInfo.finiteValues;
 
-		if (!finiteValues) {
-			return [];
+		let inputs : AlertInput[] = [];
+
+		if (finiteValues) {
+			inputs = finiteValues.map((value) => ({
+				value,
+				label : value,
+				type  : 'checkbox',
+			}));
 		}
 
-		return finiteValues.map((value) => ({
-			value,
-			label : value,
-			type  : 'checkbox',
-		}));
+		alertElement.inputs = inputs;
 	}
 
 	function handleDismissAddFilterAlert(event : any) : void {
@@ -194,12 +269,13 @@
 		}
 
 		const { key, value } = $addFilterInfo;
+		const { lower, upper } = value ?? {};
 
-		const values = $columnMap?.[ key ].numericValue === false
+		const values = $columnMap?.[ key ].type === 'string'
 			? event?.detail?.data?.values ?? []
-			: value;
+			: [ lower, upper ];
 
-		if (!values.join('').trim()) {
+		if (!(values ?? []).join('').trim()) {
 			return;
 		}
 
@@ -226,17 +302,86 @@
 		updateFilter(key);
 	}
 
-	const startedFilterOptions : TimeFilterNamedValue[] = [
-		'last 24 hours',
-		'last 3 days',
-		'last 7 days',
-		'last 30 days',
-		'last 90 days',
-		'last 365 days',
-	];
+	function handleUpdateTimeFilter(key : string, option : TimeFilterNamedValue) : void {
+		updateFilter(key, [ option ]);
+	}
 
-	function handleUpdateStartedFilter(option : TimeFilterNamedValue) : void {
-		updateFilter('started', [ option ]);
+	function handleDatetimeModalWillPresent() : void {
+		alertElement.dismiss(null, 'cancel');
+	}
+
+	function handleDatetimeModalWillDismiss() : void {
+		alertElement.present();
+	}
+
+	function handleDatetimeChange(event : DatetimeCustomEvent) : void {
+		const key = event.target?.name === 'lower'
+			? 'lower'
+			: 'upper';
+
+		const values : { upper? : number, lower? : number } = {};
+		const value : string = event?.detail?.value as string ?? '';
+
+		if (!(value && typeof value === 'string')) {
+			return;
+		}
+
+		const date = new Date(value);
+		const epoch = date?.getTime();
+
+		values[ key ] = epoch;
+
+		updateRange(values);
+	}
+
+	function parseISODate(addFilterInfo : AddFilterInfo, bound : 'lower' | 'upper') : string | undefined {
+		const type = $columnMap?.[ addFilterInfo.key ]?.type;
+
+		if (type !== 'datetime') {
+			return undefined;
+		}
+
+		const epoch = getAddFilterNumericValue(addFilterInfo, bound);
+
+		const date = parseDate(epoch ?? '');
+
+		return isInvalidDate(date)
+			? undefined
+			: date.toISOString();
+	}
+
+	function getAddFilterNumericValue(addFilterInfo : AddFilterInfo, bound : 'lower' | 'upper') : number | undefined {
+		return (addFilterInfo.value ?? {})[ bound ];
+	}
+
+	function hasValue(addFilterInfo : AddFilterInfo, bound : 'lower' | 'upper') : boolean {
+		const type = $columnMap?.[ addFilterInfo.key ]?.type;
+
+		if (type === 'string') {
+			return true;
+		}
+
+		const value = getAddFilterNumericValue(addFilterInfo, bound);
+
+		return value != null && typeof value === 'number';
+	}
+
+	function handleAlertIonChange(event : any) : void {
+		if (event?.target?.matches('ion-range')) {
+			updateRange(event?.detail?.value ?? {});
+		}
+	}
+
+	let dateTimeModalElementMap : { lower? : HTMLIonModalElement, upper? : HTMLIonModalElement } = {};
+
+	function handleAlertClick(event : any) : void {
+		const bound : 'lower' | 'upper' = event?.target?.dataset?.bound;
+
+		if (!bound) {
+			return;
+		}
+
+		dateTimeModalElementMap[ bound ]?.present();
 	}
 </script>
 
@@ -268,53 +413,131 @@
 		min-height: 32px;
 		border-radius: 6px;
 	}
+
+	ion-alert {
+		&.lacks-lower-value,
+		&.lacks-upper-value {
+			:global(.alert-button-role-confirm) {
+				pointer-events: none;
+			}
+
+			:global(.alert-button-role-confirm .alert-button-inner) {
+				opacity: 0.5;
+			}
+		}
+
+		&.lacks-lower-value {
+			:global(.lower-value ion-datetime-button) {
+				display: none;
+			}
+
+			:global(.lower-value ion-button) {
+				display: block;
+			}
+		}
+
+		&.lacks-upper-value {
+			:global(.upper-value ion-datetime-button) {
+				display: none;
+			}
+
+			:global(.upper-value ion-button) {
+				display: block;
+			}
+		}
+
+		:global(.lower-value ion-button),
+		:global(.upper-value ion-button) {
+			display: none;
+		}
+	}
+
+	:global(.time-filter-alert-list) {
+		margin-top: 14px;
+		background-color: transparent;
+	}
+
+	:global(.time-filter-alert-list ion-item) {
+		--padding-start: 0;
+		--inner-padding-end: 0;
+		--background: transparent;
+	}
+
+	:global(.time-filter-alert-list ion-label) {
+		margin-left: 0;
+		margin-right: 0;
+	}
 </style>
 
 
 {#if Object.keys($filterMap).length > 0 || Object.keys($filterableColumns).length > 0 }
 	<div class="filter-container">
-		{#if 'started' in $filterMap }
-			<ion-chip
-				id="startedPopoverTrigger"
-				disabled={ chipClickedMap.started }
-			>
-				<ion-label><strong>{ $columnMap?.started?.name }:</strong> { getFilterChipValue('started', $filterMap.started) }</ion-label>
+		{#if storeInstance.opts?.defaultTimeFilter }
+			{@const timeFilter = storeInstance.opts.defaultTimeFilter }
+			{@const timeKey = timeFilter.key }
 
-				<ion-icon
-					icon={ chevronDown }
-					color="dark"
-				></ion-icon>
-			</ion-chip>
+			{#if timeKey in $filterMap }
+				<ion-chip id="{ timeKey }PopoverTrigger">
+					<ion-label>
+						<strong>{ $columnMap?.[ timeKey ]?.name }:</strong>
 
-			<ion-popover
-				trigger="startedPopoverTrigger"
-				dismiss-on-select={ true }
-			>
-				<ion-content>
-					<ion-list>
-						{#each startedFilterOptions as option, index }
-							<ion-item
-								button={ true }
-								detail={ false }
-								disabled={ $filterMap.started?.[0] === option }
-								lines={ index === startedFilterOptions.length - 1 ? 'none' : 'inset' }
-								on:click={ () => handleUpdateStartedFilter(option)}
-								on:keydown={ (e) => HEK(e, () => handleUpdateStartedFilter(option)) }
-							>{ option }</ion-item>
-						{/each }
-					</ion-list>
-				</ion-content>
-			</ion-popover>
+						{ getFilterChipValue(timeKey, $filterMap[ timeKey ]) }
+					</ion-label>
+
+					<ion-icon
+						icon={ chevronDown }
+						color="dark"
+					></ion-icon>
+				</ion-chip>
+
+				<ion-popover
+					trigger="{ timeKey }PopoverTrigger"
+					dismiss-on-select={ true }
+				>
+					<ion-content>
+						<ion-list>
+							{#each timeFilter.options as option, index }
+								<ion-item
+									button={ true }
+									detail={ false }
+									disabled={ $filterMap[ timeKey ]?.[0] === option }
+									lines={ !timeFilter.allowCustomRange && index === timeFilter.options.length - 1 ? 'none' : 'inset' }
+									on:click={ () => handleUpdateTimeFilter(timeKey, option)}
+									on:keydown={ (e) => HEK(e, () => handleUpdateTimeFilter(timeKey, option)) }
+								>
+									<ion-label>{ option }</ion-label>
+								</ion-item>
+							{/each }
+
+							{#if timeFilter.allowCustomRange }
+								<ion-item
+									button={ true }
+									detail={ false }
+									lines="none"
+									on:click={ () => handleAddFilter(timeKey)}
+									on:keydown={ (e) => HEK(e, () => handleAddFilter(timeKey)) }
+								>
+									<ion-label>custom range</ion-label>
+								</ion-item>
+							{/if}
+						</ion-list>
+					</ion-content>
+				</ion-popover>
+			{/if}
 		{/if }
 
 		{#each objectEntries($filterMap) as [ key, values ] }
-			{#if key !== 'started' }
+			{#if key !== storeInstance.opts?.defaultTimeFilter?.key }
 				<ion-chip
 					on:click={ () => handleChipClick(key) }
 					on:keydown={ (e) => HEK(e, () => handleChipClick(key)) }
 					disabled={ chipClickedMap[ key ] }
 				>
-					<ion-label><strong>{ $columnMap?.[ key ].name }:</strong> { getFilterChipValue(key, values) }</ion-label>
+					<ion-label>
+						<strong>{ $columnMap?.[ key ].name }:</strong>
+
+						{ getFilterChipValue(key, values) }
+					</ion-label>
 
 					<ion-icon
 						icon={ closeCircle }
@@ -324,47 +547,87 @@
 			{/if }
 		{/each}
 
-		{#if Object.keys($filterableColumns).length > 0 }
-			<ion-button
-				class="add-filter-popover-trigger"
-				id="addFilterPopoverTrigger"
-				color="dark"
+		<ion-button
+			class="add-filter-popover-trigger"
+			id="addFilterPopoverTrigger"
+			color="dark"
+			size="small"
+			fill="outline"
+			disabled={ Object.keys($filterableColumns).length <= 0 }
+		>
+			<ion-icon
+				slot="start"
 				size="small"
-				fill="outline"
-			>
-				<ion-icon
-					slot="start"
-					size="small"
-					icon={ filterIcon }
-				></ion-icon>
+				icon={ filterIcon }
+			></ion-icon>
 
-				Add Filter
-			</ion-button>
+			Add Filter
+		</ion-button>
 
-			<ion-popover
-				trigger="addFilterPopoverTrigger"
-				dismiss-on-select={ true }
-			>
-				<ion-content>
-					<ion-list>
-						{#each $filterableColumns as key, index }
-							<ion-item
-								button={ true }
-								detail={ false }
-								lines={ index === $filterableColumns.length - 1 ? 'none' : 'inset' }
-								disabled={ $filterMap[ key ] != null }
-								on:click={ () => handleAddFilter(key)}
-								on:keydown={ (e) => HEK(e, () => handleAddFilter(key)) }
-							>{ $columnMap?.[ key ].name }</ion-item>
-						{/each }
-					</ion-list>
-				</ion-content>
-			</ion-popover>
-		{/if }
+		<ion-popover
+			trigger="addFilterPopoverTrigger"
+			dismiss-on-select={ true }
+		>
+			<ion-content>
+				<ion-list>
+					{#each $filterableColumns as key, index }
+						<ion-item
+							button={ true }
+							detail={ false }
+							lines={ index === $filterableColumns.length - 1 ? 'none' : 'inset' }
+							disabled={ $filterMap[ key ] != null }
+							on:click={ () => handleAddFilter(key)}
+							on:keydown={ (e) => HEK(e, () => handleAddFilter(key)) }
+						>{ $columnMap?.[ key ].name }</ion-item>
+					{/each }
+				</ion-list>
+			</ion-content>
+		</ion-popover>
 	</div>
+
+	<ion-modal
+		bind:this={ dateTimeModalElementMap.lower }
+		on:willPresent={ handleDatetimeModalWillPresent }
+		on:willDismiss={ handleDatetimeModalWillDismiss }
+	>
+		<ion-datetime
+			id="datetimeLower"
+			name="lower"
+			title="lower"
+			show-default-title={ false }
+			show-default-buttons={ true }
+			value={ parseISODate($addFilterInfo, 'lower') }
+			on:ionChange={ handleDatetimeChange }
+		>
+			<span slot="title">Starting Date/Time</span>
+		</ion-datetime>
+	</ion-modal>
+
+	<ion-modal
+		bind:this={ dateTimeModalElementMap.upper }
+		on:willPresent={ handleDatetimeModalWillPresent }
+		on:willDismiss={ handleDatetimeModalWillDismiss }
+	>
+		<ion-datetime
+			id="datetimeUpper"
+			name="upper"
+			title="upper"
+			show-default-title={ false }
+			show-default-buttons={ true }
+			value={ parseISODate($addFilterInfo, 'upper') }
+			on:ionChange={ handleDatetimeChange }
+		>
+			<span slot="title">Ending Date/Time</span>
+		</ion-datetime>
+	</ion-modal>
 {/if }
 
 <ion-alert
-	bind:this={ addFilterAlertElement }
+	bind:this={ alertElement }
+	class:lacks-lower-value={ !hasValue($addFilterInfo, 'lower') }
+	class:lacks-upper-value={ !hasValue($addFilterInfo, 'upper') }
 	on:didDismiss={ handleDismissAddFilterAlert }
+	on:ionChange={ handleAlertIonChange }
+	on:click={ handleAlertClick }
+	on:keydown={ (e) => HEK(e, handleAlertClick) }
 ></ion-alert>

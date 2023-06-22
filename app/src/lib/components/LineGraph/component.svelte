@@ -27,6 +27,30 @@
 	export let hideYTicks   : boolean = false;
 	export let showTooltips : boolean = true;
 
+	let sanitizedCoordinates : Coordinate[] = [];
+
+	function sanitizeCoordinates(coordinates : Coordinate[], xValueType : XValueType) : Coordinate[] {
+		if (coordinates?.length > 1) {
+			return coordinates;
+		} else if (coordinates?.length === 1) {
+			const [ x ] = coordinates[0];
+
+			const addition = xValueType === 'date'
+				? 1000 * 60 * 60 * 24
+				: x;
+
+			return [
+				[ x - addition, 0 ],
+				coordinates[0],
+				[ x + addition, 0 ],
+			];
+		} else {
+			return [];
+		}
+	}
+
+	$: sanitizedCoordinates = sanitizeCoordinates(coordinates, xValueType);
+
 	let padding : Padding = {
 		top    : 20,
 		right  : 0,
@@ -64,10 +88,8 @@
 			return;
 		}
 
-		xEndpoints = extent(coordinates, ([ x, y ] : Coordinate) => x) as [ number, number ];
-		yEndpoints = extent(coordinates, ([ x, y ] : Coordinate) => y) as [ number, number ];
-
-		testYEndpoints(yEndpoints);
+		xEndpoints = parseEndpoints(coordinates, 'x');
+		yEndpoints = parseEndpoints(coordinates, 'y');
 
 		xScale = scaleLinear()
 			.domain(xEndpoints)
@@ -82,7 +104,7 @@
 		setVisible();
 	}
 
-	$: init(coordinates, padding);
+	$: init(sanitizedCoordinates, padding);
 
 	function getXValueFunc(xValueType : XValueType, formatXValue : FormatValueFunction) : FormatValueFunction {
 		return xValueType === 'date'
@@ -124,10 +146,26 @@
 		return unchanged;
 	}
 
-	function testYEndpoints(endpoints : [ number, number ]) : void {
+	function parseEndpoints(coordinates : Coordinate[], axis : 'x' | 'y') : [ number, number ] {
+		const endpoints = extent(
+			coordinates,
+			([ x, y ] : Coordinate) => axis === 'x'
+				? x
+				: y,
+		) as [ number, number ];
+
+		testEndpoints(endpoints);
+
+		return endpoints;
+	}
+
+	function testEndpoints(endpoints : [ number, number ]) : void {
 		if (endpoints[0] === endpoints[1]) {
-			if (endpoints[0] === 0) {
-				endpoints[1] = 100;
+			if (endpoints[0] == null) {
+				endpoints[0] = 0;
+				endpoints[1] = 10;
+			} else if (endpoints[0] === 0) {
+				endpoints[1] = 10;
 			} else {
 				endpoints[0] = 0;
 			}
@@ -159,6 +197,7 @@
 <svg viewBox="0 0 { width } { height }">
 	<Axes
 		formatXValue={ getXValueFunc(xValueType, formatXValue) }
+		coordinates={ sanitizedCoordinates }
 		{ formatYValue }
 		{ hideXTicks }
 		{ hideYTicks }
@@ -170,32 +209,34 @@
 		{ yScale }
 	/>
 
-	<Line
-		bind:pathElement={ pathLineElement }
-		{ coordinates }
-		{ xScale }
-		{ yScale }
-		{ isVisible }
-	/>
-
-	<Area
-		{ coordinates }
-		{ xScale }
-		{ yScale }
-		{ isVisible }
-		{ yEndpoints }
-	/>
-
-	{#if showTooltips }
-		<Tooltip
-			{ formatYValue }
-			{ xEndpoints }
-			{ width }
-			{ height }
-			{ padding }
+	{#if sanitizedCoordinates.length > 0 }
+		<Line
+			bind:pathElement={ pathLineElement }
+			coordinates={ sanitizedCoordinates }
 			{ xScale }
 			{ yScale }
-			{ pathLineElement }
+			{ isVisible }
 		/>
+
+		<Area
+			coordinates={ sanitizedCoordinates }
+			{ xScale }
+			{ yScale }
+			{ isVisible }
+			{ yEndpoints }
+		/>
+
+		{#if showTooltips }
+			<Tooltip
+				{ formatYValue }
+				{ xEndpoints }
+				{ width }
+				{ height }
+				{ padding }
+				{ xScale }
+				{ yScale }
+				{ pathLineElement }
+			/>
+		{/if}
 	{/if}
 </svg>

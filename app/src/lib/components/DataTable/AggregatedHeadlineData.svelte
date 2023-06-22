@@ -38,15 +38,6 @@
 		border: 1px solid #c8c7cc;
 		box-shadow: var(--drop-shadow);
 
-		&:not(.has-graph) {
-			height: min-content;
-
-			ion-card-header {
-				height: 100%;
-				justify-content: space-between;
-			}
-		}
-
 		@media (min-width: 576px) {
 			min-width: 40%;
 		}
@@ -71,9 +62,7 @@
 {#if Object.keys($aggregatedHeadlineDataMap).length > 0 }
 	<div class="aggregate-data-container">
 		{#each objectEntries($aggregatedHeadlineDataMap) as [ key, data ] }
-			<ion-card
-				class:has-graph={ data.chartCoordinates && data.chartCoordinates.length > 1 }
-			>
+			<ion-card>
 				<ion-card-header>
 					<ion-card-title
 						class:no-title={ !data.title }
@@ -84,22 +73,20 @@
 					<ion-card-subtitle>{ data.titleLabel }</ion-card-subtitle>
 				</ion-card-header>
 
-				{#if data.chartCoordinates && data.chartCoordinates.length > 1 }
-					<ion-card-content>
-						{#if data.chartLabel }
-							<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
-						{/if}
+				<ion-card-content>
+					{#if data.chartLabel }
+						<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
+					{/if}
 
-						{#if $$slots.default }
-							<slot
-								{ key }
-								coordinates={ data.chartCoordinates }
-							/>
-						{:else }
-							<LineGraph coordinates={ data.chartCoordinates } />
-						{/if }
-					</ion-card-content>
-				{/if}
+					{#if $$slots.default }
+						<slot
+							{ key }
+							coordinates={ data.chartCoordinates }
+						/>
+					{:else }
+						<LineGraph coordinates={ data.chartCoordinates } />
+					{/if }
+				</ion-card-content>
 			</ion-card>
 		{/each}
 	</div>

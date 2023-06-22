@@ -181,15 +181,13 @@
 		let:key
 		let:coordinates
 	>
-		{#if coordinates }
-			<LineGraph
-				{ coordinates }
-				formatYValue={ parseFormatYValue(key) }
-				hideYTicks={ key === 'erroredRate' }
-				showTooltips={ key === 'machineTime' || key === 'cachedRate' }
-				xValueType="date"
-			/>
-		{/if }
+		<LineGraph
+			{ coordinates }
+			formatYValue={ parseFormatYValue(key) }
+			hideYTicks={ key === 'erroredRate' }
+			showTooltips={ key === 'machineTime' || key === 'cachedRate' }
+			xValueType="date"
+		/>
 	</svelte:fragment>
 
 	<svelte:fragment

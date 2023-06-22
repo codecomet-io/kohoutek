@@ -232,13 +232,10 @@
 		let:key
 		let:coordinates
 	>
-		{#if coordinates }
-			<LineGraph
-				{ coordinates }
-				formatYValue={ parseFormatYValue(key) }
-				xValueType={ undefined }
-			/>
-		{/if }
+		<LineGraph
+			{ coordinates }
+			formatYValue={ parseFormatYValue(key) }
+		/>
 	</svelte:fragment>
 
 	<svelte:fragment

@@ -5,10 +5,14 @@
 	import type { Coordinate } from '$lib/types/data-table';
 	import type { FormatValueFunction, ScaleFunction, Padding } from '$lib/types/line-graph';
 
-	import { roundToDecimals } from 'briznads-helpers';
+	import { onMount } from 'svelte';
+
+	import { roundToDecimals, sleep } from 'briznads-helpers';
 </script>
 
+
 <script lang="ts">
+	export let coordinates  : Coordinate[];
 	export let formatXValue : FormatValueFunction = (item) => item.toString();
 	export let formatYValue : FormatValueFunction = (item) => item.toString();
 	export let hideXTicks   : boolean = false;
@@ -23,10 +27,27 @@
 	let xTicks : number[];
 	let yTicks : number[];
 
-	$: xTicks = getTicks(xEndpoints);
-	$: yTicks = getTicks(yEndpoints);
+	$: xTicks = getXTicks(coordinates);
+	$: yTicks = getYTicks(yEndpoints);
 
-	function getTicks([ lower, upper ] : [ number, number ]) : [ number, number, number ] {
+	function getXTicks(coordinates  : Coordinate[]) : number[] {
+		let count = coordinates.length;
+
+		if (count < 2) {
+			count = 5;
+		} else if (count === 2) {
+			count = 3;
+		} else if (count > 7) {
+			count = 7;
+		}
+
+		const equalDistribution = (xEndpoints[1] - xEndpoints[0]) / (count - 1);
+
+		return [...Array(count)]
+			.map((_, index) => equalDistribution * index + xEndpoints[0]);
+	}
+
+	function getYTicks([ lower, upper ] : [ number, number ]) : [ number, number, number ] {
 		const average = roundToDecimals((lower + upper) / 2, 1);
 
 		return [
@@ -36,19 +57,72 @@
 		];
 	}
 
-	function parseXTickTextAnchor(index : number, xTicks : number[], padding : Padding) : 'middle' | 'start' | 'end' {
-		if (index === xTicks.length - 1) {
-			return 'end';
-		} else if (index === 0 && padding.left === 0) {
-			return 'start';
-		} else {
-			return 'middle';
+	let xAxisTickTextElements : SVGTextElement[] = [];
+
+	async function testXTickOverlap(coordinates? : Coordinate[]) : Promise<void> {
+		await sleep(10);
+
+		xAxisTickTextElements
+			.forEach((element) => element?.classList.remove('rotate'));
+
+		let previousRightEdge : number = 0;
+		let hasOverlap = false;
+
+		for (const element of xAxisTickTextElements) {
+			const { left, right } = element?.getClientRects()?.[0] ?? {};
+
+			if (previousRightEdge && left < previousRightEdge + 1) {
+				hasOverlap = true;
+
+				break;
+			}
+
+			previousRightEdge = right;
 		}
+
+		if (!hasOverlap) {
+			return;
+		}
+
+		xAxisTickTextElements
+			.forEach((element) => element?.classList.add('rotate'));
 	}
+
+	onMount(testXTickOverlap);
+
+	$: testXTickOverlap(coordinates);
 </script>
 
 
 <style lang="scss">
+	.x-axis {
+		text {
+			text-anchor: middle;
+			transition: transform 500ms 50ms ease-in-out;
+
+			&.start {
+				text-anchor: start;
+			}
+
+			&.end {
+				text-anchor: end;
+			}
+		}
+
+		// double up on ".rotate" class to add specificity
+		// and overwrite upstream styles
+		:global(text.rotate.rotate) {
+			text-anchor: start;
+			transform: translate(-6px, -3px) rotate(20deg);
+		}
+	}
+
+	.y-axis {
+		text {
+			text-anchor: start;
+		}
+	}
+
 	.tick {
 		font-size: 0.725em;
 		font-weight: 200;
@@ -71,25 +145,6 @@
 </style>
 
 
-<!-- y axis -->
-<g class="axis y-axis" transform="translate(0, { padding.bottom })">
-	{#each yTicks as tick, index }
-		<g
-			class="tick tick-{ index }"
-			transform="translate(0, { yScale(tick) - padding.bottom })"
-		>
-			<line x2="100%"></line>
-
-			{#if !hideYTicks }
-				<text
-					y="-4"
-					text-anchor="start"
-				>{ formatYValue(tick, yTicks) }</text>
-			{/if}
-		</g>
-	{/each}
-</g>
-
 <!-- x axis -->
 <g class="axis x-axis">
 	{#each xTicks as tick, index }
@@ -106,10 +161,29 @@
 
 			{#if !hideXTicks }
 				<text
+					bind:this={ xAxisTickTextElements[ index ] }
 					y="-2"
-					text-anchor={ parseXTickTextAnchor(index, xTicks, padding) }
+					class:start={ index === 0 && padding.left === 0 }
+					class:end={ index === xTicks.length - 1 }
 				>{ formatXValue(tick, xTicks) }</text>
 			{/if }
+		</g>
+	{/each}
+</g>
+
+
+<!-- y axis -->
+<g class="axis y-axis" transform="translate(0, { padding.bottom })">
+	{#each yTicks as tick, index }
+		<g
+			class="tick tick-{ index }"
+			transform="translate(0, { yScale(tick) - padding.bottom })"
+		>
+			<line x2="100%"></line>
+
+			{#if !hideYTicks }
+				<text y="-4">{ formatYValue(tick, yTicks) }</text>
+			{/if}
 		</g>
 	{/each}
 </g>

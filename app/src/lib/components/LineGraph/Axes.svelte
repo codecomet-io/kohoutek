@@ -139,7 +139,11 @@
 		}
 
 		text {
-			fill: #666;
+			fill: hsl(0, 0%, 40%);
+
+			@media (prefers-color-scheme: dark) {
+				fill: hsl(0, 0%, 60%);
+			}
 		}
 	}
 </style>

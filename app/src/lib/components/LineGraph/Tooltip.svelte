@@ -101,9 +101,31 @@
 		transition-property: opacity;
 		transition-duration: 150ms;
 		transition-timing-function: ease-in-out;
+	}
 
-		text {
-			font-weight: bold;
+	text,
+	circle {
+		fill: hsl(0, 0%, 10%);
+
+		@media (prefers-color-scheme: dark) {
+			fill: hsl(0, 0%, 90%);
+		}
+	}
+
+	text {
+		text-anchor: middle;
+		font-weight: bold;
+	}
+
+	path {
+		opacity: 0.75;
+		fill: none;
+		stroke-width: 1.5;
+		stroke-dasharray: 1;
+		stroke: hsl(0, 0%, 10%);
+
+		@media (prefers-color-scheme: dark) {
+			stroke: hsl(0, 0%, 90%);
 		}
 	}
 </style>
@@ -133,20 +155,9 @@
 	fill="currentColor"
 	transform="translate({ xScale( tooltipCoordinates[0] ) } { yScale( tooltipCoordinates[1] ) })"
 >
-	<text
-		text-anchor="middle"
-		fill="hsl(0, 0%, 10%)"
-		y="-10"
-	>{ formatYValue( tooltipCoordinates[1] ) }</text>
+	<text y="-10">{ formatYValue( tooltipCoordinates[1] ) }</text>
 
-	<path
-		opacity="0.75"
-		fill="none"
-		stroke="hsl(0, 0%, 10%)"
-		stroke-width="1.5"
-		stroke-dasharray="1"
-		d="M 0 0 v { height - padding.bottom - yScale( tooltipCoordinates[1] ) }"
-	/>
+	<path d="M 0 0 v { height - padding.bottom - yScale( tooltipCoordinates[1] ) }" />
 
-	<circle r="5" fill="hsl(0, 0%, 10%)" />
+	<circle r="5" />
 </g>

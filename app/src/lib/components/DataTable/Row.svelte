@@ -87,15 +87,24 @@
 				right: 1.25px;
 				bottom: 2px;
 				left: 1.25px;
+				z-index: -1;
 			}
 		}
 
 		&.best::after {
 			background-color: rgba(49, 197, 25, 0.13);
+
+			@media (prefers-color-scheme: dark) {
+				background-color: rgba(49, 197, 25, 0.4);
+			}
 		}
 
 		&.worst::after {
 			background-color: rgba(201, 23, 23, 0.1);
+
+			@media (prefers-color-scheme: dark) {
+				background-color: rgba(201, 23, 23, 0.5);
+			}
 		}
 	}
 </style>

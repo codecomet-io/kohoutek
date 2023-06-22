@@ -22,7 +22,8 @@
 
 	$: rectangleWidth = ( width - padding.left - padding.right ) / ( tooltipCount - 1 );
 
-	let activeTooltip : undefined | Coordinate;
+	let activeTooltip : boolean = false;
+	let tooltipCoordinates : Coordinate = [ 0, 0 ];
 
 	function getCoordinates(pathLineElement : SVGPathElement) : Coordinate[] {
 		if (!pathLineElement?.getPointAtLength) {
@@ -66,44 +67,60 @@
 	}
 
 	function updateActiveTooltip(coord? : Coordinate) : void {
-		activeTooltip = coord;
+		activeTooltip = coord != null;
+
+		if (activeTooltip) {
+			tooltipCoordinates = coord;
+		}
 	}
 </script>
 
 
 <style lang="scss">
 	.tooltip {
+		opacity: 0;
+		transition-property: opacity;
+		transition-duration: 150ms;
+		transition-timing-function: ease-in-out;
+
+		&.active {
+			opacity: 1;
+		}
+
 		text {
 			font-weight: bold;
 		}
 	}
+
+	rect {
+		outline: none;
+	}
 </style>
 
 
-{#if activeTooltip }
-	<g
-		class="tooltip"
-		fill="currentColor"
-		transform="translate({ xScale( activeTooltip[0] ) } { yScale( activeTooltip[1] ) })"
-	>
-		<text
-			text-anchor="middle"
-			fill="hsl(0, 0%, 10%)"
-			y="-10"
-		>{ formatYValue( activeTooltip[1] ) }</text>
+<g
+	class="tooltip"
+	class:active={ activeTooltip }
+	fill="currentColor"
+	transform="translate({ xScale( tooltipCoordinates[0] ) } { yScale( tooltipCoordinates[1] ) })"
+>
+	<text
+		text-anchor="middle"
+		fill="hsl(0, 0%, 10%)"
+		y="-10"
+	>{ formatYValue( tooltipCoordinates[1] ) }</text>
 
-		<path
-			opacity="0.75"
-			fill="none"
-			stroke="hsl(0, 0%, 10%)"
-			stroke-width="1.5"
-			stroke-dasharray="1"
-			d="M 0 0 v { height - padding.bottom - yScale( activeTooltip[1] ) }"
-		/>
+	<path
+		opacity="0.75"
+		fill="none"
+		stroke="hsl(0, 0%, 10%)"
+		stroke-width="1.5"
+		stroke-dasharray="1"
+		d="M 0 0 v { height - padding.bottom - yScale( tooltipCoordinates[1] ) }"
+	/>
 
-		<circle r="5" fill="hsl(0, 0%, 10%)" />
-	</g>
-{/if}
+	<circle r="5" fill="hsl(0, 0%, 10%)" />
+</g>
 
 <g
 	on:mouseout={ () => updateActiveTooltip() }

@@ -2,7 +2,7 @@
 	lang="ts"
 	context="module"
 >
-	import type { Coordinate } from '$lib/types/data-table';
+	import type { Coordinate } from '$lib/types/aggregated-headline-data';
 	import type { Padding, FormatValueFunction } from '$lib/types/line-graph';
 </script>
 
@@ -22,7 +22,6 @@
 
 	$: rectangleWidth = ( width - padding.left - padding.right ) / ( tooltipCount - 1 );
 
-	let activeTooltip : boolean = false;
 	let tooltipCoordinates : Coordinate = [ 0, 0 ];
 
 	function getCoordinates(pathLineElement : SVGPathElement) : Coordinate[] {
@@ -66,41 +65,71 @@
 		return point.y
 	}
 
-	function updateActiveTooltip(coord? : Coordinate) : void {
-		activeTooltip = coord != null;
+	function handleTooltipTriggerMouseEnter(event : any, coord : Coordinate) : void {
+		event?.target?.focus();
+		event?.target?.blur();
 
-		if (activeTooltip) {
-			tooltipCoordinates = coord;
-		}
+		updateTooltipCoordinates(coord);
+	}
+
+	function updateTooltipCoordinates(coord : Coordinate) : void {
+		tooltipCoordinates = coord;
 	}
 </script>
 
 
 <style lang="scss">
+	.tooltip-trigger,
+	rect {
+		outline: none;
+	}
+
+	.tooltip-trigger {
+		opacity: 0;
+
+		&:hover,
+		&:focus {
+			~ .tooltip {
+				opacity: 1;
+			}
+		}
+	}
+
 	.tooltip {
 		opacity: 0;
+		pointer-events: none;
 		transition-property: opacity;
 		transition-duration: 150ms;
 		transition-timing-function: ease-in-out;
-
-		&.active {
-			opacity: 1;
-		}
 
 		text {
 			font-weight: bold;
 		}
 	}
-
-	rect {
-		outline: none;
-	}
 </style>
 
 
+<!-- rectangles included atop the visualization to manage mouse events  -->
+{#each getCoordinates(pathLineElement) as coord }
+	<!-- upon entering the rectangle, update the tooltip with the coordinates point behind the respective rectangle -->
+	<g
+		class="tooltip-trigger"
+		tabindex="0"
+		transform="translate({ xScale( coord[0] ) } 0)"
+		on:mouseenter="{(event) => { handleTooltipTriggerMouseEnter(event, coord) }}"
+		on:focus="{() => { updateTooltipCoordinates(coord) }}"
+	>
+		<!-- width + 1 to avoid gaps between rectangles -->
+		<rect
+			width={ rectangleWidth + 1 }
+			{ height }
+			x={ rectangleWidth / 2 * -1 }
+		/>
+	</g>
+{/each}
+
 <g
 	class="tooltip"
-	class:active={ activeTooltip }
 	fill="currentColor"
 	transform="translate({ xScale( tooltipCoordinates[0] ) } { yScale( tooltipCoordinates[1] ) })"
 >
@@ -120,25 +149,4 @@
 	/>
 
 	<circle r="5" fill="hsl(0, 0%, 10%)" />
-</g>
-
-<g
-	on:mouseout={ () => updateActiveTooltip() }
-	on:blur={ () => updateActiveTooltip() }
->
-	{#each getCoordinates(pathLineElement) as coord }
-		<!-- rectangles included atop the visualization to manage mouse events  -->
-		<g transform="translate({ xScale( coord[0] ) } 0)">
-			<!-- upon entering the rectangle, update the tooltip with the coordinates point behind the respective rectangle -->
-			<!-- width + 1 to avoid gaps between rectangles -->
-			<rect
-				on:mouseenter="{() => { updateActiveTooltip(coord) }}"
-				on:focus="{() => { updateActiveTooltip(coord) }}"
-				opacity="0"
-				width={ rectangleWidth + 1 }
-				{ height }
-				x={ rectangleWidth / 2 * -1 }
-			/>
-		</g>
-	{/each}
 </g>

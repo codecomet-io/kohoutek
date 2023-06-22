@@ -2,7 +2,7 @@
 	lang="ts"
 	context="module"
 >
-	import type { Coordinate } from '$lib/types/data-table';
+	import type { Coordinate } from '$lib/types/aggregated-headline-data';
 	import type { ScaleFunction } from '$lib/types/line-graph';
 
 	import { fade } from 'svelte/transition';

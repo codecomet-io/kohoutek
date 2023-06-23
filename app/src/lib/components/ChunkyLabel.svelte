@@ -16,6 +16,7 @@
 
 
 <ion-card-subtitle
+	class="chunky-label"
 	title={ title }
 	class:mixed-case={ !allcaps }
 >

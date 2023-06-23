@@ -28,13 +28,15 @@
 	$: options = parseOptions(runs);
 
 	function parseOptions(runs : Run[]) : Options {
+		const columnMap = getColumnMap();
+
 		return {
 			parseRowLink,
 			parseCellTitle,
+			columnMap,
 			namespace                        : 'runs',
 			initialRows                      : runs,
-			columnMap                        : getColumnMap(),
-			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
+			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(columnMap),
 			defaultTimeFilter                : {
 				key   : 'started',
 				value : [ 'last 30 days' ],
@@ -128,42 +130,45 @@
 		};
 	}
 
-	function getAggregatedHeadlineDataOptionsMap() : AggregatedHeadlineDataOptionsMap {
+	function getAggregatedHeadlineDataOptionsMap(columnMap : ColumnMap) : AggregatedHeadlineDataOptionsMap {
 		return {
 			machineTime : {
-				titleLabel : 'Average Duration',
-				chartLabel : 'All Durations',
-				parse      : storeInstance.machineTime.bind(storeInstance),
+				titleLabel    : 'Average Duration',
+				chartLabel    : 'All Durations',
+				parse         : storeInstance.machineTime.bind(storeInstance),
+				formatYValue  : columnMap.machineTime?.parseDisplayValue,
+				xValueType    : 'date',
+				timeFilterKey : 'started',
+				showTooltips  : true,
 			},
 			runsPerDay : {
-				titleLabel : 'Average Runs Per Day',
-				chartLabel : 'All Runs Per Day',
-				parse      : storeInstance.runsPerDay.bind(storeInstance),
+				titleLabel    : 'Average Runs Per Day',
+				chartLabel    : 'All Runs Per Day',
+				parse         : storeInstance.runsPerDay.bind(storeInstance),
+				formatYValue  : (tick : number) => tick % 1 === 0
+					? tick.toString()
+					: '',
+				xValueType    : 'date',
+				timeFilterKey : 'started',
 			},
 			erroredRate : {
-				titleLabel : 'Average Errored Rate',
-				chartLabel : 'All Errored Rates',
-				parse      : storeInstance.erroredRate.bind(storeInstance),
+				titleLabel    : 'Average Errored Rate',
+				chartLabel    : 'All Errored Rates',
+				parse         : storeInstance.erroredRate.bind(storeInstance),
+				xValueType    : 'date',
+				timeFilterKey : 'started',
+				hideYTicks    : true,
 			},
 			cachedRate : {
-				titleLabel : 'Average Cached Rate',
-				chartLabel : 'All Cached Rates',
-				parse      : storeInstance.cachedRate.bind(storeInstance),
+				titleLabel    : 'Average Cached Rate',
+				chartLabel    : 'All Cached Rates',
+				parse         : storeInstance.cachedRate.bind(storeInstance),
+				formatYValue  : (tick : number) => `${ tick }%`,
+				xValueType    : 'date',
+				timeFilterKey : 'started',
+				showTooltips  : true,
 			},
 		};
-	}
-
-	const formatYValueMap : any = {
-		cachedRate  : (tick : number) => `${ tick }%`,
-		runsPerDay  : (tick : number) => tick % 1 === 0
-			? tick
-			: '',
-	};
-
-	function parseFormatYValue(key : string) : (item : number, items? : number[]) => string {
-		return options.columnMap[ key ]?.parseDisplayValue
-			?? formatYValueMap[ key ]
-			?? ((item : number) => roundToDecimals(item).toString());
 	}
 </script>
 
@@ -176,20 +181,6 @@
 	{ storeInstance }
 	{ options }
 >
-	<svelte:fragment
-		slot="aggregatedChart"
-		let:key
-		let:coordinates
-	>
-		<LineGraph
-			{ coordinates }
-			formatYValue={ parseFormatYValue(key) }
-			hideYTicks={ key === 'erroredRate' }
-			showTooltips={ key === 'machineTime' || key === 'cachedRate' }
-			xValueType="date"
-		/>
-	</svelte:fragment>
-
 	<svelte:fragment
 		slot="cell"
 		let:key

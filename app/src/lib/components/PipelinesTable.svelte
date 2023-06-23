@@ -26,13 +26,15 @@
 	$: options = parseOptions(pipelines);
 
 	function parseOptions(pipelines : Pipeline[]) : Options {
+		const columnMap = getColumnMap();
+
 		return {
 			parseRowLink,
 			parseCellTitle,
+			columnMap,
 			namespace                        : 'pipelines',
 			initialRows                      : pipelines,
-			columnMap                        : getColumnMap(),
-			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(),
+			aggregatedHeadlineDataOptionsMap : getAggregatedHeadlineDataOptionsMap(columnMap),
 			defaultSort                      : {
 				key : 'name',
 			},
@@ -181,40 +183,36 @@
 		};
 	}
 
-	function getAggregatedHeadlineDataOptionsMap() : AggregatedHeadlineDataOptionsMap {
+	function getAggregatedHeadlineDataOptionsMap(columnMap : ColumnMap) : AggregatedHeadlineDataOptionsMap {
 		return {
 			machineTime : {
-				titleLabel : 'Average Machine Time',
-				chartLabel : 'All Machine Time',
-				parse      : storeInstance.machineTime.bind(storeInstance),
+				titleLabel   : 'Average Machine Time',
+				chartLabel   : 'All Machine Time',
+				parse        : storeInstance.machineTime.bind(storeInstance),
+				formatYValue : columnMap.machineTime?.parseDisplayValue,
+				showTooltips : true,
 			},
 			cachedActionsRate : {
-				titleLabel : 'Average Cached Actions Rate',
-				chartLabel : 'All Cached Actions Rate',
-				parse      : storeInstance.cachedActionsRate.bind(storeInstance),
+				titleLabel   : 'Average Cached Actions Rate',
+				chartLabel   : 'All Cached Actions Rate',
+				parse        : storeInstance.cachedActionsRate.bind(storeInstance),
+				formatYValue : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
+				showTooltips : true,
 			},
 			erroredRunRate : {
-				titleLabel : 'Average Errored Rate',
-				chartLabel : 'All Errored Rates',
-				parse      : storeInstance.erroredRunRate.bind(storeInstance),
+				titleLabel   : 'Average Errored Rate',
+				chartLabel   : 'All Errored Rates',
+				parse        : storeInstance.erroredRunRate.bind(storeInstance),
+				formatYValue : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
+				showTooltips : true,
 			},
 			runCount : {
-				titleLabel : 'Average Run Count',
-				chartLabel : 'All Run Counts',
-				parse      : storeInstance.runCount.bind(storeInstance),
+				titleLabel   : 'Average Run Count',
+				chartLabel   : 'All Run Counts',
+				parse        : storeInstance.runCount.bind(storeInstance),
+				showTooltips : true,
 			},
 		};
-	}
-
-	const formatYValueMap : any = {
-		cachedActionsRate : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
-		erroredRunRate    : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
-	};
-
-	function parseFormatYValue(key : string) : (item : number, items? : number[]) => string {
-		return options.columnMap[ key ]?.parseDisplayValue
-			?? formatYValueMap[ key ]
-			?? ((item : number) => roundToDecimals(item).toString());
 	}
 </script>
 
@@ -227,17 +225,6 @@
 	{ storeInstance }
 	{ options }
 >
-	<svelte:fragment
-		slot="aggregatedChart"
-		let:key
-		let:coordinates
-	>
-		<LineGraph
-			{ coordinates }
-			formatYValue={ parseFormatYValue(key) }
-		/>
-	</svelte:fragment>
-
 	<svelte:fragment
 		slot="cell"
 		let:key

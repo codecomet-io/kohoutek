@@ -3,7 +3,7 @@ import type { AnyMap } from 'briznads-helpers';
 import type { AggregatedHeadlineDataOptionsMap } from '$lib/types/aggregated-headline-data';
 
 
-export type ParseDisplayValueFunc = (value : any, index? : number) => string;
+export type ParseDisplayValueFunction = (value : any, index? : number) => string;
 
 export type ColumnType =
 	| 'number'
@@ -20,7 +20,7 @@ export type Column = {
 	unfilterable?                  : boolean;
 	unhideable?                    : boolean;
 	aggregatedColumnDataDirection? : 'ascending' | 'descending';
-	parseDisplayValue?     	       : ParseDisplayValueFunc;
+	parseDisplayValue?     	       : ParseDisplayValueFunction;
 };
 
 export type ColumnMap = {

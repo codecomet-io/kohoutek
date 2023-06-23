@@ -98,15 +98,7 @@
 {#if Object.keys(storeInstance.opts.aggregatedHeadlineDataOptionsMap ?? {}).length > 0 }
 	<AggregatedHeadlineData
 		{ storeInstance }
-		let:key
-		let:coordinates
-	>
-		<slot
-			name="aggregatedChart"
-			{ key }
-			{ coordinates }
-		/>
-	</AggregatedHeadlineData>
+	/>
 {/if}
 
 <div class="table-wrapper">

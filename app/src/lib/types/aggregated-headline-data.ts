@@ -1,12 +1,20 @@
-import type { Row } from '$lib/types/data-table';
+import type { Row, ParseDisplayValueFunction } from '$lib/types/data-table';
+import type { FormatValueFunction, XValueType } from '$lib/types/line-graph';
 
 
 export type AggregatedHeadlineDataParseFunc = (rows : Row[]) => Promise<PartialAggregatedHeadlineData>;
 
 export type AggregatedHeadlineDataOptions = {
-	titleLabel  : string;
-	chartLabel? : string;
-	parse       : AggregatedHeadlineDataParseFunc;
+	titleLabel     : string;
+	parse          : AggregatedHeadlineDataParseFunc;
+	chartLabel?    : string;
+	formatXValue?  : FormatValueFunction | ParseDisplayValueFunction;
+	formatYValue?  : FormatValueFunction | ParseDisplayValueFunction;
+	xValueType?    : XValueType;
+	hideXTicks?    : boolean;
+	hideYTicks?    : boolean;
+	showTooltips?  : boolean;
+	timeFilterKey? : string;
 };
 
 export type AggregatedHeadlineDataOptionsMap = {
@@ -20,6 +28,13 @@ export type AggregatedHeadlineData = {
 	title?            : number | string;
 	chartLabel?       : string;
 	chartCoordinates? : Coordinate[];
+	formatXValue?     : FormatValueFunction | ParseDisplayValueFunction;
+	formatYValue?     : FormatValueFunction | ParseDisplayValueFunction;
+	xValueType?       : XValueType;
+	hideXTicks?       : boolean;
+	hideYTicks?       : boolean;
+	showTooltips?     : boolean;
+	timeFilterKey?    : string;
 };
 
 export type PartialAggregatedHeadlineData = Partial<AggregatedHeadlineData>;

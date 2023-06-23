@@ -1,7 +1,7 @@
 import type { Writable, Readable } from 'svelte/store';
 import type { QueryOptions, AnyMap } from 'briznads-helpers';
 
-import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions, AggregatedColumnDataMap, AggregatedColumnData, ParseDisplayValueFunc } from '$lib/types/data-table';
+import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions, AggregatedColumnDataMap, AggregatedColumnData, ParseDisplayValueFunction } from '$lib/types/data-table';
 import type { AggregatedHeadlineDataMap } from '$lib/types/aggregated-headline-data';
 
 import { writable, derived, get } from 'svelte/store';
@@ -485,8 +485,15 @@ export class DataTable {
 
 			for (const [ key, value ] of objectEntries(this.opts.aggregatedHeadlineDataOptionsMap ?? {})) {
 				map[ key ] = {
-					titleLabel : value.titleLabel,
-					chartLabel : value.chartLabel,
+					titleLabel    : value.titleLabel,
+					chartLabel    : value.chartLabel,
+					formatXValue  : value.formatXValue,
+					formatYValue  : value.formatYValue,
+					xValueType    : value.xValueType,
+					hideXTicks    : value.hideXTicks,
+					hideYTicks    : value.hideYTicks,
+					showTooltips  : value.showTooltips,
+					timeFilterKey : value.timeFilterKey,
 				};
 			}
 
@@ -564,7 +571,7 @@ export class DataTable {
 		return this.getDisplayValueFunction(key)(value, index);
 	}
 
-	public getDisplayValueFunction(key : string) : ParseDisplayValueFunc {
-		return this.opts?.columnMap?.[ key ]?.parseDisplayValue ?? ((value : any, index? : number) => value?.toString() ?? '');
+	public getDisplayValueFunction(key : string) : ParseDisplayValueFunction {
+		return this.opts?.columnMap?.[ key ]?.parseDisplayValue ?? ((value : any) => value?.toString() ?? '');
 	}
 }

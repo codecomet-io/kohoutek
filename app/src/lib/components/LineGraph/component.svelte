@@ -13,19 +13,19 @@
 	import Axes from '$lib/components/LineGraph/Axes.svelte';
 	import Line from '$lib/components/LineGraph/Line.svelte';
 	import Area from '$lib/components/LineGraph/Area.svelte';
-	import Tooltip from '$lib/components/LineGraph/Tooltip.svelte';
+	import TooltipTimeFilter from '$lib/components/LineGraph/TooltipTimeFilter.svelte';
 </script>
 
 <script lang="ts">
 	export let coordinates : Coordinate[];
 
-	export let formatXValue : FormatValueFunction = (item : number) => roundToDecimals(item).toString();
-	export let formatYValue : FormatValueFunction = (item : number) => roundToDecimals(item).toString();
-
-	export let xValueType   : XValueType = undefined;
-	export let hideXTicks   : boolean = false;
-	export let hideYTicks   : boolean = false;
-	export let showTooltips : boolean = true;
+	export let formatXValue  : FormatValueFunction = defaultFormatValueFunction;
+	export let formatYValue  : FormatValueFunction = defaultFormatValueFunction;
+	export let xValueType    : XValueType          = undefined;
+	export let hideXTicks    : boolean             = false;
+	export let hideYTicks    : boolean             = false;
+	export let showTooltips  : boolean             = false;
+	export let timeFilterKey : undefined | string  = undefined;
 
 	let sanitizedCoordinates : Coordinate[] = [];
 
@@ -50,6 +50,42 @@
 	}
 
 	$: sanitizedCoordinates = sanitizeCoordinates(coordinates, xValueType);
+
+	function parseXValueFunc(xValueType : XValueType, formatXValue : FormatValueFunction) : FormatValueFunction {
+		return xValueType === 'date'
+			? formatXDateValue
+			: formatXValue ?? defaultFormatValueFunction;
+	}
+
+	$: formatXValue = parseXValueFunc(xValueType, formatXValue);
+
+	function formatXDateValue(item : number, items : number[] = []) : string {
+		const date = parseDate(item);
+
+		const options : any = {
+			month : 'short',
+			day   : 'numeric',
+		};
+
+		const getYear = (item : number) => parseDate(item).getFullYear();
+
+		const upper = items[ 0 ];
+		const lower = items[ items.length - 1 ];
+
+		if (getYear(upper) !== getYear(lower)) {
+			options.year = 'numeric';
+		}
+
+		return date.toLocaleString(undefined, options);
+	}
+
+	function defaultFormatValueFunction(item : number) : string {
+		return roundToDecimals(item).toString();
+	}
+
+	$: if (!formatYValue) {
+		formatYValue = defaultFormatValueFunction;
+	}
 
 	let padding : Padding = {
 		top    : 20,
@@ -105,32 +141,6 @@
 	}
 
 	$: init(sanitizedCoordinates, padding);
-
-	function getXValueFunc(xValueType : XValueType, formatXValue : FormatValueFunction) : FormatValueFunction {
-		return xValueType === 'date'
-			? formatXDateValue
-			: formatXValue;
-	}
-
-	function formatXDateValue(item : number, items : number[] = []) : string {
-		const date = parseDate(item);
-
-		const options : any = {
-			month : 'short',
-			day   : 'numeric',
-		};
-
-		const getYear = (item : number) => parseDate(item).getFullYear();
-
-		const upper = items[ 0 ];
-		const lower = items[ items.length - 1 ];
-
-		if (getYear(upper) !== getYear(lower)) {
-			options.year = 'numeric';
-		}
-
-		return date.toLocaleString(undefined, options);
-	}
 
 	let cachedCoordStr : string;
 
@@ -190,14 +200,15 @@
 		width: 100%;
 		height: auto;
 		overflow: visible;
+		position: relative;
 	}
 </style>
 
 
 <svg viewBox="0 0 { width } { height }">
 	<Axes
-		formatXValue={ getXValueFunc(xValueType, formatXValue) }
 		coordinates={ sanitizedCoordinates }
+		{ formatXValue }
 		{ formatYValue }
 		{ hideXTicks }
 		{ hideYTicks }
@@ -226,8 +237,10 @@
 			{ yEndpoints }
 		/>
 
-		{#if showTooltips }
-			<Tooltip
+		{#if showTooltips || (xValueType === 'date' && timeFilterKey) }
+			<TooltipTimeFilter
+				coordinates={ sanitizedCoordinates }
+				{ formatXValue }
 				{ formatYValue }
 				{ xEndpoints }
 				{ width }
@@ -236,6 +249,8 @@
 				{ xScale }
 				{ yScale }
 				{ pathLineElement }
+				{ showTooltips }
+				{ timeFilterKey }
 			/>
 		{/if}
 	{/if}

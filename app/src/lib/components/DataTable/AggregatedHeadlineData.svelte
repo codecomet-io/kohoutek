@@ -78,14 +78,16 @@
 						<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
 					{/if}
 
-					{#if $$slots.default }
-						<slot
-							{ key }
-							coordinates={ data.chartCoordinates }
-						/>
-					{:else }
-						<LineGraph coordinates={ data.chartCoordinates } />
-					{/if }
+					<LineGraph
+						coordinates={ data.chartCoordinates }
+						xValueType={ data.xValueType }
+						formatXValue={ data.formatXValue }
+						formatYValue={ data.formatYValue }
+						hideXTicks={ data.hideXTicks }
+						hideYTicks={ data.hideYTicks }
+						showTooltips={ data.showTooltips }
+						timeFilterKey={ data.timeFilterKey }
+					/>
 				</ion-card-content>
 			</ion-card>
 		{/each}

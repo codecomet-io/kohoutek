@@ -1,6 +1,6 @@
 import type { Cookies } from '@sveltejs/kit';
 
-import type { GitHubUser } from '$lib/types/user';
+import type { GitHubUser } from '$types/user';
 
 import * as jose from 'jose';
 

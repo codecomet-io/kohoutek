@@ -1,42 +1,21 @@
 import type { Firestore as FirestoreType } from 'firebase/firestore';
 
-import type { Pipeline, Run } from '../../../pantry/src/lib/model';
+import type { Pipeline, Run } from '$pantry/types';
 
-import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, getDoc, collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+
+import { firebase } from '$services/firebase';
+
 
 
 export class Firestore {
 	private db : FirestoreType;
-	private firebaseConfig = {
-		apiKey : "AIzaSyBwrlnAn2_Z7ZlzIx4ILbItv2ms2rbsf0Y",
-		authDomain : "kohoutek-349c1.firebaseapp.com",
-		projectId : "kohoutek-349c1",
-		storageBucket : "kohoutek-349c1.appspot.com",
-		messagingSenderId : "656530145205",
-		appId : "1:656530145205:web:c2e6121f21fd8e0b2363fc",
-		measurementId : "G-DEHY2N61K9",
-	};
 
 
 	constructor() {
-		this.db = this.initDb() as FirestoreType;
+		this.db = getFirestore(firebase.app);
 	}
 
-
-	private initDb() : FirestoreType | void {
-		let app;
-
-		try {
-			app = initializeApp(this.firebaseConfig);
-		} catch (e) {
-			console.error(e);
-
-			return;
-		}
-
-		return getFirestore(app);
-	}
 
 	async getPipeline(id : string) : Promise<Pipeline | void> {
 		const docRef = doc(this.db, 'pipelines', id);

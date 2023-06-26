@@ -5,14 +5,14 @@
 	import type { AlertInput, DatetimeCustomEvent } from '@ionic/core';
 	import type { BooleanMap, ValueOf } from 'briznads-helpers';
 
-	import type { FilterMap, TimeFilterNamedValue, AddFilterInfo } from '$lib/types/data-table';
+	import type { FilterMap, TimeFilterNamedValue, AddFilterInfo } from '$types/data-table';
 
-	import type { DataTable } from '$lib/stores/data-table';
+	import type { DataTable } from '$stores/data-table';
 
 	import { onMount } from 'svelte';
 	import { sleep, objectEntries, parseDate, isInvalidDate } from 'briznads-helpers';
 	import { filter as filterIcon, closeCircle, chevronDown } from 'ionicons/icons';
-	import { HEK, getEndpoints, gotoSearchString } from '$lib/helper';
+	import { HEK, getEndpoints, gotoSearchString } from '$utilities/helper';
 </script>
 
 

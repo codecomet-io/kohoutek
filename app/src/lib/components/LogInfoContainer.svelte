@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { GroupedLogs } from '../../../../pantry/src/lib/model';
+	import type { GroupedLogs } from '$pantry/types';
 
 	import Prism from 'svelte-prism';
 	import 'prismjs/components/prism-bash.min.js';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
-	import LogTooltip from '$lib/components/LogTooltip.svelte';
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
+	import LogTooltip from '$components/LogTooltip.svelte';
 
 
 	export let groupedLogs : GroupedLogs;

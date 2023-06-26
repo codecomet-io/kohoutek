@@ -1,12 +1,12 @@
 import type { NumberMap } from 'briznads-helpers';
 
-import type { Row } from '$lib/types/data-table';
-import type { PartialAggregatedHeadlineData, Coordinate } from '$lib/types/aggregated-headline-data';
+import type { Row } from '$types/data-table';
+import type { PartialAggregatedHeadlineData, Coordinate } from '$types/aggregated-headline-data';
 
 import { objectEntries, smartSort, lapsed, roundToDecimals, parseDate } from 'briznads-helpers';
 
-import { getEndpoints } from '$lib/helper';
-import { DataTable } from '$lib/stores/data-table';
+import { getEndpoints } from '$utilities/helper';
+import { DataTable } from '$stores/data-table';
 
 
 class RunsTable extends DataTable {

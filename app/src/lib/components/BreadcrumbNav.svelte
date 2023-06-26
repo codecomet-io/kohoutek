@@ -4,7 +4,7 @@
 >
 	import type { BreadcrumbCustomEvent } from '@ionic/core';
 
-	import type { Pipeline, Run } from '../../../../pantry/src/lib/model';
+	import type { Pipeline, Run } from '$pantry/types';
 </script>
 
 

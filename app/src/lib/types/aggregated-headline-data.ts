@@ -1,5 +1,5 @@
-import type { Row, ParseDisplayValueFunction } from '$lib/types/data-table';
-import type { FormatValueFunction, XValueType } from '$lib/types/line-graph';
+import type { Row, ParseDisplayValueFunction } from '$types/data-table';
+import type { FormatValueFunction, XValueType } from '$types/line-graph';
 
 
 export type AggregatedHeadlineDataParseFunc = (rows : Row[]) => Promise<PartialAggregatedHeadlineData>;

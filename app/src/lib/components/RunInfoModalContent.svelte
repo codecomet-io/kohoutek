@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { Run } from '../../../../pantry/src/lib/model';
+	import type { Run } from '$pantry/types';
 
 	import { getDateString, getTimeString } from 'briznads-helpers';
 
-	import DetailField from '$lib/components/DetailField.svelte';
+	import DetailField from '$components/DetailField.svelte';
 
 
 	export let run : Run;

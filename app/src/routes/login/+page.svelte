@@ -3,7 +3,7 @@
 
 	import { logoGithub, logoGitlab } from 'ionicons/icons';
 
-	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
+	import CodeCometLogo from '$components/CodeCometLogo.svelte';
 
 
 	export let data : PageData;

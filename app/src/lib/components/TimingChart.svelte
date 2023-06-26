@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { TimingInfo } from '../../../../pantry/src/lib/model';
+	import type { TimingInfo } from '$pantry/types';
 
-	import { gotoSearchString } from '$lib/helper';
+	import { gotoSearchString } from '$utilities/helper';
 
-	import { highlight as highlightAccordion } from '$lib/stores/accordion';
+	import { highlight as highlightAccordion } from '$stores/accordion';
 
-	import { timingChartTooltipHelper } from '$lib/actions/timing-chart-tooltip-helper';
+	import { timingChartTooltipHelper } from '$actions/timing-chart-tooltip-helper';
 
-	import TimingInfoTooltip from '$lib/components/TimingInfoTooltip.svelte';
+	import TimingInfoTooltip from '$components/TimingInfoTooltip.svelte';
 
 
 	export let timingInfo : TimingInfo[] = [];

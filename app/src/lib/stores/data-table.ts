@@ -1,11 +1,11 @@
 import type { Writable, Readable } from 'svelte/store';
 import type { QueryOptions, AnyMap } from 'briznads-helpers';
 
-import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions, AggregatedColumnDataMap, AggregatedColumnData, ParseDisplayValueFunction } from '$lib/types/data-table';
-import type { AggregatedHeadlineDataMap } from '$lib/types/aggregated-headline-data';
+import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions, AggregatedColumnDataMap, AggregatedColumnData, ParseDisplayValueFunction } from '$types/data-table';
+import type { AggregatedHeadlineDataMap } from '$types/aggregated-headline-data';
 
 import { writable, derived, get } from 'svelte/store';
-import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, sleep, roundToDecimals } from 'briznads-helpers';
+import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, sleep } from 'briznads-helpers';
 
 
 export class DataTable {

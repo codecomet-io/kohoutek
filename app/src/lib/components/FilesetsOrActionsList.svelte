@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { isListPopulated } from 'briznads-helpers';
 
-	import type { FilesetAction } from '../../../../pantry/src/lib/model';
-	import type { Action } from '../../../../pantry/src/lib/model';
+	import type { FilesetAction } from '$pantry/types';
+	import type { Action } from '$pantry/types';
 
-	import { gotoSearchString } from '$lib/helper';
+	import { gotoSearchString } from '$utilities/helper';
 
-	import { active as activeAccordion } from '$lib/stores/accordion';
+	import { active as activeAccordion } from '$stores/accordion';
 
-	import FilesetsListItem from '$lib/components/FilesetsListItem.svelte';
-	import ActionsListItem from '$lib/components/ActionsListItem.svelte';
+	import FilesetsListItem from '$components/FilesetsListItem.svelte';
+	import ActionsListItem from '$components/ActionsListItem.svelte';
 
 
 	export let filesets : FilesetAction[] | undefined = undefined;

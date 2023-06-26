@@ -2,12 +2,12 @@
 	lang="ts"
 	context="module"
 >
-	import type { DataTable } from '$lib/stores/data-table';
+	import type { DataTable } from '$stores/data-table';
 
 	import { onMount } from 'svelte';
 	import { menu } from 'ionicons/icons';
 
-	import { HEK } from '$lib/helper';
+	import { HEK } from '$utilities/helper';
 </script>
 
 

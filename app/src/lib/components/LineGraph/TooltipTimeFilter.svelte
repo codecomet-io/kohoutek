@@ -2,10 +2,10 @@
 	lang="ts"
 	context="module"
 >
-	import type { Coordinate } from '$lib/types/aggregated-headline-data';
-	import type { Padding, FormatValueFunction } from '$lib/types/line-graph';
+	import type { Coordinate } from '$types/aggregated-headline-data';
+	import type { Padding, FormatValueFunction } from '$types/line-graph';
 
-	import { HEK, gotoSearchString } from '$lib/helper';
+	import { HEK, gotoSearchString } from '$utilities/helper';
 </script>
 
 <script lang="ts">

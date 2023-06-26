@@ -4,10 +4,10 @@
 >
 	import type { PageData } from './$types';
 
-	import { runsTable } from '$lib/stores/runs-table';
+	import { runsTable } from '$stores/runs-table';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
-	import RunsTable from '$lib/components/RunsTable.svelte';
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
+	import RunsTable from '$components/RunsTable.svelte';
 </script>
 
 

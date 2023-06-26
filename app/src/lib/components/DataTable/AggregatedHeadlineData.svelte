@@ -2,11 +2,11 @@
 	lang="ts"
 	context="module"
 >
-	import type { DataTable } from '$lib/stores/data-table';
+	import type { DataTable } from '$stores/data-table';
 
 	import { objectEntries } from 'briznads-helpers';
 
-	import LineGraph from '$lib/components/LineGraph/component.svelte';
+	import LineGraph from '$components/LineGraph/component.svelte';
 </script>
 
 

@@ -1,9 +1,9 @@
-import type { Row } from '$lib/types/data-table';
-import type { PartialAggregatedHeadlineData, Coordinate } from '$lib/types/aggregated-headline-data';
+import type { Row } from '$types/data-table';
+import type { PartialAggregatedHeadlineData, Coordinate } from '$types/aggregated-headline-data';
 
 import { roundToDecimals } from 'briznads-helpers';
 
-import { DataTable } from '$lib/stores/data-table';
+import { DataTable } from '$stores/data-table';
 
 
 class PipelinesTable extends DataTable {

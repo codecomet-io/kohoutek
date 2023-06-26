@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { RunStatus, ActionStatus } from '../../../../pantry/src/lib/model';
+	import type { RunStatus, ActionStatus } from '$pantry/types';
 
 	import { alertCircle, checkmarkCircle, warning } from 'ionicons/icons';
 

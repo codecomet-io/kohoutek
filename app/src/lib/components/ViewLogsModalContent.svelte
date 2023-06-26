@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { FilesetAction, Action, GroupedLogs } from '../../../../pantry/src/lib/model';
+	import type { FilesetAction, Action, GroupedLogs } from '$pantry/types';
 
-	import LogInfoContainer from '$lib/components/LogInfoContainer.svelte';
-	import LogConsoleContainer from '$lib/components/LogConsoleContainer.svelte';
+	import LogInfoContainer from '$components/LogInfoContainer.svelte';
+	import LogConsoleContainer from '$components/LogConsoleContainer.svelte';
 
 
 	export let item : FilesetAction | Action;

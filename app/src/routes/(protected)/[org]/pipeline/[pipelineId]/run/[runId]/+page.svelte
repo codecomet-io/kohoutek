@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 
-	import RunPage from '$lib/components/RunPage.svelte';
+	import RunPage from '$components/RunPage.svelte';
 
 
 	export let data : PageData;

@@ -2,17 +2,17 @@
 	lang="ts"
 	context="module"
 >
-	import type { Pipeline } from '../../../../pantry/src/lib/model';
+	import type { Pipeline } from '$pantry/types';
 
-	import type { Options, ColumnMap } from '$lib/types/data-table';
-	import type { AggregatedHeadlineDataOptionsMap } from '$lib/types/aggregated-headline-data';
+	import type { Options, ColumnMap } from '$types/data-table';
+	import type { AggregatedHeadlineDataOptionsMap } from '$types/aggregated-headline-data';
 
 	import { getDateString, parseDate, getTimeString, lapsed, roundToDecimals } from 'briznads-helpers';
 	import { chevronForwardOutline } from 'ionicons/icons';
-	import { pipelinesTable as storeInstance } from '$lib/stores/pipelines-table';
+	import { pipelinesTable as storeInstance } from '$stores/pipelines-table';
 
-	import DataTable from '$lib/components/DataTable/component.svelte';
-	import LineGraph from '$lib/components/LineGraph/component.svelte';
+	import DataTable from '$components/DataTable/component.svelte';
+	import LineGraph from '$components/LineGraph/component.svelte';
 </script>
 
 

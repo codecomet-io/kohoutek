@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { GroupedLogs } from '../../../../pantry/src/lib/model';
+	import type { GroupedLogs } from '$pantry/types';
 
 	import Prism from 'svelte-prism';
 	import 'prismjs/components/prism-bash.min.js';

@@ -4,10 +4,10 @@
 >
 	import type { PageData } from './$types';
 
-	import { pipelinesTable } from '$lib/stores/pipelines-table';
+	import { pipelinesTable } from '$stores/pipelines-table';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
-	import PipelinesTable from '$lib/components/PipelinesTable.svelte';
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
+	import PipelinesTable from '$components/PipelinesTable.svelte';
 </script>
 
 

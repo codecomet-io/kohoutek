@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { HighlightLogLineBounds } from '$lib/types/log-line';
+	import type { HighlightLogLineBounds } from '$types/log-line';
 
 	import { get } from 'svelte/store';
 
@@ -8,11 +8,11 @@
 
 	import { getDateString } from 'briznads-helpers';
 
-	import { gotoSearchString } from '$lib/helper';
+	import { gotoSearchString } from '$utilities/helper';
 
-	import { highlight, bounds } from '$lib/stores/log-line';
+	import { highlight, bounds } from '$stores/log-line';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
 
 
 	export let line : string;

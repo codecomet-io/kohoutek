@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { GroupedLogs } from '../../../../pantry/src/lib/model';
+	import type { GroupedLogs } from '$pantry/types';
 
-	import LogConsoleLine from '$lib/components/LogConsoleLine.svelte';
+	import LogConsoleLine from '$components/LogConsoleLine.svelte';
 
 
 	export let groupedLogs : GroupedLogs;

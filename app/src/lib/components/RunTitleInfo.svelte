@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { Run } from '../../../../pantry/src/lib/model';
+	import type { Run } from '$pantry/types';
 
 	import { lapsed } from 'briznads-helpers';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
-	import Ago from '$lib/components/Ago.svelte';
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import ModalHeader from '$lib/components/ModalHeader.svelte';
-	import RunInfoModalContent from '$lib/components/RunInfoModalContent.svelte';
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
+	import Ago from '$components/Ago.svelte';
+	import StatusIcon from '$components/StatusIcon.svelte';
+	import ModalHeader from '$components/ModalHeader.svelte';
+	import RunInfoModalContent from '$components/RunInfoModalContent.svelte';
 
 
 	export let run : Run;

@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { ActionType } from '../../../../pantry/src/lib/model';
+	import type { ActionType } from '$pantry/types';
 
 	import { receiptOutline } from 'ionicons/icons';
-	import { RunStatus, ActionStatus, FilesetType } from '../../../../pantry/src/lib/model';
+	import { RunStatus, ActionStatus, FilesetType } from '$pantry/types';
 
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
+	import StatusIcon from '$components/StatusIcon.svelte';
+	import FilesetOrActionTypeIcon from '$components/FilesetOrActionTypeIcon.svelte';
 
 
 	type GroupedIconsList = IconGroup[]

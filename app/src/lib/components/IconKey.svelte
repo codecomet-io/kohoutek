@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { popoverController } from 'ionic-svelte';
 
-	import IconKeyPopover from '$lib/components/IconKeyPopover.svelte';
+	import IconKeyPopover from '$components/IconKeyPopover.svelte';
 
 
 	async function showPopover(event : any) {

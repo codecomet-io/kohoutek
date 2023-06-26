@@ -2,8 +2,8 @@
 	lang="ts"
 	context="module"
 >
-	import type { Coordinate } from '$lib/types/aggregated-headline-data';
-	import type { ScaleFunction } from '$lib/types/line-graph';
+	import type { Coordinate } from '$types/aggregated-headline-data';
+	import type { ScaleFunction } from '$types/line-graph';
 
 	import { fade } from 'svelte/transition';
 	import { sineInOut } from 'svelte/easing';

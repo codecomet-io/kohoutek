@@ -1,6 +1,6 @@
 import type { Writable, Readable } from 'svelte/store';
 
-import type { HighlightLogLineBounds } from '$lib/types/log-line';
+import type { HighlightLogLineBounds } from '$types/log-line';
 
 import { writable, derived } from 'svelte/store';
 

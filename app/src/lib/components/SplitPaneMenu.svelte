@@ -2,17 +2,17 @@
 	lang="ts"
 	context="module"
 >
-	import type { Pipeline, Run } from '../../../../pantry/src/lib/model';
+	import type { Pipeline, Run } from '$pantry/types';
 
-	import type { GitHubUser } from '$lib/types/user';
+	import type { GitHubUser } from '$types/user';
 
 	import { createEventDispatcher } from 'svelte';
 	import { stopOutline, cubeOutline } from 'ionicons/icons';
 
-	import { HEK } from '$lib/helper';
-	import { spatialMode } from '$lib/stores/ui-toggles';
+	import { HEK } from '$utilities/helper';
+	import { spatialMode } from '$stores/ui-toggles';
 
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
+	import StatusIcon from '$components/StatusIcon.svelte';
 </script>
 
 

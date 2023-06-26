@@ -1,10 +1,10 @@
-import type { GitHubUser } from '$lib/types/user';
+import type { GitHubUser } from '$types/user';
 
 import type { LayoutServerLoad } from './$types';
 
 import { redirect } from '@sveltejs/kit';
 
-import { Authentication } from '$lib/authentication.server';
+import { Authentication } from '$services/authentication.server';
 
 
 export const load = (async ({ cookies, url }) => {

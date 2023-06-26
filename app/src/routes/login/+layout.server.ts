@@ -1,6 +1,6 @@
 import type { LayoutServerLoad } from './$types';
 
-import { Authentication } from '$lib/authentication.server';
+import { Authentication } from '$services/authentication.server';
 
 
 export const load = (async ({ cookies }) => {

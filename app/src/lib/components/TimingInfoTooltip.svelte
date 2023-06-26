@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { TimingInfo } from '../../../../pantry/src/lib/model';
+	import type { TimingInfo } from '$pantry/types';
 
 	import { lapsed } from 'briznads-helpers';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
 
 
 	export let timingInfo : TimingInfo;

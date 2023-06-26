@@ -2,6 +2,8 @@
 	lang="ts"
 	context="module"
 >
+	import { onMount } from 'svelte';
+
 	/* Import all components - or do partial loading - see below */
 	// import 'ionic-svelte/components/all'
 
@@ -76,12 +78,14 @@
 		Discord channel on Ionic server - https://discordapp.com/channels/520266681499779082/1049388501629681675
 	*/
 
-	/* Theme variables */
-	import '../theme/variables.css';
-
 	import { setupIonicBase } from 'ionic-svelte';
 
-	import { spatialMode } from '$lib/stores/ui-toggles';
+	import { GA } from '$services/ga';
+
+	import { spatialMode } from '$stores/ui-toggles';
+
+	/* Theme variables */
+	import '../theme/variables.css';
 
 	/* Call Ionic's setup routine */
 	setupIonicBase({
@@ -91,7 +95,13 @@
 </script>
 
 
-<script lang="ts"></script>
+<script lang="ts">
+	let ga : GA;
+
+	onMount(() => {
+		ga = new GA();
+	});
+</script>
 
 
 <style lang="scss">

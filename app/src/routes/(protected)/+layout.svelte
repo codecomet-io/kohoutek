@@ -7,12 +7,12 @@
 	import { onMount } from 'svelte';
 	import { sleep } from 'briznads-helpers';
 
-	import { scrollContainer } from '$lib/stores/scroll-container';
-	import { spatialMode } from '$lib/stores/ui-toggles';
+	import { scrollContainer } from '$stores/scroll-container';
+	import { spatialMode } from '$stores/ui-toggles';
 
-	import SplitPaneMenu from '$lib/components/SplitPaneMenu.svelte';
-	import GlobalHeader from '$lib/components/GlobalHeader.svelte';
-	import GlobalFooter from '$lib/components/GlobalFooter.svelte';
+	import SplitPaneMenu from '$components/SplitPaneMenu.svelte';
+	import GlobalHeader from '$components/GlobalHeader.svelte';
+	import GlobalFooter from '$components/GlobalFooter.svelte';
 </script>
 
 

@@ -2,9 +2,9 @@
 	lang="ts"
 	context="module"
 >
-	import type { DataTable } from '$lib/stores/data-table';
+	import type { DataTable } from '$stores/data-table';
 
-	import Sort from '$lib/components/DataTable/Sort.svelte';
+	import Sort from '$components/DataTable/Sort.svelte';
 </script>
 
 

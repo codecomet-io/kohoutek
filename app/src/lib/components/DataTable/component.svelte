@@ -2,17 +2,17 @@
 	lang="ts"
 	context="module"
 >
-	import type { ColumnMap, Options } from '$lib/types/data-table';
-	import type { DataTable } from '$lib/stores/data-table';
+	import type { ColumnMap, Options } from '$types/data-table';
+	import type { DataTable } from '$stores/data-table';
 
 	import { roundToDecimals } from 'briznads-helpers';
 
-	import Filters from '$lib/components/DataTable/Filters.svelte';
-	import AggregatedHeadlineData from '$lib/components/DataTable/AggregatedHeadlineData.svelte';
-	import ColumnChooser from '$lib/components/DataTable/ColumnChooser.svelte';
-	import Search from '$lib/components/DataTable/Search.svelte';
-	import HeaderRow from '$lib/components/DataTable/HeaderRow.svelte';
-	import Row from '$lib/components/DataTable/Row.svelte';
+	import Filters from '$components/DataTable/Filters.svelte';
+	import AggregatedHeadlineData from '$components/DataTable/AggregatedHeadlineData.svelte';
+	import ColumnChooser from '$components/DataTable/ColumnChooser.svelte';
+	import Search from '$components/DataTable/Search.svelte';
+	import HeaderRow from '$components/DataTable/HeaderRow.svelte';
+	import Row from '$components/DataTable/Row.svelte';
 </script>
 
 

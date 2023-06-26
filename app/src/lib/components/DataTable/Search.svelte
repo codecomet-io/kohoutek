@@ -2,9 +2,9 @@
 	lang="ts"
 	context="module"
 >
-	import type { DataTable } from '$lib/stores/data-table';
+	import type { DataTable } from '$stores/data-table';
 
-	import { gotoSearchString } from '$lib/helper';
+	import { gotoSearchString } from '$utilities/helper';
 </script>
 
 

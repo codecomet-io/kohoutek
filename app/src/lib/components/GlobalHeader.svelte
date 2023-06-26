@@ -2,18 +2,18 @@
 	lang="ts"
 	context="module"
 >
-	import type { Pipeline, Run } from '../../../../pantry/src/lib/model';
+	import type { Pipeline, Run } from '$pantry/types';
 
-	import type { GitHubUser } from '$lib/types/user';
+	import type { GitHubUser } from '$types/user';
 
 	import { chevronDown, stopOutline, cubeOutline } from 'ionicons/icons';
 	import { createEventDispatcher } from 'svelte';
 
-	import { HEK } from '$lib/helper';
-	import { spatialMode } from '$lib/stores/ui-toggles';
+	import { HEK } from '$utilities/helper';
+	import { spatialMode } from '$stores/ui-toggles';
 
-	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
-	import BreadcrumbNav from '$lib/components/BreadcrumbNav.svelte';
+	import CodeCometLogo from '$components/CodeCometLogo.svelte';
+	import BreadcrumbNav from '$components/BreadcrumbNav.svelte';
 </script>
 
 

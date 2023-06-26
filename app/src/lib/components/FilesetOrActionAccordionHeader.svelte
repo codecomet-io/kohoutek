@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { FilesetAction, Action } from '../../../../pantry/src/lib/model';
+	import type { FilesetAction, Action } from '$pantry/types';
 
 	import { receiptOutline } from 'ionicons/icons';
 
 	import { lapsed } from 'briznads-helpers';
 
-	import { gotoSearchString } from '$lib/helper';
+	import { gotoSearchString } from '$utilities/helper';
 
-	import FilesetOrActionTypeIcon from '$lib/components/FilesetOrActionTypeIcon.svelte';
-	import StatusIcon from '$lib/components/StatusIcon.svelte';
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import FilesetOrActionTypeIcon from '$components/FilesetOrActionTypeIcon.svelte';
+	import StatusIcon from '$components/StatusIcon.svelte';
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
 
 
 	export let item : FilesetAction | Action;

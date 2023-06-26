@@ -1,12 +1,12 @@
 import type { LayoutLoad } from './$types';
-import type { Pipeline, Run } from '../../../../pantry/src/lib/model';
+import type { Pipeline, Run } from '$pantry/types';
 
 import { Octokit } from 'octokit';
 import { error } from '@sveltejs/kit';
 
 import { browser } from '$app/environment';
 
-import { Firestore } from '$lib/firestore';
+import { Firestore } from '$services/firestore';
 
 
 export const load = (async ({ params, data, url }) => {

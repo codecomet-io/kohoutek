@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { FilesetAction, Action } from '../../../../pantry/src/lib/model';
+	import type { FilesetAction, Action } from '$pantry/types';
 
-	import { gotoSearchString } from '$lib/helper';
+	import { gotoSearchString } from '$utilities/helper';
 
-	import { active as activeModal } from '$lib/stores/modal';
+	import { active as activeModal } from '$stores/modal';
 
-	import ViewLogsButton from '$lib/components/ViewLogsButton.svelte';
-	import ModalHeader from '$lib/components/ModalHeader.svelte';
-	import ViewLogsModalContent from '$lib/components/ViewLogsModalContent.svelte';
+	import ViewLogsButton from '$components/ViewLogsButton.svelte';
+	import ModalHeader from '$components/ModalHeader.svelte';
+	import ViewLogsModalContent from '$components/ViewLogsModalContent.svelte';
 
 
 	export let item : FilesetAction | Action;

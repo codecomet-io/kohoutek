@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ActionType, FilesetType } from '../../../../pantry/src/lib/model';
+	import type { ActionType, FilesetType } from '$pantry/types';
 
 	import {
 		colorPaletteOutline,

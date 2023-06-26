@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { FilesetAction, Action } from '../../../../pantry/src/lib/model';
+	import type { FilesetAction, Action } from '$pantry/types';
 
 	import { receiptOutline } from 'ionicons/icons';
 
-	import { gotoSearchString } from '$lib/helper';
+	import { gotoSearchString } from '$utilities/helper';
 
 
 	export let item : FilesetAction | Action;

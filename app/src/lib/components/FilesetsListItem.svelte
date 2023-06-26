@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { FilesetAction } from '../../../../pantry/src/lib/model';
+	import type { FilesetAction } from '$pantry/types';
 
-	import { highlight as highlightAccordion } from '$lib/stores/accordion';
+	import { highlight as highlightAccordion } from '$stores/accordion';
 
-	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
-	import FilesetSpecialFields from '$lib/components/FilesetSpecialFields.svelte';
-	import DetailField from '$lib/components/DetailField.svelte';
-	import ViewLogs from '$lib/components/ViewLogs.svelte';
+	import FilesetOrActionAccordionHeader from '$components/FilesetOrActionAccordionHeader.svelte';
+	import FilesetSpecialFields from '$components/FilesetSpecialFields.svelte';
+	import DetailField from '$components/DetailField.svelte';
+	import ViewLogs from '$components/ViewLogs.svelte';
 
 
 	export let fileset : FilesetAction;

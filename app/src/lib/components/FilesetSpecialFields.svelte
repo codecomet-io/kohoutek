@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { FilesetAction } from '../../../../pantry/src/lib/model';
+	import type { FilesetAction } from '$pantry/types';
 
-	import DetailField from '$lib/components/DetailField.svelte';
+	import DetailField from '$components/DetailField.svelte';
 
 
 	type SpecialField = {

@@ -2,18 +2,18 @@
 	lang="ts"
 	context="module"
 >
-	import type { Coordinate } from '$lib/types/aggregated-headline-data';
-	import type { Padding, FormatValueFunction, XValueType, ScaleFunction } from '$lib/types/line-graph';
+	import type { Coordinate } from '$types/aggregated-headline-data';
+	import type { Padding, FormatValueFunction, XValueType, ScaleFunction } from '$types/line-graph';
 
 	import { onMount } from 'svelte';
 	import { scaleLinear } from 'd3-scale';
 	import { extent } from 'd3-array';
 	import { roundToDecimals, parseDate } from 'briznads-helpers';
 
-	import Axes from '$lib/components/LineGraph/Axes.svelte';
-	import Line from '$lib/components/LineGraph/Line.svelte';
-	import Area from '$lib/components/LineGraph/Area.svelte';
-	import TooltipTimeFilter from '$lib/components/LineGraph/TooltipTimeFilter.svelte';
+	import Axes from '$components/LineGraph/Axes.svelte';
+	import Line from '$components/LineGraph/Line.svelte';
+	import Area from '$components/LineGraph/Area.svelte';
+	import TooltipTimeFilter from '$components/LineGraph/TooltipTimeFilter.svelte';
 </script>
 
 <script lang="ts">

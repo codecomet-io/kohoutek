@@ -2,19 +2,19 @@
 	lang="ts"
 	context="module"
 >
-	import type { Run } from '../../../../pantry/src/lib/model';
+	import type { Run } from '$pantry/types';
 
 	import { sleep } from 'briznads-helpers';
 
-	import { scrollContainer } from '$lib/stores/scroll-container';
-	import { active as activeAccordion } from '$lib/stores/accordion';
-	import { active as activeModal } from '$lib/stores/modal';
-	import { highlight } from '$lib/stores/log-line';
+	import { scrollContainer } from '$stores/scroll-container';
+	import { active as activeAccordion } from '$stores/accordion';
+	import { active as activeModal } from '$stores/modal';
+	import { highlight } from '$stores/log-line';
 
-	import RunHeader from '$lib/components/RunHeader.svelte';
-	import IconKey from '$lib/components/IconKey.svelte';
-	import FilesetsOrActionsList from '$lib/components/FilesetsOrActionsList.svelte';
-	import FilesetsOrActionsHeader from '$lib/components/FilesetsOrActionsHeader.svelte';
+	import RunHeader from '$components/RunHeader.svelte';
+	import IconKey from '$components/IconKey.svelte';
+	import FilesetsOrActionsList from '$components/FilesetsOrActionsList.svelte';
+	import FilesetsOrActionsHeader from '$components/FilesetsOrActionsHeader.svelte';
 </script>
 
 

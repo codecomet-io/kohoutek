@@ -1,6 +1,6 @@
 import type { AnyMap } from 'briznads-helpers';
 
-import type { AggregatedHeadlineDataOptionsMap } from '$lib/types/aggregated-headline-data';
+import type { AggregatedHeadlineDataOptionsMap } from '$types/aggregated-headline-data';
 
 
 export type ParseDisplayValueFunction = (value : any, index? : number) => string;

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { Run } from '../../../../pantry/src/lib/model';
+	import type { Run } from '$pantry/types';
 
-	import RunTitleInfo from '$lib/components/RunTitleInfo.svelte';
-	import CodeCometLogo from '$lib/components/CodeCometLogo.svelte';
-	import TimingChart from '$lib/components/TimingChart.svelte';
+	import RunTitleInfo from '$components/RunTitleInfo.svelte';
+	import CodeCometLogo from '$components/CodeCometLogo.svelte';
+	import TimingChart from '$components/TimingChart.svelte';
 
 
 	export let run : Run;

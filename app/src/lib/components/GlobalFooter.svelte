@@ -5,7 +5,7 @@
 	import { openOutline, logoDiscord, logoTwitter, logoGithub } from 'ionicons/icons';
 	import { objectEntries } from 'briznads-helpers';
 
-	import ChunkyLabel from '$lib/components/ChunkyLabel.svelte';
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
 
 
 	type LinkGroupMap = {

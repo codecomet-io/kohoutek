@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { Action, UtilityAction } from '../../../../pantry/src/lib/model';
+	import type { Action, UtilityAction } from '$pantry/types';
 
 	import { getDateString, getTimeString } from 'briznads-helpers';
 
-	import { gotoSearchString } from '$lib/helper';
+	import { gotoSearchString } from '$utilities/helper';
 
-	import { highlight as highlightAccordion } from '$lib/stores/accordion';
+	import { highlight as highlightAccordion } from '$stores/accordion';
 
-	import FilesetOrActionAccordionHeader from '$lib/components/FilesetOrActionAccordionHeader.svelte';
-	import DetailField from '$lib/components/DetailField.svelte';
-	import ViewLogs from '$lib/components/ViewLogs.svelte';
+	import FilesetOrActionAccordionHeader from '$components/FilesetOrActionAccordionHeader.svelte';
+	import DetailField from '$components/DetailField.svelte';
+	import ViewLogs from '$components/ViewLogs.svelte';
 
 
 	export let action : Action | UtilityAction;

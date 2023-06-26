@@ -408,6 +408,12 @@
 
 	ion-chip {
 		border: 0.5px solid #c8c7cc;
+
+		ion-label {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
 	}
 
 	.add-filter-popover-trigger {

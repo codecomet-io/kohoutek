@@ -10,16 +10,28 @@ import { getAnalytics, logEvent as log } from 'firebase/ga';
 import { firebase } from '$services/firebase';
 
 
-export class GA {
-	private gaInstance : Analytics;
+class GA {
+	private gaInstance! : Analytics;
 
 
-	constructor() {
+	constructor() {}
+
+
+	init() : void {
+		if (this.gaInstance) {
+			return;
+		}
+
 		this.gaInstance = getAnalytics(firebase.app);
 	}
 
+	logEvent(event : string, parameters? : any) : void {
+		if (!this.gaInstance) {
+			this.init();
+		}
 
-	logEvent(event : string) : void {
-		log(this.gaInstance, event);
+		log(this.gaInstance, event, parameters ?? {});
 	}
 }
+
+export const ga = new GA();

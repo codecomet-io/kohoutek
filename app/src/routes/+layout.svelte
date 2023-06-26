@@ -80,7 +80,7 @@
 
 	import { setupIonicBase } from 'ionic-svelte';
 
-	import { GA } from '$services/ga';
+	import { ga } from '$services/ga';
 
 	import { spatialMode } from '$stores/ui-toggles';
 
@@ -96,11 +96,11 @@
 
 
 <script lang="ts">
-	let ga : GA;
+	function initGoogleAnalytics() {
+		ga.init();
+	}
 
-	onMount(() => {
-		ga = new GA();
-	});
+	onMount(initGoogleAnalytics);
 </script>
 
 

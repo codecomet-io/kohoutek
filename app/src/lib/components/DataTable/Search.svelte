@@ -5,6 +5,8 @@
 	import type { DataTable } from '$stores/data-table';
 
 	import { gotoSearchString } from '$utilities/helper';
+
+	import { ga } from '$services/ga';
 </script>
 
 
@@ -23,10 +25,22 @@
 
 		activeSearch.set(search);
 
+		logEvent(search);
+
 		stolenFocus = true;
 	}
 
 	$: updateFromParams(searchParams);
+
+	function logEvent(search_term : string) : void {
+		if (!search_term) {
+			return;
+		}
+
+		ga.logEvent('search', {
+			search_term,
+		});
+	}
 
 	let ionSearchbar : HTMLIonSearchbarElement;
 

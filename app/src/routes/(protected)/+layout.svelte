@@ -102,6 +102,10 @@
 			}
 		}
 	}
+
+	main {
+		padding-bottom: 80px;
+	}
 </style>
 
 

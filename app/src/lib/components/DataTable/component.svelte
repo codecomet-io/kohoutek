@@ -63,7 +63,6 @@
 		overflow-x: auto;
 		margin-left: -16px;
 		margin-right: -16px;
-		margin-bottom: 70px;
 		padding-left: 16px;
 		padding-right: 16px;
 		padding-bottom: 16px;

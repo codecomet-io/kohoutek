@@ -8,8 +8,8 @@ const config = {
 	kit        : {
 		adapter : adapter(),
 		alias   : {
-			'$pantry'       : '../pantry',
 			'$pantry/types' : '../pantry/src/lib/model',
+			'$pantry'       : '../pantry',
 
 			// alias "firebase/analytics" to "firebase/ga" as workaround to strange bug
 			'firebase/ga'   : './node_modules/firebase/analytics',

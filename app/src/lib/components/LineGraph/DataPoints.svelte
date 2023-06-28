@@ -28,6 +28,10 @@
 		fill: #fff;
 		stroke: #239de2;
 		stroke-width: 2;
+
+		@media (prefers-color-scheme: dark) {
+			fill: #000;
+		}
 	}
 </style>
 

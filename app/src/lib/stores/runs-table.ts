@@ -26,9 +26,12 @@ class RunsTable extends DataTable {
 
 		const totalMachineTime = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = lapsed(Math.floor(totalMachineTime / chartCoordinates.length), true);
+		const aggregatedValue = roundToDecimals(totalMachineTime / chartCoordinates.length);
+
+		const title = lapsed(aggregatedValue, true);
 
 		return {
+			aggregatedValue,
 			title,
 			chartCoordinates,
 		};
@@ -65,9 +68,12 @@ class RunsTable extends DataTable {
 
 		smartSort(chartCoordinates, undefined, undefined, '0');
 
-		const title = roundToDecimals(runsByStarted.length / chartCoordinates.length);
+		const aggregatedValue = roundToDecimals(runsByStarted.length / chartCoordinates.length);
+
+		const title = aggregatedValue.toString();
 
 		return {
+			aggregatedValue,
 			title,
 			chartCoordinates,
 		};
@@ -121,9 +127,12 @@ class RunsTable extends DataTable {
 			.filter(([ x, y ] : Coordinate) => y)
 			.length;
 
-		const title = roundToDecimals(total / chartCoordinates.length * 100) + '%';
+		const aggregatedValue = roundToDecimals(total / chartCoordinates.length * 100);
+
+		const title = aggregatedValue + '%';
 
 		return {
+			aggregatedValue,
 			title,
 			chartCoordinates,
 		};
@@ -140,9 +149,12 @@ class RunsTable extends DataTable {
 		const total : number = chartCoordinates
 			.reduce((sum : number, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = roundToDecimals(total / chartCoordinates.length) + '%';
+		const aggregatedValue = roundToDecimals(total / chartCoordinates.length);
+
+		const title = aggregatedValue + '%';
 
 		return {
+			aggregatedValue,
 			title,
 			chartCoordinates,
 		};

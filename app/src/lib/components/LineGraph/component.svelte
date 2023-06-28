@@ -4,6 +4,7 @@
 >
 	import type { Coordinate } from '$types/aggregated-headline-data';
 	import type { Padding, FormatValueFunction, XValueType, ScaleFunction } from '$types/line-graph';
+	import type { ParseDisplayValueFunction } from '$types/data-table';
 
 	import { onMount } from 'svelte';
 	import { scaleLinear } from 'd3-scale';
@@ -19,12 +20,12 @@
 <script lang="ts">
 	export let coordinates : Coordinate[];
 
-	export let formatXValue  : FormatValueFunction = defaultFormatValueFunction;
-	export let formatYValue  : FormatValueFunction = defaultFormatValueFunction;
+	export let formatXValue  : FormatValueFunction | ParseDisplayValueFunction = defaultFormatValueFunction;
+	export let formatYValue  : FormatValueFunction | ParseDisplayValueFunction = defaultFormatValueFunction;
 	export let xValueType    : XValueType          = undefined;
 	export let hideXTicks    : boolean             = false;
 	export let hideYTicks    : boolean             = false;
-	export let showTooltips  : boolean             = false;
+	export let showTooltips  : boolean             = true;
 	export let timeFilterKey : undefined | string  = undefined;
 
 	let sanitizedCoordinates : Coordinate[] = [];
@@ -51,7 +52,7 @@
 
 	$: sanitizedCoordinates = sanitizeCoordinates(coordinates, xValueType);
 
-	function parseXValueFunc(xValueType : XValueType, formatXValue : FormatValueFunction) : FormatValueFunction {
+	function parseXValueFunc(xValueType : XValueType, formatXValue : FormatValueFunction | ParseDisplayValueFunction) : FormatValueFunction | ParseDisplayValueFunction {
 		return xValueType === 'date'
 			? formatXDateValue
 			: formatXValue ?? defaultFormatValueFunction;
@@ -237,7 +238,7 @@
 			{ yEndpoints }
 		/>
 
-		{#if showTooltips || (xValueType === 'date' && timeFilterKey) }
+		{#if showTooltips !== false || (xValueType === 'date' && timeFilterKey) }
 			<TooltipTimeFilter
 				coordinates={ sanitizedCoordinates }
 				{ formatXValue }

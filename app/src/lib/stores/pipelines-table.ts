@@ -17,13 +17,14 @@ class PipelinesTable extends DataTable {
 
 		const total = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
-		let title;
+		const aggregatedValue = roundToDecimals(total / chartCoordinates.length);
 
-		if (this.opts.columnMap.machineTime.parseDisplayValue) {
-			title = this.opts.columnMap.machineTime.parseDisplayValue(total / chartCoordinates.length);
-		}
+		const title = this.opts?.columnMap?.machineTime?.parseDisplayValue
+			? this.opts.columnMap.machineTime.parseDisplayValue(aggregatedValue)
+			: aggregatedValue.toString();
 
 		return {
+			aggregatedValue,
 			title,
 			chartCoordinates,
 		};
@@ -37,9 +38,12 @@ class PipelinesTable extends DataTable {
 
 		const total = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = roundToDecimals(total / chartCoordinates.length) + '%';
+		const aggregatedValue = roundToDecimals(total / chartCoordinates.length);
+
+		const title = aggregatedValue + '%';
 
 		return {
+			aggregatedValue,
 			title,
 			chartCoordinates,
 		};
@@ -53,9 +57,12 @@ class PipelinesTable extends DataTable {
 
 		const total = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = roundToDecimals(total / chartCoordinates.length) + '%';
+		const aggregatedValue = roundToDecimals(total / chartCoordinates.length);
+
+		const title = aggregatedValue + '%';
 
 		return {
+			aggregatedValue,
 			title,
 			chartCoordinates,
 		};
@@ -66,9 +73,12 @@ class PipelinesTable extends DataTable {
 
 		const total = chartCoordinates.reduce((sum, [ x, y ] : Coordinate) => sum + y, 0);
 
-		const title = roundToDecimals(total / chartCoordinates.length);
+		const aggregatedValue = roundToDecimals(total / chartCoordinates.length);
+
+		const title = aggregatedValue.toString();
 
 		return {
+			aggregatedValue,
 			title,
 			chartCoordinates,
 		};

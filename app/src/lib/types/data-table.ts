@@ -58,7 +58,7 @@ export type TimeFilterNamedValue =
 	| 'last 365 days'
 	;
 
-type TimeFilterValue = [ TimeFilterNamedValue ] | [ number, number ];
+export type TimeFilterValue = [ TimeFilterNamedValue ] | [ number, number ];
 
 type TimeFilterMap = {
 	key               : string;

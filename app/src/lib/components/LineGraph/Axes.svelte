@@ -4,6 +4,7 @@
 >
 	import type { Coordinate } from '$types/aggregated-headline-data';
 	import type { FormatValueFunction, ScaleFunction, Padding } from '$types/line-graph';
+	import type { ParseDisplayValueFunction } from '$types/data-table';
 
 	import { onMount } from 'svelte';
 
@@ -13,8 +14,8 @@
 
 <script lang="ts">
 	export let coordinates  : Coordinate[];
-	export let formatXValue : FormatValueFunction = (item) => item.toString();
-	export let formatYValue : FormatValueFunction = (item) => item.toString();
+	export let formatXValue : FormatValueFunction | ParseDisplayValueFunction = (item : number) => item.toString();
+	export let formatYValue : FormatValueFunction | ParseDisplayValueFunction = (item : number) => item.toString();
 	export let hideXTicks   : boolean = false;
 	export let hideYTicks   : boolean = false;
 	export let padding      : Padding;
@@ -156,12 +157,14 @@
 			class="tick tick-{ index }"
 			transform="translate({ xScale(tick) }, { height })"
 		>
-			<line
-				x1="0"
-				y1="-{ height }"
-				x2="0"
-				y2="-{ padding.bottom }"
-			></line>
+			{#if index === 0 }
+				<line
+					x1="0"
+					y1="-{ height }"
+					x2="0"
+					y2="-{ padding.bottom }"
+				></line>
+			{/if}
 
 			{#if !hideXTicks }
 				<text

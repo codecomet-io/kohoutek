@@ -190,27 +190,23 @@
 				chartLabel   : 'All Machine Time',
 				parse        : storeInstance.machineTime.bind(storeInstance),
 				formatYValue : columnMap.machineTime?.parseDisplayValue,
-				showTooltips : true,
 			},
 			cachedActionsRate : {
 				titleLabel   : 'Average Cached Actions Rate',
 				chartLabel   : 'All Cached Actions Rate',
 				parse        : storeInstance.cachedActionsRate.bind(storeInstance),
 				formatYValue : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
-				showTooltips : true,
 			},
 			erroredRunRate : {
 				titleLabel   : 'Average Errored Rate',
 				chartLabel   : 'All Errored Rates',
 				parse        : storeInstance.erroredRunRate.bind(storeInstance),
 				formatYValue : (tick : number) => `${ roundToDecimals(tick, 1) }%`,
-				showTooltips : true,
 			},
 			runCount : {
 				titleLabel   : 'Average Run Count',
 				chartLabel   : 'All Run Counts',
 				parse        : storeInstance.runCount.bind(storeInstance),
-				showTooltips : true,
 			},
 		};
 	}

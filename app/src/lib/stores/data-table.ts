@@ -1,11 +1,11 @@
 import type { Writable, Readable } from 'svelte/store';
-import type { QueryOptions, AnyMap } from 'briznads-helpers';
+import type { QueryOptions, AnyMap, NumberMap } from 'briznads-helpers';
 
-import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterNamedValue, Row, Options, PartialOptions, AggregatedColumnDataMap, AggregatedColumnData, ParseDisplayValueFunction } from '$types/data-table';
-import type { AggregatedHeadlineDataMap } from '$types/aggregated-headline-data';
+import type { ColumnMap, ActiveSort, FilterMap, FiniteFilterValuesMap, AddFilterInfo, TimeFilterValue, TimeFilterNamedValue, Row, Options, PartialOptions, AggregatedColumnDataMap, AggregatedColumnData, ParseDisplayValueFunction } from '$types/data-table';
+import type { AggregatedHeadlineDataMap, TrendDataMap } from '$types/aggregated-headline-data';
 
 import { writable, derived, get } from 'svelte/store';
-import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, sleep } from 'briznads-helpers';
+import { get as getValue, Query, smartSort, smartSortFunction, objectEntries, sleep, deepCopy, roundToDecimals } from 'briznads-helpers';
 
 
 export class DataTable {
@@ -16,10 +16,11 @@ export class DataTable {
 
 	private defaultAggregatedHeadlineDataMap! : AggregatedHeadlineDataMap;
 
-	public opts!                          : Options;
-	public isInitialized                  : boolean = false;
-	public updateAggregatedHeadlineValues : boolean = false;
-	public updateAggregatedColumnValues   : boolean = false;
+	public opts!                               : Options;
+	public isInitialized                       : boolean = false;
+	public updateAggregatedHeadlineValues      : boolean = false;
+	public updateAggregatedColumnValues        : boolean = false;
+	public updateTrendValues                   : boolean = false;
 
 	public columnMap       : Writable<ColumnMap>;
 	public initialRows     : Writable<Row[]>;
@@ -31,14 +32,15 @@ export class DataTable {
 
 	public selectableColumns         : Readable<string[]>;
 	public visibleColumns            : Readable<string[]>;
-	public filteredRows              : Readable<Row[]>;
-	public queriedRows               : Readable<Row[]>;
+	private filteredQueriedRows      : Readable<Row[]>;
 	public rows                      : Readable<Row[]>;
 	public finiteFilterValuesMap     : Readable<FiniteFilterValuesMap>;
 	public filterableColumns         : Readable<string[]>;
 	public selectableFilters         : Readable<string[]>;
 	public aggregatedHeadlineDataMap : Readable<AggregatedHeadlineDataMap>;
 	public aggregatedColumnDataMap   : Readable<AggregatedColumnDataMap>;
+	private trendRows                : Readable<Row[]>;
+	public trendDataMap              : Readable<TrendDataMap>;
 
 
 	constructor() {
@@ -60,14 +62,15 @@ export class DataTable {
 		// setup derived stores
 		this.selectableColumns         = this.initSelectableColumns();
 		this.visibleColumns            = this.initVisibleColumns();
-		this.filteredRows              = this.initFilteredRows();
-		this.queriedRows               = this.initQueriedRows();
+		this.filteredQueriedRows       = this.initFilteredQueriedRows();
 		this.rows                      = this.initRows();
 		this.finiteFilterValuesMap     = this.initFiniteFilterValuesMap();
 		this.filterableColumns         = this.initFilterableColumns();
 		this.selectableFilters         = this.initSelectableFilters();
 		this.aggregatedHeadlineDataMap = this.initAggregatedHeadlineDataMap();
 		this.aggregatedColumnDataMap   = this.initAggregatedColumnDataMap();
+		this.trendRows                 = this.initTrendRows();
+		this.trendDataMap              = this.initTrendDataMap();
 	}
 
 
@@ -111,16 +114,24 @@ export class DataTable {
 		);
 	}
 
-	private initFilteredRows() : Readable<Row[]> {
+	private initFilteredQueriedRows() : Readable<Row[]> {
 		return derived(
 			[
 				this.initialRows,
 				this.filterMap,
+				this.activeSearch,
 			],
 			([
 				$initialRows,
 				$filterMap,
-			]) : Row[] => this.filterRows($initialRows ?? [], $filterMap),
+				$activeSearch,
+			]) : Row[] => {
+				const filteredRows = this.filterRows($initialRows ?? [], $filterMap);
+
+				const filteredQueriedRows = this.searchRows(filteredRows, $activeSearch);
+
+				return filteredQueriedRows;
+			},
 			[],
 		);
 	}
@@ -201,25 +212,11 @@ export class DataTable {
 		return [ now - numericValue, now ];
 	}
 
-	private initQueriedRows() : Readable<Row[]> {
-		return derived(
-			[
-				this.filteredRows,
-				this.activeSearch,
-			],
-			([
-				$filteredRows,
-				$activeSearch,
-			]) : Row[] => this.searchRows($filteredRows, $activeSearch, get(this.selectedColumns)),
-			[],
-		);
-	}
-
-	private searchRows(rows : Row[], search : string, selectedColumns : string[]) : Row[] {
+	private searchRows(rows : Row[], search? : string) : Row[] {
 		return Query.matchObject(
 			rows,
-			search,
-			selectedColumns,
+			search ?? get(this.activeSearch),
+			get(this.selectedColumns),
 			{
 				matchPartialWords   : true,
 				disregardQueryOrder : true,
@@ -231,13 +228,13 @@ export class DataTable {
 	private initRows() : Readable<Row[]> {
 		return derived(
 			[
-				this.queriedRows,
+				this.filteredQueriedRows,
 				this.activeSort,
 			],
 			([
-				$queriedRows,
+				$filteredQueriedRows,
 				$activeSort,
-			]) : Row[] => smartSort($queriedRows, $activeSort.direction, false, $activeSort.key),
+			]) : Row[] => smartSort($filteredQueriedRows, $activeSort.direction, false, $activeSort.key),
 			[],
 		);
 	}
@@ -443,7 +440,7 @@ export class DataTable {
 
 	private initAggregatedHeadlineDataMap() : Readable<AggregatedHeadlineDataMap> {
 		return derived(
-			this.queriedRows,
+			this.filteredQueriedRows,
 			(
 				$rows : Row[],
 				set   : (value : any) => void,
@@ -468,9 +465,16 @@ export class DataTable {
 		const map : AggregatedHeadlineDataMap = {};
 
 		for (const [ key, value ] of objectEntries(this.opts.aggregatedHeadlineDataOptionsMap ?? {})) {
+			const values = this.updateAggregatedHeadlineValues
+				? await value.parse(rows)
+				: undefined;
+
 			map[ key ] = {
 				...this.getDefaultAggregatedHeadlineDataMap()[ key ],
-				...(this.updateAggregatedHeadlineValues ? await value.parse(rows) : undefined),
+				...(this.updateAggregatedHeadlineValues
+					? values
+					: undefined
+				),
 			};
 
 			set(map);
@@ -506,7 +510,7 @@ export class DataTable {
 	private initAggregatedColumnDataMap() : Readable<AggregatedColumnDataMap> {
 		return derived(
 			[
-				this.queriedRows,
+				this.filteredQueriedRows,
 				this.visibleColumns,
 			],
 			(
@@ -565,6 +569,183 @@ export class DataTable {
 			best,
 			worst,
 		};
+	}
+
+	private initTrendRows() : Readable<Row[]> {
+		return derived(
+			[
+				this.initialRows,
+				this.aggregatedHeadlineDataMap,
+			],
+			(
+				[
+					$initialRows,
+					$aggregatedHeadlineDataMap,
+				],
+				set : (value : any) => void,
+			) : void => {
+				const filterMap = get(this.filterMap);
+				const trendDataMap = this.getTrendDataMap($aggregatedHeadlineDataMap);
+
+				if (filterMap[ this.opts?.defaultTimeFilter?.key as string ] && Object.keys(trendDataMap).length > 0) {
+					this.updateTrendValues = true;
+
+					this.setTrendRows($initialRows, filterMap, set);
+				} else {
+					this.updateTrendValues = false;
+
+					set([]);
+				}
+			},
+			[],
+		);
+	}
+
+	private getTrendDataMap(aggregatedHeadlineDataMap : AggregatedHeadlineDataMap) : TrendDataMap {
+		const aggregatedHeadlineValueMap = this.getAggregatedHeadlineValueMap(aggregatedHeadlineDataMap);
+
+		const entries = objectEntries(this.opts?.aggregatedHeadlineDataOptionsMap ?? {})
+			.filter(([ key, value ]) => value.trendDataDirection != null && key in aggregatedHeadlineValueMap)
+			.map(([ key, value ]) => [
+				key,
+				{
+					currentValue : aggregatedHeadlineValueMap[ key ],
+					direction    : value.trendDataDirection,
+				},
+			]);
+
+		return Object.fromEntries(entries);
+	}
+
+	private getAggregatedHeadlineValueMap(aggregatedHeadlineDataMap : AggregatedHeadlineDataMap) : NumberMap {
+		const entries : [ string, number ][] = objectEntries(aggregatedHeadlineDataMap)
+			.filter(([ key, value ]) => value.aggregatedValue != null)
+			.map(([ key, value ]) => [ key, value.aggregatedValue as number ]);
+
+		return Object.fromEntries(entries);
+	}
+
+	private async setTrendRows(rows : Row[], filterMap : FilterMap, set : (value : any) => void) : Promise<void> {
+		sleep(10);
+
+		if (!this.updateTrendValues) {
+			return;
+		}
+
+		const trendFilters = this.parseTrendFilters(filterMap);
+
+		if (!trendFilters) {
+			return;
+		}
+
+		const filteredRows = this.filterRows(rows ?? [], trendFilters);
+
+		const filteredQueriedRows = this.searchRows(filteredRows);
+
+		set(filteredQueriedRows);
+	}
+
+	private parseTrendFilters(currentFilterMap : FilterMap) : void | FilterMap {
+		const timeKey = this.opts?.defaultTimeFilter?.key;
+
+		if (!timeKey)	{
+			return;
+		}
+
+		const filterMap = deepCopy(currentFilterMap);
+
+		const [ currentLower, currentUpper ] = filterMap[ timeKey ] as TimeFilterValue ?? [];
+
+		let numericalLower : number;
+		let numericalUpper : number;
+
+		if (currentUpper == null) {
+			if (typeof currentLower === 'string') {
+				[ numericalLower, numericalUpper ] = this.parseNamedTimeFilterValues(currentLower);
+			} else {
+				return;
+			}
+		} else {
+			[ numericalLower, numericalUpper ] = [ currentLower as number, currentUpper ];
+		}
+
+		const timeRange = numericalUpper - numericalLower;
+
+		filterMap[ timeKey ] = [ numericalLower - timeRange, numericalLower ];
+
+		return filterMap;
+	}
+
+	private initTrendDataMap() : Readable<TrendDataMap> {
+		return derived(
+			[
+				this.aggregatedHeadlineDataMap,
+				this.trendRows,
+			],
+			(
+				[
+					$aggregatedHeadlineDataMap,
+					$trendRows,
+				],
+				set : (value : any) => void,
+			) : void => {
+				const trendDataMap = this.getTrendDataMap($aggregatedHeadlineDataMap);
+
+				if ($trendRows.length > 0 && Object.keys(trendDataMap).length > 0) {
+					this.updateTrendValues = true;
+
+					this.setTrendDataMap($trendRows, trendDataMap, set);
+				} else {
+					this.updateTrendValues = false;
+
+					set({});
+				}
+			},
+			{},
+		);
+	}
+
+	private async setTrendDataMap(rows : Row[], trendDataMap : TrendDataMap, set : (value : any) => void) : Promise<void> {
+		await sleep(10);
+
+		if (!this.updateTrendValues) {
+			return;
+		}
+
+		const map : TrendDataMap = {};
+
+		for (const [ key, value ] of objectEntries(trendDataMap)) {
+			const parse = this.opts.aggregatedHeadlineDataOptionsMap?.[ key ]?.parse;
+
+			if (!parse) {
+				continue;
+			}
+
+			const { aggregatedValue, title } = await parse(rows);
+
+			if (aggregatedValue == null || isNaN(aggregatedValue)) {
+				continue;
+			}
+
+			const previousValue : number = aggregatedValue;
+
+			let changePercent : number = value.currentValue / previousValue * 100 - 100;
+
+			if (isNaN(changePercent)) {
+				continue;
+			}
+
+			changePercent = roundToDecimals(changePercent);
+
+			map[ key ] = {
+				...value,
+				previousValue,
+				changePercent,
+				previousTitle : title,
+			};
+
+			set(map);
+		}
 	}
 
 	public parseDisplayValue(key : string, value : any, index? : number) : string {

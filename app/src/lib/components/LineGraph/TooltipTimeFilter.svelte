@@ -4,14 +4,15 @@
 >
 	import type { Coordinate } from '$types/aggregated-headline-data';
 	import type { Padding, FormatValueFunction } from '$types/line-graph';
+	import type { ParseDisplayValueFunction } from '$types/data-table';
 
 	import { HEK, gotoSearchString } from '$utilities/helper';
 </script>
 
 <script lang="ts">
 	export let coordinates     : Coordinate[];
-	export let formatXValue    : FormatValueFunction = (item) => item.toString();
-	export let formatYValue    : FormatValueFunction = (item) => item.toString();
+	export let formatXValue    : FormatValueFunction | ParseDisplayValueFunction = (item : number) => item.toString();
+	export let formatYValue    : FormatValueFunction | ParseDisplayValueFunction = (item : number) => item.toString();
 	export let xEndpoints      : Coordinate;
 	export let width           : number;
 	export let height          : number;
@@ -173,12 +174,6 @@
 
 				&:hover,
 				&:focus {
-					// opacity: var(--clamp-opacity);
-
-					// .visible-rect {
-					// 	fill: var(--clamp-fill);
-					// }
-
 					~ .clamp-trigger {
 						&:not(.first-clamp):not(.first-clamp ~ .clamp-trigger) {
 							opacity: var(--clamp-range-opacity);
@@ -318,7 +313,7 @@
 		<!-- upon entering the rectangle, update the tooltip with the coordinates point behind the respective rectangle -->
 		<g
 			class="tooltip-clamp-trigger"
-			class:tooltip-trigger={ showTooltips }
+			class:tooltip-trigger={ showTooltips !== false }
 			class:clamp-trigger={ timeFilterKey }
 			class:selected-clamp={ timeFilterKey && clamps.includes(x) }
 			class:first-clamp={ timeFilterKey && x === clamps[0] }
@@ -337,7 +332,7 @@
 					<text y="12.5">{ formatXValue( x ) }</text>
 				{/if }
 
-				{#if !showTooltips || clamps.length > 0 }
+				{#if showTooltips === false || clamps.length > 0 }
 					<rect
 						class="visible-rect"
 						width={ rectangleWidth }
@@ -358,7 +353,7 @@
 		</g>
 	{/each}
 
-	{#if showTooltips }
+	{#if showTooltips !== false }
 		<g
 			class="tooltip"
 			transform="translate({ xScale( tooltipCoordinates[0] ) } { yScale( tooltipCoordinates[1] ) })"

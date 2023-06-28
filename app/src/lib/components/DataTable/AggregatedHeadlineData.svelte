@@ -2,9 +2,12 @@
 	lang="ts"
 	context="module"
 >
+	import type { TrendData, TrendDirectionValue } from '$types/aggregated-headline-data';
 	import type { DataTable } from '$stores/data-table';
 
 	import { objectEntries } from 'briznads-helpers';
+
+	import { arrowUp, arrowDown } from 'ionicons/icons';
 
 	import LineGraph from '$components/LineGraph/component.svelte';
 </script>
@@ -15,7 +18,39 @@
 
 	const {
 		aggregatedHeadlineDataMap,
+		trendDataMap,
 	} = storeInstance;
+
+	function parseTrendBadgeColor(changePercent : number, direction : TrendDirectionValue) : 'success' | 'danger' | 'medium' {
+		if (changePercent === 0 || direction === 'neutral') {
+			return 'medium';
+		} else if (changePercent > 0) {
+			return direction === 'ascending'
+				? 'success'
+				: 'danger';
+		} else {
+			return direction === 'ascending'
+				? 'danger'
+				: 'success';
+		}
+	}
+
+	function parseTrendBadgeTitle(label : string, currentTitle : string, trendData : TrendData) : string {
+		let change : string;
+		let previous : string;
+
+		if ((trendData.changePercent ?? 0) === 0) {
+			change = 'is flat';
+
+			previous = '';
+		} else {
+			change = `represents a ${ Math.abs(trendData.changePercent ?? 0) }% ${ (trendData.changePercent ?? 0) > 0 ? 'increase' : 'decrease' }`;
+
+			previous = `${ trendData.previousTitle } from `;
+		}
+
+		return `${ label } of ${ currentTitle } ${ change } compared to ${ previous }the equivalent previous period.`;
+	}
 </script>
 
 
@@ -47,8 +82,16 @@
 		}
 	}
 
+	ion-card-title {
+		display: inline-block;
+	}
+
 	.no-title {
 		visibility: hidden;
+	}
+
+	ion-badge {
+		margin-left: 0.5em;
 	}
 
 	ion-card-subtitle {
@@ -61,32 +104,49 @@
 
 {#if Object.keys($aggregatedHeadlineDataMap).length > 0 }
 	<div class="aggregate-data-container">
-		{#each objectEntries($aggregatedHeadlineDataMap) as [ key, data ] }
+		{#each objectEntries($aggregatedHeadlineDataMap) as [ key, value ] }
+			{ @const trendData = $trendDataMap[ key ] }
+
 			<ion-card>
 				<ion-card-header>
-					<ion-card-title
-						class:no-title={ !data.title }
-					>
-						{ !data.title ? 'no value' : data.title }
-					</ion-card-title>
+					<div>
+						<ion-card-title
+							class:no-title={ !value.title }
+						>
+							{ value.title || 'no value' }
+						</ion-card-title>
 
-					<ion-card-subtitle>{ data.titleLabel }</ion-card-subtitle>
+						{#if trendData?.changePercent != null }
+							<ion-badge
+								color={ parseTrendBadgeColor(trendData.changePercent, trendData.direction) }
+								title={ parseTrendBadgeTitle(value.titleLabel, value.title ?? '', trendData) }
+							>
+								{ Math.abs(trendData.changePercent) }%
+
+								{#if trendData.changePercent !== 0 }
+									<ion-icon icon={ trendData.changePercent > 0 ? arrowUp : arrowDown }></ion-icon>
+								{/if}
+							</ion-badge>
+						{/if}
+					</div>
+
+					<ion-card-subtitle>{ value.titleLabel }</ion-card-subtitle>
 				</ion-card-header>
 
 				<ion-card-content>
-					{#if data.chartLabel }
-						<ion-card-subtitle>{ data.chartLabel }</ion-card-subtitle>
+					{#if value.chartLabel }
+						<ion-card-subtitle>{ value.chartLabel }</ion-card-subtitle>
 					{/if}
 
 					<LineGraph
-						coordinates={ data.chartCoordinates }
-						xValueType={ data.xValueType }
-						formatXValue={ data.formatXValue }
-						formatYValue={ data.formatYValue }
-						hideXTicks={ data.hideXTicks }
-						hideYTicks={ data.hideYTicks }
-						showTooltips={ data.showTooltips }
-						timeFilterKey={ data.timeFilterKey }
+						coordinates={ value.chartCoordinates ?? [] }
+						xValueType={ value.xValueType }
+						formatXValue={ value.formatXValue }
+						formatYValue={ value.formatYValue }
+						hideXTicks={ value.hideXTicks }
+						hideYTicks={ value.hideYTicks }
+						showTooltips={ value.showTooltips }
+						timeFilterKey={ value.timeFilterKey }
 					/>
 				</ion-card-content>
 			</ion-card>

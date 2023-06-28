@@ -14,6 +14,7 @@
 	import Axes from '$components/LineGraph/Axes.svelte';
 	import Line from '$components/LineGraph/Line.svelte';
 	import Area from '$components/LineGraph/Area.svelte';
+	import DataPoints from '$components/LineGraph/DataPoints.svelte';
 	import TooltipTimeFilter from '$components/LineGraph/TooltipTimeFilter.svelte';
 </script>
 
@@ -222,6 +223,14 @@
 	/>
 
 	{#if sanitizedCoordinates.length > 0 }
+		<Area
+			coordinates={ sanitizedCoordinates }
+			{ xScale }
+			{ yScale }
+			{ isVisible }
+			{ yEndpoints }
+		/>
+
 		<Line
 			bind:pathElement={ pathLineElement }
 			coordinates={ sanitizedCoordinates }
@@ -230,12 +239,11 @@
 			{ isVisible }
 		/>
 
-		<Area
+		<DataPoints
 			coordinates={ sanitizedCoordinates }
 			{ xScale }
 			{ yScale }
 			{ isVisible }
-			{ yEndpoints }
 		/>
 
 		{#if showTooltips !== false || (xValueType === 'date' && timeFilterKey) }

@@ -100,11 +100,11 @@
 		<ion-buttons slot="start">
 			<ion-menu-button class="mobile-only"></ion-menu-button>
 
-			<CodeCometLogo />
+			<CodeCometLogo link="/{ org }/pipelines" />
 		</ion-buttons>
 
 		<div class="center-wrapper">
-			<CodeCometLogo />
+			<CodeCometLogo link="/{ org }/pipelines" />
 
 			<BreadcrumbNav
 				{ org }

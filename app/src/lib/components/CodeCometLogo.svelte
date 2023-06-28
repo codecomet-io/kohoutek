@@ -1,10 +1,29 @@
+<script
+	lang="ts"
+	context="module"
+>
+	import CodeCometLogoInner from '$components/CodeCometLogoInner.svelte';
+</script>
+
+
 <script lang="ts">
+	export let link : undefined | string = undefined;
 	export let context : undefined | 'run-header' = undefined;
+
+	const classes : string[] = [
+		'code-comet-logo',
+	];
+
+	$: if (context) {
+		classes.push(context);
+	}
+
+	const regex = /^https?:\/\//
 </script>
 
 
 <style lang="scss">
-	a {
+	.code-comet-logo {
 		display: flex;
 		flex-wrap: wrap;
 		width: fit-content;
@@ -22,26 +41,19 @@
 		&:hover {
 			color: #5468ff;
 
-			img {
+			:global(img) {
 				transform: translateX(-2px) translateY(2px) scale(110%);
 			}
 		}
 	}
 
-	img {
-		height: 2em;
-		transition: transform 125ms ease-in-out;
-	}
-
-	strong {
-		margin-left: 0.25rem;
-	}
-
 	.run-header {
-		strong {
+		:global(strong) {
 			display: none;
+		}
 
-			@media (min-width: 600px) {
+		@media (min-width: 600px) {
+			:global(strong) {
 				display: block;
 			}
 		}
@@ -49,18 +61,22 @@
 </style>
 
 
-<a
-	class="code-comet-logo{ context ? ' ' + context : '' }"
-	href="https://codecomet.io/"
-	itemtype="http://schema.org/Corporation"
-	itemscope
->
-	<img
-		src="/CodeComet-logo.svg"
-		alt="CodeComet logo showing an illustrated comet entering the atmosphere"
-		itemprop="image"
-		title="visit the CodeComet website for more information"
-	/>
-
-	<strong itemprop="name">CodeComet</strong>
-</a>
+{#if link }
+	<a
+		class={ classes.join(' ') }
+		href={ link }
+		target={ regex.test(link) ? '_blank' : null }
+		itemtype="http://schema.org/Corporation"
+		itemscope
+	>
+		<CodeCometLogoInner />
+	</a>
+{:else}
+	<div
+		class={ classes.join(' ') }
+		itemtype="http://schema.org/Corporation"
+		itemscope
+	>
+		<CodeCometLogoInner />
+	</div>
+{/if}

@@ -69,7 +69,7 @@
 
 
 <main>
-	<CodeCometLogo />
+	<CodeCometLogo link="https://codecomet.io/" />
 
 	<ion-card>
 		<ion-card-header>

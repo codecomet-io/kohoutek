@@ -61,7 +61,10 @@
 		<RunTitleInfo { run } />
 
 		{#if anonymous }
-			<CodeCometLogo context="run-header" />
+			<CodeCometLogo
+				context="run-header"
+				link="https://codecomet.io/"
+			/>
 		{/if}
 	</div>
 

@@ -151,6 +151,7 @@
 				xValueType         : 'date',
 				timeFilterKey      : 'started',
 				trendDataDirection : 'neutral',
+				showTooltips       : false,
 			},
 			erroredRate : {
 				titleLabel         : 'Average Errored Rate',
@@ -159,6 +160,7 @@
 				xValueType         : 'date',
 				timeFilterKey      : 'started',
 				trendDataDirection : 'descending',
+				hideYTicks         : true,
 			},
 			cachedRate : {
 				titleLabel         : 'Average Cached Rate',

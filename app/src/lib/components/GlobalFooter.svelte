@@ -50,6 +50,10 @@
 		],
 		'More'      : [
 			{
+				name : 'Homepage',
+				link : 'https://codecomet.io',
+			},
+			{
 				name : 'GitHub',
 				link : 'https://github.com/codecomet-io',
 				icon : logoGithub,

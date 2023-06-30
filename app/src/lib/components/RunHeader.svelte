@@ -23,14 +23,20 @@
 		}
 
 		&.anonymous {
+			--padding-left-right: var(--padding);
+
+			width: 100vw;
+			margin-top: calc(var(--padding) * -1);
+			margin-left: calc(var(--padding) * -1);
+			padding-top: var(--padding);
+			padding-right: var(--padding-left-right);
+			padding-bottom: var(--padding);
+			padding-left: var(--padding-left-right);
 			background-color: #f7f7f7;
 			border-bottom: 0.55px solid rgba(0, 0, 0, 0.2);
 
 			@media (min-width: 1280px) {
-				--max-width-gutter-padding: calc((100vw - 1280px) / 2 + 16px);
-
-				padding-left: var(--max-width-gutter-padding);
-				padding-right: var(--max-width-gutter-padding);
+				--padding-left-right: calc((100vw - 1280px) / 2);
 			}
 
 			@media (prefers-color-scheme: dark) {

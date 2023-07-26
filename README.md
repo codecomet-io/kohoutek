@@ -1,9 +1,9 @@
 # Kohoutek
-This repository houses 2 distinct projects that collectively enable the CodeComet app: the run parsing app - called Pantry - and the frontend website app - called simply "app". You can refer to the respective sections below for an overview of each project, or the following "Getting Started" section for the quickest way to get moving.
+This open-source repository houses 2 distinct projects that collectively enable the CodeComet app: the run parsing app - called Pantry - and the frontend website app - called simply "app". You can refer to the respective sections below for an overview of each project, or the following "Getting Started" section for the quickest way to get moving.
 
 ### Getting Started
 In your terminal navigate to the repo's root directory, then run the following command:
-```
+```bash
 ./run.sh
 ```
 The above command will do the following:
